@@ -299,7 +299,7 @@ def main():
     datadir = sys.argv[1]
     print(datadir)
     outfile = open(datadir + "dE_RMSD.csv","w")
-    outfile.write("pdb,dE,RMSD,number0,number1\n")
+    outfile.write("pdb,dE_global,RMSD_global,number0,number1\n")
     for fn in pdblist:
         if fn + "_ligand.sdf" in os.listdir(datadir):
             inlig = os.path.join(datadir,fn + "_ligand.sdf")

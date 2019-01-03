@@ -35,8 +35,12 @@ def runVina(fn,protpdbqt, ligpdbqt):
     vinalist = [fn]
     for lines in fileinput.input("score_v1.txt"):
         if lines[0:4] in ["Affi", "Term"]:
-            line = lines.strip("\n").split()
-            vinalist.append(line[1])
+            if sys.platform == "linux":
+                line = lines.strip("\n").split()
+                vinalist.append(line[1])
+            elif sys.platform == "darwin":
+                line = lines.strip("\n").split()
+                vinalist.append(line[2])
 
 
     if len(vinalist) != 60:
@@ -45,17 +49,17 @@ def runVina(fn,protpdbqt, ligpdbqt):
     return vinalist
 
 
-def prepareProt(inprot, protpdbqt,datadir):
+def prepareProt(inprot, protpdbqt):
     """Prepare protein PDBQT file by MGLTools """
 
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_receptor4.py -r " + datadir + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
+    cmd = MGLPY + " "  + MGLUTIL + "prepare_receptor4.py -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
     os.system(cmd)
 
 
-def prepareLig(inlig, ligpdbqt,datadir):
+def prepareLig(inlig, ligpdbqt):
     """Prepare ligand PDBQT file by MGLTools """
 
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l " + datadir +  inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
+    cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
     os.system(cmd)
 
 def featureVina(outfile, fn, inpro, inlig, datadir):
@@ -66,8 +70,8 @@ def featureVina(outfile, fn, inpro, inlig, datadir):
     os.chdir("Feature_Vina")
     protpdbqt = inpro.split(".")[0] + ".pdbqt"
     ligpdbqt = inlig.split(".")[0] + ".pdbqt"
-    prepareProt(inpro,protpdbqt,datadir)
-    prepareLig(inlig,ligpdbqt,datadir)
+    prepareProt(inpro,protpdbqt)
+    prepareLig(inlig,ligpdbqt)
     vinalist = runVina(fn,protpdbqt,ligpdbqt)
     outfile.write( ",".join(vinalist))
     os.chdir(olddir)
@@ -85,7 +89,7 @@ def featureVina_flexible(outfile,fn, inpro, inlig, datadir):
     os.system("cp ../" + inlig + " .")
     protpdbqt = inpro.split(".")[0] + ".pdbqt"
     ligpdbqt = inlig
-    prepareProt(inpro,protpdbqt,datadir)
+    prepareProt(inpro,protpdbqt)
     vinalist = runVina(fn,protpdbqt,ligpdbqt)
     outfile.write( ",".join(vinalist))
     os.chdir(olddir)

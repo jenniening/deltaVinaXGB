@@ -58,47 +58,53 @@ def get_BW(fn,water,lig):
     protein_coord = np.expand_dims(protein_coord_init,0)
     ligand_coord = np.expand_dims(ligand_coord_init,0)
 
-    distance_pw = np.linalg.norm(waters_coord - protein_coord, axis = 2)
-    distance_lw = np.linalg.norm(waters_coord - ligand_coord, axis = 2)
-    distance_pw_min = np.min(distance_pw, axis = 1)
-    distance_lw_min = np.min(distance_lw, axis = 1)
+    if waters_coord.shape[0] == 0:
+        print("No Bridging Water")
+        outfile.close()
 
-    bw_index = []
-    for idx, (i1,i2) in enumerate(zip(distance_pw_min,distance_lw_min)):
-        if i1 > 2.0 and i1 < 3.5 and i2 > 2.0 and i2 < 3.5:
-            bw_index.append(idx)
+    else:
+
+        distance_pw = np.linalg.norm(waters_coord - protein_coord, axis = 2)
+        distance_lw = np.linalg.norm(waters_coord - ligand_coord, axis = 2)
+        distance_pw_min = np.min(distance_pw, axis = 1)
+        distance_lw_min = np.min(distance_lw, axis = 1)
+
+        bw_index = []
+        for idx, (i1,i2) in enumerate(zip(distance_pw_min,distance_lw_min)):
+            if i1 > 2.0 and i1 < 3.5 and i2 > 2.0 and i2 < 3.5:
+                bw_index.append(idx)
     
-    for idx in bw_index:
-        bw_coord = waters_coord_init[idx]
-        bw_distance_p = distance_pw[idx]
-        bw_distance_l = distance_lw[idx]
-        for num1, i1 in enumerate(bw_distance_p):
-            if i1 > 2.0 and i1 < 3.5:
-                p_coord = protein_coord_init[num1]
-                for num2, i2 in enumerate(bw_distance_l):
-                    if i2 > 2.0 and i2 < 3.5:
-                        l_coord = ligand_coord_init[num2]
-                        angle = get_angle(p_coord, bw_coord, l_coord)
-                        if angle >= 60:
-                            bw_line = waters[idx]
-                            bw_chain = get_pdbinfo.chid(bw_line)
-                            if bw_chain != " ":
-                                bw_name = str(int(get_pdbinfo.resi(bw_line))) + "." + get_pdbinfo.chid(bw_line)
-                            else:
-                                bw_name = str(int(get_pdbinfo.resi(bw_line)))
-                            pro_line = protein[num1]
-                            lig_line = lig[num2]
-                            pro_chain = get_pdbinfo.chid(pro_line)
-                            pro_name = get_pdbinfo.resn(pro_line)
-                            if pro_chain != " ":
-                                pro_idx = str(int(get_pdbinfo.resi(pro_line))) + "." + pro_chain 
-                            else:
-                                pro_idx = str(int(get_pdbinfo.resi(pro_line)))
-                            pro_aname = get_pdbinfo.atmn(pro_line).strip()
-                            lig_name = get_pdbinfo.atmn(lig_line).strip()
-                            outline = fn + "," + pro_name + "," + pro_idx + "," + pro_aname + "," + bw_name + "," + lig_name + "," + str(round(i1,2)) + "," + str(round(i2,2)) + "," + str(int(round(angle))) + "\n"
-                            outfile.write(outline)
-    outfile.close()
+        for idx in bw_index:
+            bw_coord = waters_coord_init[idx]
+            bw_distance_p = distance_pw[idx]
+            bw_distance_l = distance_lw[idx]
+            for num1, i1 in enumerate(bw_distance_p):
+                if i1 > 2.0 and i1 < 3.5:
+                    p_coord = protein_coord_init[num1]
+                    for num2, i2 in enumerate(bw_distance_l):
+                        if i2 > 2.0 and i2 < 3.5:
+                            l_coord = ligand_coord_init[num2]
+                            angle = get_angle(p_coord, bw_coord, l_coord)
+                            if angle >= 60:
+                                bw_line = waters[idx]
+                                bw_chain = get_pdbinfo.chid(bw_line)
+                                if bw_chain != " ":
+                                    bw_name = str(int(get_pdbinfo.resi(bw_line))) + "." + get_pdbinfo.chid(bw_line)
+                                else:
+                                    bw_name = str(int(get_pdbinfo.resi(bw_line)))
+                                pro_line = protein[num1]
+                                lig_line = lig[num2]
+                                pro_chain = get_pdbinfo.chid(pro_line)
+                                pro_name = get_pdbinfo.resn(pro_line)
+                                if pro_chain != " ":
+                                    pro_idx = str(int(get_pdbinfo.resi(pro_line))) + "." + pro_chain 
+                                else:
+                                    pro_idx = str(int(get_pdbinfo.resi(pro_line)))
+                                pro_aname = get_pdbinfo.atmn(pro_line).strip()
+                                lig_name = get_pdbinfo.atmn(lig_line).strip()
+                                outline = fn + "," + pro_name + "," + pro_idx + "," + pro_aname + "," + bw_name + "," + lig_name + "," + str(round(i1,2)) + "," + str(round(i2,2)) + "," + str(int(round(angle))) + "\n"
+                                outfile.write(outline)
+        outfile.close()
 
     return None
 

@@ -31,6 +31,6 @@ def path_msms():
     msmsdir = "/home/jl7003/msms/"
     return msmsdir
 
-def path_R():
-    R = "/share/apps/r/3.4.2/intel/bin/R"
+def path_Rscript():
+    R = "/share/apps/r/3.4.2/intel/bin/Rscript"
     return R

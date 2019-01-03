@@ -18,37 +18,41 @@ def get_Ions(fn,lig,pro,infile):
 
     ion_coord = get_pdbinfo.pdbinfo(fn,lines = pro_ions).getCoords()
     lig_coord = get_pdbinfo.pdbinfo(fn,lines = lig_atoms).getCoords()
-
+    
     ion_coord = np.expand_dims(ion_coord, 1)
     lig_coord = np.expand_dims(lig_coord,0)
 
-    distance = np.linalg.norm(ion_coord - lig_coord, axis = 2)
-    distance_min = np.min(distance, axis = 1)
+    if ion_coord.shape[0] == 0:
+        print("No Ion")
+        outfile.close()
+    else:
+        distance = np.linalg.norm(ion_coord - lig_coord, axis = 2)
+        distance_min = np.min(distance, axis = 1)
 
-    ion_index = []
-    for idx, i in enumerate(distance_min):
-        if i < 3.5:
-            ion_index.append(idx)
+        ion_index = []
+        for idx, i in enumerate(distance_min):
+            if i < 3.5:
+                ion_index.append(idx)
 
-    for i in ion_index:
-        ion_line = pro_ions[i]
-        ion_distance = distance[i]
-        ion_chain = get_pdbinfo.chid(ion_line)
-        ion_name = get_pdbinfo.atmn(ion_line).strip()
+        for i in ion_index:
+            ion_line = pro_ions[i]
+            ion_distance = distance[i]
+            ion_chain = get_pdbinfo.chid(ion_line)
+            ion_name = get_pdbinfo.atmn(ion_line).strip()
 
-        ion_chain = get_pdbinfo.chid(ion_line)
-        if ion_chain != " ":
-            ion_idx = str(int(get_pdbinfo.resi(ion_line))) + "." + ion_chain 
-        else:
-            ion_idx = str(int(get_pdbinfo.resi(ion_line)))
+            ion_chain = get_pdbinfo.chid(ion_line)
+            if ion_chain != " ":
+                ion_idx = str(int(get_pdbinfo.resi(ion_line))) + "." + ion_chain 
+            else:
+                ion_idx = str(int(get_pdbinfo.resi(ion_line)))
             
-        for idx, d in enumerate(ion_distance):
-            if d < 3.5:
-                lig_line = lig_atoms[idx]
-                lig_name = get_pdbinfo.atmn(lig_line).strip()
-                outline = fn + "," + ion_idx + "," + ion_name + "," + lig_name + "," + str(round(d,2)) + "\n"
-                outfile.write(outline)
-    outfile.close()
+            for idx, d in enumerate(ion_distance):
+                if d < 3.5:
+                    lig_line = lig_atoms[idx]
+                    lig_name = get_pdbinfo.atmn(lig_line).strip()
+                    outline = fn + "," + ion_idx + "," + ion_name + "," + lig_name + "," + str(round(d,2)) + "\n"
+                    outfile.write(outline)
+        outfile.close()
 
     return None
 

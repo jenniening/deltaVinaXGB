@@ -29,6 +29,6 @@ def path_msms():
     msmsdir = "/Users/jianinglu1/Documents/msms_MacOSX_2.6.1/"
     return msmsdir
 
-def path_R():
-    R = "/usr/local/bin/R"
+def path_Rscript():
+    R = "/usr/local/bin/Rscript"
     return R

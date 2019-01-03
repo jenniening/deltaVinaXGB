@@ -100,7 +100,7 @@ def isWater(line):
 
 class pdbinfo:
 
-    def __init__(self, name, file = None, lines = None):
+    def __init__(self, name = None, file = None, lines = None):
         self.name = name
         if file != None:
             self.file = file

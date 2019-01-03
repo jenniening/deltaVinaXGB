@@ -8,8 +8,8 @@ __license__ = ""
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-import featureSASA_rewrite
-from featureSASA_rewrite import sasa
+import featureSASA
+from featureSASA import sasa
 import fileinput
 import os
 import sys

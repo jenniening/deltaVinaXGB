@@ -110,32 +110,46 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     os.system("cat p_sa.xyzr l_sa.xyzr > pl_sa.xyzr")
 
     # run msms in with radius 1.0 (if fail, will increase to be 1.1)
-    os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
-    os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
-    os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
-    if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-        os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
-        os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
-        os.system(msmsdir + "msms.x86_64Linux2.2.6.1-if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
-        print('1.1')
+    if sys.platform == "linux":
+        os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
+        os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
+        os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
+        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+            os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
+            os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
+            os.system(msmsdir + "msms.x86_64Linux2.2.6.1-if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
+            print('1.1')
+    elif sys.platform == "darwin":
+        os.system(msmsdir + "msms.MacOSX.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
+        os.system(msmsdir + "msms.MacOSX.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
+        os.system(msmsdir + "msms.MacOSX.2.6.1 -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
+        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+            os.system(msmsdir + "msms.MacOSX.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
+            os.system(msmsdir + "msms.MacOSX.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
+            os.system(msmsdir + "msms.MacOSX.2.6.1 -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
+            print('1.1')
 
 
     # read surface area to df2
     df2 = {}
     tmp1 = np.genfromtxt('p_sa.area', skip_header=1)[:,2]
+    num_p = len(tmp1)
     tmp2 = np.genfromtxt('l_sa.area', skip_header=1)[:,2]
+    num_l = len(tmp2)
     tmp3 = np.genfromtxt('pl_sa.area', skip_header=1)[:,2]
     df2[2] = np.append(tmp1, tmp2)
     df2[3] = tmp3
     df2 = pd.DataFrame(df2)
-
     df = pd.concat([df1, df2], axis=1)
     df.columns = ['atm','pharma','pl','c']
+
+    df_pro = df[0:num_p].copy()
+    df_lig = df[num_p:num_p + num_l].copy()
+
     os.chdir('../')
     os.system('rm -rf tmp')
     os.chdir(olddir)
-    return df
-
+    return df, df_pro, df_lig
 
 def featureSASA(datadir, inprot, inlig, write=False):
     """Group the SASA by pharmacophore type
@@ -160,34 +174,58 @@ def featureSASA(datadir, inprot, inlig, write=False):
     #elemstr = [str(i) for i in elemint]
     pharmatype = ['P', 'N', 'DA', 'D', 'A', 'AR', 'H', 'PL', 'HA']
     outdict = {i:0 for i in pharmatype}
+    outdict_pro = {i:0 for i in pharmatype}
+    outdict_lig = {i:0 for i in pharmatype}
 
     # run MSMS
-    df = runMSMS(inprot, inlig, datadir)
+    df,df_pro,df_lig = runMSMS(inprot, inlig, datadir)
 
     ## delta SASA with clip 0 (if value less 0, cut to 0)
     df["d"] = (df["pl"] - df["c"]).clip(0,None)
+    df_pro["d"] = (df_pro["pl"] - df_pro["c"]).clip(0,None)
+    df_lig["d"] = (df_lig["pl"] - df_lig["c"]).clip(0,None)
 
     # group delta sasa by element and pharma type
+    
     dfg =  df.groupby("pharma")["d"].sum()
     dfgdict =  dfg.to_dict()
+
+    dfg_pro =  df_pro.groupby("pharma")["d"].sum()
+    dfgdict_pro =  dfg_pro.to_dict()
+
+    dfg_lig =  df_lig.groupby("pharma")["d"].sum()
+    dfgdict_lig =  dfg_lig.to_dict()
+
 
     # assign grouped dict to outdict
     for i in dfgdict:
         outdict[i] = dfgdict[i]
 
+    for i in dfgdict_pro:
+        outdict_pro[i] = dfgdict_pro[i]
+
+    for i in dfgdict_lig:
+        outdict_lig[i] = dfgdict_lig[i]
+
     # output list
     sasalist = []
+    sasalist_pro = []
+    sasalist_lig = []
     for i in pharmatype:
         sasalist.append(outdict[i])
+        sasalist_pro.append(outdict_pro[i])
+        sasalist_lig.append(outdict_lig[i])
 
     sasalist.append(sum(sasalist))
+    sasalist_pro.append(sum(sasalist_pro))
+    sasalist_lig.append(sum(sasalist_lig))
 
     if write:
         f = open("sasa.dat", "w")
         f.write(" ".join([str(np.round(i,2)) for i in sasalist]) + "\n")
         f.close()
 
-    return df, sasalist
+    return df,df_pro, df_lig, sasalist, sasalist_pro, sasalist_lig
 
 
 class sasa:
@@ -210,12 +248,20 @@ class sasa:
         self.lig = lig
         self.datadir = datadir
 
-        self.rawdata, self.sasalist = featureSASA(self.datadir, self.prot, self.lig)
+        self.rawdata, self.rawdata_pro, self.rawdata_lig, self.sasa, self.sasa_pro, self.sasa_lig = featureSASA(self.datadir, self.prot, self.lig)
 
-        self.sasaTotal = self.sasalist[-1]
-        self.sasaFeatures = self.sasalist[0:-1]
+        self.sasaTotal = self.sasa[-1]
+        self.sasa_proTotal = self.sasa_pro[-1]
+        self.sasa_ligTotal = self.sasa_lig[-1]
+        self.sasaFeatures = self.sasa[0:-1]
+        self.sasa_proFeatures = self.sasa_pro[0:-1]
+        self.sasa_ligFeatures = self.sasa_lig[0:-1]
 
     def info(self):
         """Feature list"""
         featureInfo = ['P', 'N', 'DA', 'D', 'A', 'AR', 'H', 'PL', 'HA']
         return featureInfo
+
+
+
+
