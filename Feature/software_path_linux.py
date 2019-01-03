@@ -1,9 +1,6 @@
 import os
 
 # Change the softwaters we need use here
-def path_chimera():
-    chimera ="/share/apps/chimera/1.11.2/bin/chimera"
-    return chimera
 
 def path_python():
     python = "~/anaconda3/bin/python"
@@ -20,7 +17,7 @@ def path_mgl_script():
     return MGLUTIL
 
 def path_vina():
-    vina = "/scratch/jl7003/deltaXGB/vina_package/bin/vina_linux"
+    vina = "/scratch/jl7003/deltaVinaXGB_develop/vina_package/bin/vina_linux"
     return vina
 
 def path_obabel():
