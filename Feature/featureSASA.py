@@ -20,7 +20,10 @@ import numpy as np
 import pandas as pd
 
 from pharma import pharma
-from software_path import path_msms
+if sys.platform == "linux":
+    from software_path_linux import path_msms
+elif sys.platform == "darwin":
+    from software_path_mac import path_msms
 
 #-----------------------------------------------------------------------------
 # Code

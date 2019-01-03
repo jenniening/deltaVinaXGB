@@ -3,8 +3,12 @@ import sys
 import click
 import pandas as pd
 
-from software_path import path_python
-from software_path import path_obabel
+if sys.platform == "linux":
+    from software_path_linux import path_python
+    from software_path_linux import path_obabel
+elif sys.platform == "darwin":
+    from software_path_mac import path_python
+    from software_path_mac import path_obabel
 from convert_file import RF20_main
 import run_features
 from run_features import run_features

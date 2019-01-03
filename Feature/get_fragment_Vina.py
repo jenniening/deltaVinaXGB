@@ -7,14 +7,16 @@ import get_pdbinfo
 import get_inputtype
 from get_inputtype import get_inputtype
 
-from software_path import path_mgl_python
-from software_path import path_mgl_script
-from software_path import path_vina
+if sys.platform == "linux":
+    import software_path_linux as path
+elif sys.platform == "darwin":
+    import software_path_mac as path
 
 
-MGLPY = path_mgl_python()
-MGLUTIL = path_mgl_script()
-vina = path_vina()
+
+MGLPY = path.path_mgl_python()
+MGLUTIL = path.path_mgl_script()
+vina = path.path_vina()
 
 def get_coordinates_from_mol2(infile):
     '''
@@ -429,7 +431,7 @@ def main():
                 fragdir = sys.argv[6]
             else:
                 fragdir = sys.argv[4]
-                run_Vina_Fragment(fn,datadir,fragdir)
+                #run_Vina_Fragment(fn,datadir,fragdir)
     else:
         sys.exit(1)
 

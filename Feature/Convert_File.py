@@ -1,6 +1,10 @@
 import os
 import pandas as pd
-from software_path import path_Rscript
+import sys
+if sys.platform == "linux":
+    from software_path_linux import path_Rscript
+elif sys.platform == "darwin":
+    from software_path_mac import path_Rscript
 
 Rscript = path_Rscript()
 def convert_RF20(infile,outfile):

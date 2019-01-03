@@ -3,7 +3,10 @@ import os
 import get_pdbinfo
 import numpy as np
 import sys
-from software_path import path_obabel
+if sys.platform == "linux":
+    from software_path_linux import path_obabel
+elif sys.platform == "darwin":
+    from software_path_mac import path_obabel
 
 obable = path_obabel()
 

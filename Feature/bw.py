@@ -13,17 +13,17 @@ import numpy as np
 
 import os
 import sys
-from software_path import path_mgl_python
-from software_path import path_mgl_script
-from software_path import path_vina
-from software_path import path_obabel
+if sys.platform == "linux":
+    import software_path_linux as path
+elif sys.platform == "darwin":
+    import software_path_mac as path
 
-MGLPY = path_mgl_python()
+MGLPY = path.path_mgl_python()
 
-MGLUTIL = path_mgl_script()
+MGLUTIL = path.path_mgl_script()
 
-vina = path_vina()
-obable = path_obabel()
+vina = path.path_vina()
+obable = path.path_obabel()
 
 #-----------------------------------------------------------------------------
 # Code

@@ -13,8 +13,11 @@ from rdkit.Chem import PandasTools
 from rdkit.Chem import AllChem
 from rdkit.ML.Cluster import Butina
 import sys
+if sys.platform == "linux":
+    from software_path_linux import path_obabel
+elif sys.platform == "darwin":
+    from software_path_mac import path_obabel
 
-from software_path import path_obabel
 
 obable = path_obabel()
 

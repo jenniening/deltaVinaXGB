@@ -12,17 +12,18 @@ __license__ = ""
 import os
 import fileinput
 import sys
-from software_path import path_mgl_python
-from software_path import path_mgl_script
-from software_path import path_vina
-from software_path import path_obabel
+if sys.platform == "linux":
+    import software_path_linux as path
+elif sys.platform == "mac":
+    import software_path_mac as path
 
 
 
-MGLPY = path_mgl_python()
-MGLUTIL = path_mgl_script()
-VINADIR = path_vina()
-obable = path_obabel()
+
+MGLPY = path.path_mgl_python()
+MGLUTIL = path.path_mgl_script()
+VINADIR = path.path_vina()
+obable = path.path_obabel()
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
