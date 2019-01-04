@@ -8,23 +8,22 @@ __license__ = ""
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from get_pdbinfo import *
+from .get_pdbinfo import *
 import numpy as np
 
 import os
 import sys
 if sys.platform == "linux":
-    from software_path_linux import *
+    import software_path_linux as path
 elif sys.platform == "darwin":
-    from software_path_mac import *
+    import software_path_mac as path
 
-MGLPY = path_mgl_python()
-print(MGLPY)
+MGLPY = path.path_mgl_python()
 
-MGLUTIL = path_mgl_script()
+MGLUTIL = path.path_mgl_script()
 
-vina = path_vina()
-obable = path_obabel()
+vina = path.path_vina()
+obable = path.path_obabel()
 
 #-----------------------------------------------------------------------------
 # Code

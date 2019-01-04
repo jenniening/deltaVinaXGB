@@ -31,7 +31,3 @@ def path_msms():
 def path_Rscript():
     R = "/share/apps/r/3.4.2/intel/bin/Rscript"
     return R
-
-def path_RF20da():
-    RF20da = "/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Feature/RF20.rda"
-    return RF20da

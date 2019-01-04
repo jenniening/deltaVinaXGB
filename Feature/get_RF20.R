@@ -1,7 +1,7 @@
 library(randomForest)
 
 # load the model
-load('RF20.rda')
+load('/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Feature/RF20.rda')
 
 # input and output file name
 

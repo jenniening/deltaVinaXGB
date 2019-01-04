@@ -4,8 +4,8 @@ import pandas as pd
 import pickle
 
 
-def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, model_index = "1"):
-    model_dir = os.path.realpath(model_dir)
+def run_model(infile,datadir,rt, model_name = "1", average = True, model_index = "1"):
+    
     infile = os.path.join(datadir, infile)
     num = len([line for line in open(infile)]) - 1
     test_in = pd.read_csv(infile)
@@ -19,8 +19,7 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
         ion = ["Ni"]
         conformation =["dE_global","RMSD_global","number1"]
         featlist =  vina +  SASA  + ion + water +conformation
- 
-        model_dir = os.path.join(model_dir, model_name)
+        model_dir = "../Model/" + model_name
 
     elif model_name[0:14] == "model_fragment":
         SASA_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
@@ -30,7 +29,7 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
         ion = ["Ni"]
         conformation =["dE_global","RMSD_global","number1"]
         featlist =  vina + SASA + ion + water +conformation + ["num_frag"]
-        model_dir = os.path.join(model_dir,model_name)
+        model_dir = "../Model/" + model_name
 
 
     test = test_in.copy()
