@@ -19,7 +19,6 @@ elif sys.platform == "darwin":
     from software_path_mac import *
 
 MGLPY = path_mgl_python()
-print(MGLPY)
 
 MGLUTIL = path_mgl_script()
 
