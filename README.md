@@ -1,5 +1,16 @@
 # deltaVinaXGB_develop
 This is a machine-learning based protein-ligand scoring function.
+### Setup
+create environment
+```
+make Makefile create_environment
+source activate DXG
+make Makefile requirements
+```
+install source code
+```
+python setup.py install
+```
 
 ### Usage 
 
