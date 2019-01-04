@@ -14,7 +14,7 @@ import fileinput
 import sys
 if sys.platform == "linux":
     import software_path_linux as path
-elif sys.platform == "mac":
+elif sys.platform == "darwin":
     import software_path_mac as path
 
 

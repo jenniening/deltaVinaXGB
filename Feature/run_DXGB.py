@@ -22,7 +22,7 @@ import click
 
 @click.command()
 @click.option("--model", default = "model_allfeatures", show_default = True, help = "model name")
-@click.option("--datadir", default = "/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Test", show_default= True, help = "absolute data directory")
+@click.option("--datadir", default = "../Test", show_default= True, help = "absolute data directory")
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
@@ -33,6 +33,7 @@ import click
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 
 def main(model, datadir, pdbid, outfile, runfeatures, rw, water, decoy, average, modelidx):
+    datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
     print("file directory: " + datadir)
     print("output filename : " + outfile)

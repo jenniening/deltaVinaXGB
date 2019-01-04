@@ -17,7 +17,8 @@ if sys.platform == "linux":
     from software_path_linux import path_obabel
 elif sys.platform == "darwin":
     from software_path_mac import path_obabel
-
+import random
+random.seed(10)
 
 obable = path_obabel()
 

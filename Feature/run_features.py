@@ -30,8 +30,10 @@ import combine_data
 from combine_data import combine
 
 
-
-from software_path import path_obabel
+if sys.platform == "linux":
+    from software_path_linux import path_obabel
+elif sys.platform == "darwin":
+    from software_path_mac import path_obabel
 
 obabel = path_obabel()
 
