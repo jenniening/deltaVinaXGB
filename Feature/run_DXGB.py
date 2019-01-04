@@ -22,7 +22,7 @@ import click
 
 @click.command()
 @click.option("--model", default = "model_allfeatures", show_default = True, help = "model name")
-@click.option("--datadir", default = "../Test", show_default= True, help = "absolute data directory")
+@click.option("--datadir", default = "../Test_mac", show_default= True, help = "absolute data directory")
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
