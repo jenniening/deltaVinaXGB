@@ -382,7 +382,8 @@ def generate_data(fn, data_type,datadir):
             df_side.reset_index(inplace = True)
             df_side.to_csv(os.path.join(datadir,"Vina_side_" + data_type + ".csv"), index = False)
         else:
-            df_side = open(os.path.join(datadir,"Vina_side_" + data_type + ".csv","w"))
+            df_side = open(os.path.join(datadir,"Vina_side_" + data_type + ".csv"),"w")
+            df_side.write(",".join(["pdb","vina"] + ["vina" + str(i) for i in range(1,59)]) + "\n")
             df_side.write(",".join([fn] + ["0" for i in range(59)]) + "\n")
             df_side.close()
     else:

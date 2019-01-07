@@ -298,7 +298,7 @@ def runMethod(mol, basename,cut_type):
     rings = sorted([set(i) for i in Chem.GetSymmSSSR(mol)], key=lambda x: len(x), reverse=True)
     if len(rings) == 0:
         print("No Rings")
-        WriteFragmentPDB(mol, '%s_frag%02d.sdf'%(basename.split(".")[0], 1))
+        WriteFragmentPDB(mol, '%s_frag%02d.pdb'%(basename.split(".")[0], 1))
     elif cut_type == "only1":
         newrings, biggest_index_list = get_large_ring(cut_type, mol=mol)
         coreIdxs, sidechain_connectIdxs, core_connectIdxs = GetMacroCyclicFragmentIdx(newrings, biggest_index_list[0], mol=mol)

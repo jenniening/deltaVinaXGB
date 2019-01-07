@@ -119,21 +119,31 @@ def get_input(datadir, fn):
     inlig3 = fn + "_ligand.pdb"
 
     ### check ligand input file ###
-    if inlig2 not in os.listdir("."):
-        inlig = inlig1
-        mol = Chem.MolFromMol2File(inlig,removeHs = False)
-        if mol == None:
-            error_massage = "Error:input ligand (mol2) should be checked\ntry use sdf as input format(make sure the atom type, bond connection are right"
-            sys.exit(error_massage)
-        else:
-            inlig_rdkit = inlig1
-    else:
+    if inlig2 in os.listdir("."):
         inlig = inlig2
         mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
         if mol == None:
-            sys.exit("Error:input ligand (sdf) should be checked")
+            if inlig1 in os.listdir("."):
+                inlig = inlig1
+                mol = Chem.MolFromMol2File(inlig,removeHs = False)
+                if mol == None:
+                    error_massage = "Error:input ligand should be checked"
+                    sys.exit(error_massage)
+                else:
+                    inlig_rdkit = inlig1
+            else:
+                error_massage = "Error:input ligand(sdf) should be checked"
+                sys.exit(error_message)
         else:
             inlig_rdkit = inlig2
+
+    else:
+        inlig = inlig1
+        mol = Chem.MolFromMol2File(inlig,removeHs = False)
+        if mol == None:
+            sys.exit("Error:input ligand(mol2) should be checked\ntry sdf")
+        else:
+            inlig_rdkit = inlig1
 
     if inlig3 not in os.listdir("."):
         inlig = inlig_rdkit

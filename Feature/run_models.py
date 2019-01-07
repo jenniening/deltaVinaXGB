@@ -39,6 +39,7 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
     if average:
         y_test = pd.DataFrame(np.zeros((num,10)),columns = list(str(i) + "_t" for i in range(1,11)))
         for i in range(1,11):
+            print(i)
             mod = pickle.load(open(model_dir + "/pima.pickle_" + str(i) +  ".dat", "rb"))
             test_preds = mod.predict(test_features)
             y_test[str(i) + "_t"]= test_preds

@@ -1,5 +1,5 @@
 library(randomForest)
-load('/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Feature/RF20.rda')
+load('/scratch/jl7003/deltaVinaXGB_develop/Feature/RF20.rda')
 args <- commandArgs(trailingOnly = TRUE)
 infn = args[1]
 outfn = args[2]

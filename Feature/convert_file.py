@@ -1,4 +1,6 @@
 import sys
+import os
+import pandas as pd
 if sys.platform == "linux":
     from software_path_linux import path_Rscript
     from software_path_linux import path_RF20da
@@ -30,6 +32,7 @@ def get_RF20(infile, outfile):
                  "output = data.frame(pdb = df$pdb, RF20 = pred)\n" + 
                  "write.table(output, outfn, sep=',', row.names = F, quote = F)")
     RFfile.close()
+    os.system(Rscript + " get_RF20.R " + infile + " " + outfile)
     return None
 	
 def RF20_main(datadir,infile, outfile):
@@ -37,3 +40,4 @@ def RF20_main(datadir,infile, outfile):
     os.chdir(datadir)
     convert_RF20(infile,"RF_input.csv")
     get_RF20("RF_input.csv",outfile)
+    os.chdir(olddir)

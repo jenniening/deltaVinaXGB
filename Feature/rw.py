@@ -122,23 +122,27 @@ def addH(fn):
 
     for filename in os.listdir("."):
         if filename.startswith("RW") and filename.endswith(".pdb"):
-            newfilename = filename.split(".")[0] + "_addh.pdb"
-            os.system(obable + " " + filename + " -O " + newfilename + " -h")
-
-            lines = [line for line in open(newfilename) if line[0:6] in ["ATOM  ", "HETATM"]]
-            if "ATOM  " in lines[0]:
-                header = "ATOM  "
+            atoms = get_pdbinfo.pdbinfo(file = filename).getAtoms()
+            if len(atoms) == 3:
+                continue
             else:
-                header = "HETATM"
-            for i in range(1,3):
-                lines[i] = header + lines[i][6:]
+                newfilename = filename.split(".")[0] + "_addh.pdb"
+                os.system(obable + " " + filename + " -O " + newfilename + " -h")
 
-            out = open(filename.split(".")[0] + "_addh_correct.pdb","w")
-            out.write("".join(lines))
-            out.close()
+                lines = [line for line in open(newfilename) if line[0:6] in ["ATOM  ", "HETATM"]]
+                if "ATOM  " in lines[0]:
+                    header = "ATOM  "
+                else:
+                    header = "HETATM"
+                for i in range(1,3):
+                    lines[i] = header + lines[i][6:]
 
-            os.system("mv " + filename.split(".")[0] + "_addh_correct.pdb" + " " + filename)
-            os.system("rm " + newfilename)
+                out = open(filename.split(".")[0] + "_addh_correct.pdb","w")
+                out.write("".join(lines))
+                out.close()
+
+                os.system("mv " + filename.split(".")[0] + "_addh_correct.pdb" + " " + filename)
+                os.system("rm " + newfilename)
 
     return None
 

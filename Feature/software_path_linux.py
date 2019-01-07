@@ -33,5 +33,5 @@ def path_Rscript():
     return R
 
 def path_RF20da():
-    RF20da = "/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Feature/RF20.rda"
+    RF20da = "/scratch/jl7003/deltaVinaXGB_develop/Feature/RF20.rda"
     return RF20da
