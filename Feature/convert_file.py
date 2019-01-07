@@ -1,11 +1,11 @@
-import os
-import pandas as pd
 import sys
 if sys.platform == "linux":
     from software_path_linux import path_Rscript
+    from software_path_linux import path_RF20da
 elif sys.platform == "darwin":
     from software_path_mac import path_Rscript
-
+    from software_path_mac import path_RF20da
+	
 Rscript = path_Rscript()
 def convert_RF20(infile,outfile):
     infile = pd.read_csv(infile)
@@ -18,24 +18,22 @@ def convert_RF20(infile,outfile):
     newfile[features_vina_change] = newfile[features_vina_change] * -0.73349
     newfile.columns = ["pdb","vina"] + features_name
     newfile.to_csv(outfile,index = False)
-
     return None
-
+	
 def get_RF20(infile, outfile):
-    os.system(Rscript + " get_RF20.R " + infile + " " + outfile)
-
+    RFfile = open("get_RF20.R","w")
+    RF20da = path_RF20da()
+    RFfile.write("library(randomForest)\n" + "load('" + RF20da + "')\n" + 
+                 "args <- commandArgs(trailingOnly = TRUE)\ninfn = args[1]\noutfn = args[2]\n" + 
+                 "df = read.table(infn, header=T, stringsAsFactors = F, sep=',')\n" + 
+                 "feats = df[3:22]\n" + "pred = predict(rffit, newdata = feats) + df$vina\n" +
+                 "output = data.frame(pdb = df$pdb, RF20 = pred)\n" + 
+                 "write.table(output, outfn, sep=',', row.names = F, quote = F)")
+    RFfile.close()
     return None
-
+	
 def RF20_main(datadir,infile, outfile):
     olddir = os.getcwd()
-    os.system("cp get_RF20.R " + datadir)
-    os.system("cp RF20.rda " + datadir)
     os.chdir(datadir)
     convert_RF20(infile,"RF_input.csv")
     get_RF20("RF_input.csv",outfile)
-    os.chdir(olddir)
-
-    return None
-
-
-
