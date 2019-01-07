@@ -11,6 +11,7 @@ install source code
 ```
 python setup.py install
 ```
+Note: You still need to install rdkit(version >= 2018.03.2) and obabel 
 
 ### Usage 
 
