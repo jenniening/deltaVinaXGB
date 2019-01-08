@@ -219,7 +219,7 @@ def get_input(datadir, fn):
             cmd = obabel + " -i" + infmt + " " +  inlig + " -opdb -O " + outlig
             os.system(cmd)
             outlig_num  = outlig.split(".")[0] + "_rename.pdb"
-            renumber(infmt, outlig, outlig_num)
+            renumber('pdb', outlig, outlig_num)
     else:
         infmt = inlig3.split(".")[-1]
         outlig_num = inlig.split(".")[0] + "_rename.pdb"
