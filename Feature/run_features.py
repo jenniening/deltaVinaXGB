@@ -126,7 +126,7 @@ def renumber(fmt, infile, outfile):
             elif len(atom_old) < len(atom_new):
                 atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
 
-            newline = line.replace(atom_old,atom_new)
+            newline = line.replace(atom_old,atom_new,1)
             atom_lines_new.append(newline)
             atom_dic[atom_key] += 1
 
@@ -153,7 +153,7 @@ def renumber(fmt, infile, outfile):
                 atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
             elif len(atom_old) < len(atom_new):
                 atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
-            newline = line.replace(atom_old,atom_new)
+            newline = line.replace(atom_old,atom_new,1)
             atom_lines_new.append(newline)
             atom_dic[atom_key] += 1
 
