@@ -120,7 +120,7 @@ def renumber(fmt, infile, outfile):
         for line in atom_lines:
             atom_key = line.split()[5].split(".")[0]
             atom_old = line.split()[1]
-            atom_new = atom_key + str(atom_dic[atom_key])
+            atom_new = atom_key.upper() + str(atom_dic[atom_key])
             if len(atom_old) > len(atom_new):
                 atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
             elif len(atom_old) < len(atom_new):
@@ -140,33 +140,15 @@ def renumber(fmt, infile, outfile):
         atom_lines = get_pdbinfo.pdbinfo(file = infile).getAtoms()
         atom_index = lines.index(atom_lines[0]) 
         bond_index = lines.index(atom_lines[-1]) + 1
-        atom_dic = {"}
         mol = Chem.MolFromPDBFile(infile,removeHs=False)
-        
-        atoms = set(atoms)
+        atom_list = [atom.GetSymbol() for atom in mol.GetAtoms()]
+        atoms = set([atom.GetSymbol() for atom in mol.GetAtoms()])
         atom_dic ={key:1 for key in atoms}
         atom_lines_new = []
-        for line in atom_lines:
-            if get_pdbinfo.atmn(line).strip()[0] == "C":   
-                ### consider CL ###
-                if atom.split()[-1].rstrip() == "Cl" or atom.split()[-1].rstrip() == "CL":
-                    atom_key = "CL"
-                elif len(atom.split()) == 10 and get_pdbinfo.atmn(line)() == "CL":
-                    atom_key = "CL"
-                else:
-                    atom_key = "C":
-            elif get_pdbinfo.atmn(line).strip()[0] == "B":
-                ### consider BR ###
-                if atom.split()[-1].rstrip() == "Br" or atom.split()[-1].rstrip() == "BR":
-                    atom_key = "BR"
-                elif len(atom.split()) == 10 and get_pdbinfo.atmn(line)() == "BR":
-                    atom_key = "BR"
-                else:
-                    atom_key = "B"
-            else:
-                atom_key = get_pdbinfo.atmn(line).strip()[0]
+        for idx, line in enumerate(atom_lines):
+            atom_key = atom_list[idx]
             atom_old = get_pdbinfo.atmn(line).strip()
-            atom_new = atom_key + str(atom_dic[atom_key])
+            atom_new = atom_key.upper() + str(atom_dic[atom_key])
             if len(atom_old) > len(atom_new):
                 atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
             elif len(atom_old) < len(atom_new):
