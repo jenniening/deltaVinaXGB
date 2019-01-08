@@ -103,6 +103,65 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, water = True, decoy = False):
 
     return None 
 
+def renumber(fmt, infile, outfile):
+    '''
+    rename atoms in file based on order 
+
+    '''
+
+    if fmt == "mol2":
+        lines = [line for line in open(infile)]
+        atom_index = lines.index("@<TRIPOS>ATOM\n")
+        bond_index = lines.index("@<TRIPOS>BOND\n")
+        atom_lines = lines[atom_index + 1: bond_index]
+        atoms = set([atom.split()[1][0:1] for atom in atom_lines])
+        atom_dic ={key:1 for key in atoms}
+        atom_lines_new = []
+        for line in atom_lines:
+            atom_key = line.split()[1][0:1]
+            atom_old = line.split()[1]
+            atom_new = atom_key + str(atom_dic[atom_key])
+            if len(atom_old) > len(atom_new):
+                atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
+            elif len(atom_old) < len(atom_new):
+                atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
+
+            newline = line.replace(atom_old,atom_new)
+            atom_lines_new.append(newline)
+            atom_dic[atom_key] += 1
+
+        outfile = open(outfile,"w")
+        outfile.write("".join(lines[0:atom_index + 1]))
+        outfile.write("".join(atom_lines_new))
+        outfile.write("".join(lines[bond_index:]))
+        outfile.close()
+    elif fmt == "pdb":
+        lines = [line for line in open(infile)]
+        atom_lines = get_pdbinfo.pdbinfo(file = infile).getAtoms()
+        atom_index = lines.index(atom_lines[0]) 
+        bond_index = lines.index(atom_lines[-1]) + 1
+        atoms = set([get_pdbinfo.atmn(atom).strip()[0] for atom in atom_lines])
+        atom_dic ={key:1 for key in atoms}
+        atom_lines_new = []
+        for line in atom_lines:
+            atom_key = get_pdbinfo.atmn(line).strip()[0]
+            atom_old = get_pdbinfo.atmn(line).strip()
+            atom_new = atom_key + str(atom_dic[atom_key])
+            if len(atom_old) > len(atom_new):
+                atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
+            elif len(atom_old) < len(atom_new):
+                atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
+            newline = line.replace(atom_old,atom_new)
+            atom_lines_new.append(newline)
+            atom_dic[atom_key] += 1
+
+        outfile = open(outfile,"w")
+        outfile.write("".join(lines[0:atom_index]))
+        outfile.write("".join(atom_lines_new))
+        outfile.write("".join(lines[bond_index:]))
+        outfile.close()
+
+    return None
 
 def get_input(datadir, fn):
     '''
@@ -136,7 +195,6 @@ def get_input(datadir, fn):
                 sys.exit(error_message)
         else:
             inlig_rdkit = inlig2
-
     else:
         inlig = inlig1
         mol = Chem.MolFromMol2File(inlig,removeHs = False)
@@ -145,12 +203,29 @@ def get_input(datadir, fn):
         else:
             inlig_rdkit = inlig1
 
+    ### correcting atom name for sasa calculation ###
     if inlig3 not in os.listdir("."):
         inlig = inlig_rdkit
         infmt = inlig.split(".")[-1]
-        outlig = inlig3
-        cmd = obabel + " -i" + infmt + " " +  inlig + " -opdb -O " + outlig
-        os.system(cmd)    
+        if infmt == "mol2":
+            outlig_num = inlig.split(".")[0] + "_rename.mol2"
+            renumber(infmt,inlig,outlig_num)
+            outlig = inlig3.split(".")[0] + "_rename.pdb"
+            cmd = obabel + " -i" + infmt + " " +  outlig_num + " -opdb -O " + outlig
+            os.system(cmd)
+            os.system("rm " + outlig_num)
+        elif infmt == "sdf":
+            outlig = inlig3
+            cmd = obabel + " -i" + infmt + " " +  inlig + " -opdb -O " + outlig
+            os.system(cmd)
+            outlig_num  = outlig.split(".")[0] + "_rename.pdb"
+            renumber(infmt, outlig, outlig_num)
+    else:
+        infmt = inlig3.split(".")[-1]
+        outlig_num = inlig.split(".")[0] + "_rename.pdb"
+        renumber(infmt,inlig3, outlig_num)
+
+    inlig3 = fn + "_ligand_rename.pdb"
 
     ### get protein ###
     ### at least one protein structure should be provided with all waters ###
