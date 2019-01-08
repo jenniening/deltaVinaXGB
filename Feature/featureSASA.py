@@ -252,6 +252,7 @@ class sasa:
         self.datadir = datadir
 
         self.rawdata, self.rawdata_pro, self.rawdata_lig, self.sasa, self.sasa_pro, self.sasa_lig = featureSASA(self.datadir, self.prot, self.lig)
+        
 
         self.sasaTotal = self.sasa[-1]
         self.sasa_proTotal = self.sasa_pro[-1]
