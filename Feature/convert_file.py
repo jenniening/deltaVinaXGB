@@ -10,7 +10,7 @@ elif sys.platform == "darwin":
 	
 Rscript = path_Rscript()
 def convert_RF20(infile,outfile):
-    infile = pd.read_csv(infile)
+    infile = pd.read_csv(infile,dtype = {"pdb":str})
     features_vina = ["vina1", "vina3","vina53","vina55","vina54","vina56","vina4","vina52","vina58","vina48"]
     features_SASA = ["P2.P","P2.N","P2.DA","P2.D","P2.A","P2.AR","P2.H","P2.PL","P2.HA","P2.SA"]
     features_vina_change = ["vina1","vina3","vina4","vina52","vina48"]

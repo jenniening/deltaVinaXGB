@@ -57,9 +57,15 @@ def main(model, modeldir, datadir, pdbid, outfile, runfeatures, rw, water, decoy
         test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx)
         outRF = "RF" + i + ".csv"
         RF20_main(datadir,inf,outRF)
-        outRF = pd.read_csv(os.path.join(datadir,outRF))
-        outRF.columns = ["pdb","RF20" + i]
+        outRF_new = open(os.path.join(datadir,"RF" + i + "_new.csv"),"w")
+        outRF_new.write("pdb,RF20" + i + "\n")
+       	lines = [line for line in open(os.path.join(datadir,outRF))]
+        outRF_new.write(pdbid + "," + lines[1].split(",")[1])
+        outRF_new.close()
+        os.system("mv " + os.path.join(datadir,"RF" + i + "_new.csv") + " " + os.path.join(datadir, "RF" + i + ".csv"))
+         
         out.append(test_new)
+        outRF = pd.read_csv(os.path.join(datadir,"RF" + i + ".csv"),dtype = {"pdb":str})
         out.append(outRF)
 
 
