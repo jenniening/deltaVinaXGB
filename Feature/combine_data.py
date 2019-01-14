@@ -2,37 +2,38 @@ import pandas as pd
 import os
 
 def read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags):
-    f_V58 = pd.read_csv(Vina58)
+    f_V58 = pd.read_csv(Vina58,dtype={"pdb":str})
     f_V58["vina"] = f_V58["vina"] * -0.73349
-    f_SASA = pd.read_csv(SASA)
-    f = pd.merge(f_V58,f_SASA, on = ["pdb"])
+    f_SASA = pd.read_csv(SASA,dtype={"pdb":str})
+    f = pd.merge(f_V58,f_SASA, on = "pdb")
     if dE == None:
         f["dE_global"] = -300
         f["RMSD_global"] = 300
         f["number0"] = 300
         f["number1"] = 300
     else:
-        f_dE = pd.read_csv(dE)
-        f = pd.merge(f,f_dE, on = ["pdb"])
+        f_dE = pd.read_csv(dE,dtype={"pdb":str})
+        f = pd.merge(f,f_dE, on = "pdb")
     if Water == None:
         f["Nbw"] = 0
         f["Epw"] = 0
         f["Elw"] = 0
     else:
-        f_water = pd.read_csv(Water)
-        f = pd.merge(f,f_water, on = ["pdb"])
+        f_water = pd.read_csv(Water,dtype={"pdb":str})
+        f = pd.merge(f,f_water, on = "pdb")
     if Ion == None:
         f["Ni"] = 0
     else:
-        f_ion = pd.read_csv(Ion)
-        f = pd.merge(f,f_ion, on = ["pdb"])
-    f_core = pd.read_csv(Core)
-    f_side = pd.read_csv(Side)
-    f_numfrag = pd.read_csv(NumFrags)
+        f_ion = pd.read_csv(Ion,dtype={"pdb":str})
+        f = pd.merge(f,f_ion, on = "pdb")
+    f_core = pd.read_csv(Core,dtype={"pdb":str})
+    f_side = pd.read_csv(Side,dtype={"pdb":str})
+    f_numfrag = pd.read_csv(NumFrags,dtype={"pdb":str})
 
     f_total = pd.merge(f_core,f_side,on = "pdb")
     f = pd.merge(f, f_total, on = "pdb")
     f = pd.merge(f,f_numfrag, on = "pdb")
+    f["pdb"] = f["pdb"].astype(str) 
 
     assert f.shape[1] == 217, "Feature Calculation Failed"
     

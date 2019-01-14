@@ -366,7 +366,7 @@ def generate_data(fn, data_type,datadir):
 
     if os.stat(infile).st_size != 0:
 
-        df = pd.read_csv(infile, header = None)
+        df = pd.read_csv(infile, header = None, dtype = {0:str})
         df.columns = columns
 
         df["vina"] = df["vina"] * -0.73349
