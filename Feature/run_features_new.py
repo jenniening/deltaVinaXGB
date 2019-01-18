@@ -301,10 +301,19 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
     '''
 
     if ref_fmt == "mol2":
+        previous_lines = open(ref_lig).readlines()
+        atom_idx = previous_lines.index("@<TRIPOS>ATOM\n")
+        bond_idx = previous_lines.index("@<TRIPOS>BOND\n")
+        ref_atoms = previous_lines[atom_idx +1: bond_idx]
         if method == "order":
             for decoy in decoy_list:
                 lines = open(decoy).readlines()
-                atom_idx = lines.index("@<TRIPOS>ATOM")
+                atom_idx = lines.index("@<TRIPOS>ATOM\n")
+                bond_idx = lines.index("@<TRIPOS>BOND\n")
+                atoms = lines[atom_idx +1:bond_idx]
+                atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()) for line in atoms]
+                new_lines = [ line[0:17] + atoms_coord[idx] + line[46:] for idx, line in enumerate(ref_atoms)]
+
 
             
 
@@ -524,3 +533,4 @@ if __name__ == "__main__":
     datadir = "/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Test"
     fn = "01"
     run_features(datadir,fn)
+ 
