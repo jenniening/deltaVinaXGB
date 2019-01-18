@@ -302,29 +302,100 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
 
     if ref_fmt == "mol2":
         previous_lines = open(ref_lig).readlines()
-        atom_idx = previous_lines.index("@<TRIPOS>ATOM\n")
-        bond_idx = previous_lines.index("@<TRIPOS>BOND\n")
-        ref_atoms = previous_lines[atom_idx +1: bond_idx]
+        pre_atom_idx = previous_lines.index("@<TRIPOS>ATOM\n")
+        pre_bond_idx = previous_lines.index("@<TRIPOS>BOND\n")
+        ref_atoms = previous_lines[[pre_atom_idx +1: pre_bond_idx]
+        
         if method == "order":
             for decoy in decoy_list:
                 lines = open(decoy).readlines()
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
-                atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()) for line in atoms]
+                atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms]
                 new_lines = [ line[0:17] + atoms_coord[idx] + line[46:] for idx, line in enumerate(ref_atoms)]
-
-
-            
-
+                newdecoy = oepn(decoy.split(".")[0] + "_correct.mol2","w")
+                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("".join(new_lines))
+                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.close()
+        elif method == "name":
+            ### nams shoule be unique ###
+            for decoy in decoy_list:
+                lines = open(decoy).readlines()
+                atom_idx = lines.index("@<TRIPOS>ATOM\n")
+                bond_idx = lines.index("@<TRIPOS>BOND\n")
+                atoms = lines[atom_idx +1:bond_idx]
+                atoms_coord = {line[7:17].strip():"%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms}
+                new_lines = [line[0:17] + atoms_coord[line[7:17].strip()] + line[46:] for line in ref_atoms]
+                newdecoy = oepn(decoy.split(".")[0] + "_correct.mol2","w")
+                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("".join(new_lines))
+                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.close()
 
     elif ref_fmt == "sdf":
+        previous_lines = open(ref_lig).readlines()
+        atom_num = previous_lines[3].split()[0]
+        ref_atoms = previous_lines[4: atom_num+4]
+        if method == "order":
+            for decoy in decoy_list:
+                lines = open(decoy).readlines()
+                atom_idx = lines.index("@<TRIPOS>ATOM\n")
+                bond_idx = lines.index("@<TRIPOS>BOND\n")
+                atoms = lines[atom_idx +1:bond_idx]
+                atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms]
+                new_lines = [ atoms_coord[idx] + line[30:] for idx, line in enumerate(ref_atoms)]
+                newdecoy = oepn(decoy.split(".")[0] + "_correct.sdf","w")
+                newdecoy.write("".join(lines[0:4]))
+                newdecoy.write("".join(new_lines))
+                newdecoy.write("".join(previous_lines[atom_num+4:]))
+                newdecoy.close()
+        else:
+            sys.exit("Error: ref structure should has same atom order with decoys if ref_fmt is sdf ")
+    elif ref_fmt == "pdb":
+        previous_lines = open(ref_lig).readlines()
+        pre_atom_idx = [idx for idx, line in enumerate(previous_lines) if (line[0:6] == "ATOM  ") or (line[0:6] == "HETATM")][0]
+        pre_bond_idx = [idx for idx, line in enumerate(previous_lines) if (line[0:6] == "ATOM  ") or (line[0:6] == "HETATM")][-1]
+        ref_atoms = previous_lines[[pre_atom_idx: pre_bond_idx + 1]
+        if method == "order":
+            for decoy in decoy_list:
+                lines = open(decoy).readlines()
+                atom_idx = lines.index("@<TRIPOS>ATOM\n")
+                bond_idx = lines.index("@<TRIPOS>BOND\n")
+                atoms = lines[atom_idx +1:bond_idx]
+                atoms_coord = [ "%8s%8s%8s"%(line.split()[2][0:-1],line.split()[3][0:-1],line.split()[4][0:-1]) for line in atoms]
+                new_lines = [ line[0:31] + atoms_coord[idx] + line[55:] for idx, line in enumerate(ref_atoms)]
+                newdecoy = oepn(decoy.split(".")[0] + "_correct.pdb","w")
+                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("".join(new_lines))
+                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.close()
+        elif method == "name":
+            ### nams shoule be unique ###
+            for decoy in decoy_list:
+                lines = open(decoy).readlines()
+                atom_idx = lines.index("@<TRIPOS>ATOM\n")
+                bond_idx = lines.index("@<TRIPOS>BOND\n")
+                atoms = lines[atom_idx +1:bond_idx]
+                atoms_coord = {line[7:17].strip():"%8s%8s%8s"%(line.split()[2][0:-1],line.split()[3][0:-1],line.split()[4][0:-1]) for line in atoms}
+                new_lines = [line[0:16] + atoms_coord[line[12:16].strip()] + line[54:] for line in ref_atoms]
+                newdecoy = oepn(decoy.split(".")[0] + "_correct.pdb","w")
+                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("".join(new_lines))
+                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.close()
+
+
+
+    return None
 
     
 def get_input_decoy(datadir, datadir_decoy, fn):
 
     inlig1 = fn + "_ligand.mol2"
     inlig2 = fn + "_ligand.sdf"
+    inlig3 = fn + "_ligand_rename.pdb"
 
     ### check ligand input file ###
     if inlig2 in os.listdir("."):
@@ -352,50 +423,103 @@ def get_input_decoy(datadir, datadir_decoy, fn):
         else:
             inlig_rdkit = inlig1
 
-
-    ref_ligand = inlig_rdkit
-    ref_fmt = ref_ligand.split(".")[1]
-    if ref_fmt == "mol2":
-        ref_ligand = ref_ligand.split(".")[0] + "_rename.mol2"
-    ref_proten = fn + "_protein.pdb"
+    ### prepare decoy file ####
+    ref_ligand_rdkit = inlig_rdkit
+    ref_ligand_pdb = inlig3
+    ref_fmt = ref_ligand_rdkit.split(".")[1]
     decoy_file = fn + "_decoy.mol2"
     os.system("mkdir " + fn)
     os.chdir(fn)
-    infile = os.path.join(datadir_decoy,fn + "_decoys.mol2")
-    num = write_decoys(infile, fn)
-    decoy_list = [fn + "_decoy.mol2" for i in range(1,num + 1)]
-    rewrite_decoy(ref_ligand, decoy_list, ref_fmt)
-    for decoy in decoy_list:
-        if decoy_fmt == "mol2":
-            obabel convert to pdb
+    os.system("cp ../" + fn + "_decoy.mol2 .")
+    num = write_decoys(decoy_file, fn)
+    decoy_list = [fn + "_" + str(i) + "_decoy.mol2" for i in range(1,num + 1)]
+    rewrite_decoy(ref_ligand_rdkit, decoy_list, ref_fmt, "order")
+    rewrite_decoy(ref_ligand_pdb, decoy_list, "pdb", "order")
+    os.file.st_size()
+    decoy_rdkit_list = [fn + "_" + str(i) + "_decoy_correct." + ref_fmt for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct." + ref_fmt).st_size != 0]
+    decoy_list = [fn + "_" + str(i) + "_decoy_correct.pdb" for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct.pdb").st_size != 0]
+
+    assert len(decoy_rdkit_lis) == len(decoy_list), "Decoy File Prepration Failed"
+
+
+    return ref_ligand_rdkit, ref_ligand_pdb, ref_protein, decoy_rdkit_list, decoy_list
+
+
+
+def prepare_receptor(datadir, fn, inpro_pro, inpro_water, water_type):
+    '''
+    prepare receptor water file for different water type
+
+    water_type: 
+    '''
+
+
+    if water_type == "rw":
+        print("Receptor Water: recalculate")
+        if rewrite:
+            get_Crw(fn,inpro_pro,inpro_water,datadir)
+            print("Finish generate RW")
         else:
-            obable convert to sdf 
+            if inpro_pro.split(".")[0] + "_RW.pdb" not in os.listdir(datadir):
+                get_Crw(fn,inpro_pro,inpro_water,datadir)
+                print("Finish generate RW")
+            else:
+                print("Finish generate RW")
+    elif f_type == "w":
+        print("Receptor Water: use waters in " + fn + "_protein_all.pdb" )
+        if rewrite:
+            olddir = os.getcwd()
+            os.chdir(datadir)
+            cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_RW.pdb"
+            os.system(cmd)
+            os.chdir(olddir)
+            print("Finish copy RW")
+        else:
+            if inpro_pro.split(".")[0] + "_RW.pdb" not in os.listdir(datadir):
+                olddir = os.getcwd()
+                os.chdir(datadir)
+                cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_RW.pdb"
+                os.system(cmd)
+                os.chdir(olddir)
+                print("Finish copy RW")
+            else:
+                print("Finish generate RW")
+    else:
+        prinet("No Receptor Water")
 
 
 
-    return ref_lig, ref_protein, decoy_rdkit_list, decoy_list
-
-
-
-
-def run_features(datadir,fn, f_type = "rw", rewrite = True, decoy = "CASF-docking"):
+def run_features(datadir,fn, water_type = "rw", opt_type = "wo", ligand_type = "rewrite = False, decoy = "CASF-docking"):
     '''
 
     run features
     
-    f_type: features calculation type, defaults to "RW"
-            "rw" --> get receptor water based our criteria and calculate score with receptor water 
-            "w"  --> calculate score with water molecules in protein_all.pdb
+    water_type: receptor water type, defaults to "rw"
+            "rw" --> get receptor water based our criteria
+            "w"  --> all waters in protein_all.pdb are considered as receptor water
+            "n"  --> no consideration of water molecules
+
+        
             "nw" --> only calculate scores with no water (C and Co)
             "n"  --> only calculate scores for C
     
+    opt_type: optimization type, defaults to "wo"
+            "wo" --> Crwo, Co
+            "o"  --> Co
+            "n"  --> n
+            
     rewrite: whether to rewrite all features
 
     decoy: CASF decoys or not
 
     '''
     if decoy:
-        f_type = "n"
+
+        ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
+        inlig_rdkit, inlig_pdb = get_input_decoy(datadir,datadir_decoy, fm)
+            
+
+
     else:
         inlig_rdkit, inlig_pdb, inpro_pro, inpro_water = get_input(datadir,fn)
         print("Finish Input Preparation")
@@ -433,6 +557,7 @@ def run_features(datadir,fn, f_type = "rw", rewrite = True, decoy = "CASF-dockin
                 print("Finish generate RW")
     else:
         prinet("No Receptor Water")
+
 
 
     ### get Co, Crwo ###
