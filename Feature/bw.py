@@ -121,9 +121,14 @@ def get_water(fn,water):
     for i in set(Residue_all):
         index.write(i + "\n")
         inputwater = open(water)
-        reid = i.split(".")[0]
-        recid = i.split(".")[1]
-        outfile = open("BW_" + reid + "_" + recid + ".pdb","w")
+        if "." in i:
+            reid = i.split(".")[0]
+            recid = i.split(".")[1]
+            outfile = open("BW_" + reid + "_" + recid + ".pdb","w")
+        else:
+            reid = i
+            recid = " "
+            outfile = open("BW_" + reid + "_chain.pdb","w")
         for line_water in inputwater:
             if line_water[0:6] in ["HETATM","ATOM  "] and line_water[17:20] in ["WAT", "HOH"] and int(line_water[22:26])==int(reid) and line_water[21:22] == recid:
                 outfile.write(line_water)
@@ -179,9 +184,12 @@ def genPDBQT(fn,pro,lig):
     os.system(cmd1)
     os.system(cmd2)
     for n, line in enumerate(open("../water_index.txt")):
-
+        
         line = line.rstrip()
-        wpdb = "../BW_" + line.split(".")[0] + "_" + line.split(".")[1] + ".pdb"
+        if "." in line:
+            wpdb = "../BW_" + line.split(".")[0] + "_" + line.split(".")[1] + ".pdb"
+        else:
+            wpdb = "../BW_" + line.split(".")[0] + "_chain.pdb"
         wpdbqt = "BW_" + str(n) + ".pdbqt"
         cmd3 =MGLPY + " " + MGLUTIL + "prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_bw_" + str(n) + ".log"
         cmd_pw =vina + " --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_PW_" + str(n) + ".txt > out_pw_" + str(n) + ".log"
@@ -269,7 +277,10 @@ def get_waterfile(fn,pro, index):
     out = open("BW_total.pdb","w")
     for idx, line in enumerate(open("water_index.txt")):
         if str(idx) in index:
-            file_index = "BW_" + "_".join(line.rstrip().split(".")) + ".pdb"
+            if "." in line:
+                file_index = "BW_" + "_".join(line.rstrip().split(".")) + ".pdb"
+            else:
+                file_index = "BW_" + line.rstrip() + "_chain.pdb"
             lines = [ l for l in open(file_index) if (l[0:6] in ["ATOM  ","HETATM"]) and (l[0:3] != "END")]
             out.write("".join(lines))
     out.close()

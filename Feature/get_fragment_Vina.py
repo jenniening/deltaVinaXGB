@@ -123,9 +123,9 @@ def get_atom_index(ref_infor, frag_file, one_atom, atom_type):
                     for num in range(len(ref_infor.keys())):
                         if num == 0:
                             [idx_prev, ref_line] = [[idx_r, line] for idx_r, line in enumerate(ref_infor["ref_" + str(num)]) if "%8s%8s%8s"%(c_f.split()[0],c_f.split()[1],c_f.split()[2]) in line][0]
-                            new_lines["frag_" + str(num)].append("HETATM    " + str(n) + ref_line[11:])
+                            new_lines["frag_" + str(num)].append("HETATM%5s"%str(n) + ref_line[11:])
                         else:
-                            new_lines["frag_" + str(num)].append("HETATM    " + str(n) + ref_infor["ref_" + str(num)][idx_prev][11:])
+                            new_lines["frag_" + str(num)].append("HETATM%5s"%str(n) + ref_infor["ref_" + str(num)][idx_prev][11:])
                 else:
                     break
 
@@ -366,7 +366,7 @@ def generate_data(fn, data_type,datadir):
 
     if os.stat(infile).st_size != 0:
 
-        df = pd.read_csv(infile, header = None)
+        df = pd.read_csv(infile, header = None, dtype = {0:str})
         df.columns = columns
 
         df["vina"] = df["vina"] * -0.73349

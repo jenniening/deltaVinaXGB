@@ -8,7 +8,7 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
     model_dir = os.path.realpath(model_dir)
     infile = os.path.join(datadir, infile)
     num = len([line for line in open(infile)]) - 1
-    test_in = pd.read_csv(infile)
+    test_in = pd.read_csv(infile,dtype = {"pdb":str})
 
     # Feature names
     if model_name == "model_allfeatures":
