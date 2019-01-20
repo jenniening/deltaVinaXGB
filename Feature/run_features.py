@@ -90,7 +90,7 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = True, water = True, decoy
         out.write(fn + "," + str(num_frags) + "\n")
         out.close()
 
-    elif water == False and opt == True
+    elif water == False and opt == True:
         run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = True, min_RW = False, RW = False, decoy = False)
         out = open(os.path.join(datadir,"NumFrags.csv"),"w")
         out.write("pdb,num_frag\n")
@@ -697,7 +697,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     ### run fragments ###
     if opt_type == "wo":
         run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = True, water = True)
-    elif opt_type == "o"
+    elif opt_type == "o":
         run_fragments(fn,datadir,inlig_rdkit, opt = True, water = False)
     else:
         run_fragments(fn,datadir,inlig_rdkit, opt = False, water = False)
