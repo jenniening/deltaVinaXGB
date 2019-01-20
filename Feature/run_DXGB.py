@@ -27,31 +27,38 @@ import click
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
-@click.option("--rw",is_flag = True, help = "receptor water flag")
-@click.option("--water", is_flag = True, help = "water flag")
-@click.option("--decoy", is_flag = True, help = "decoy flag")
+@click.option("--water", default = "rw", show_default = True, help = "water type")
+@click.option("--opt", default = "wo", show_default = True, help = "opt type")
+@click.option("--decoy", is_flag = True, help = "decoy flag, if True, water = 'n', opt = 'n'")
+@click.option("--rewrite", is_flag = True, help = "rewrite protein_RW, ligand_opt, generated confs or not")
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 
-def main(model, modeldir, datadir, pdbid, outfile, runfeatures, rw, water, decoy, average, modelidx):
+def main(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx):
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
     print("file directory: " + datadir)
     print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
-        run_features(datadir, pdbid, rw = rw, water = water, decoy = decoy)
+        run_features(datadir,pdbid, water_type = water, opt_type = opt, ligand_type = "wo", rewrite = rewrite, decoy = decoy)
         os.chdir(olddir)
 
-    if water:
-        data_type = ["","_min","_min_RW"]
-    else:
-        data_type = ["","_min"]
+
 
     if decoy:
-        pass
-    
+        opt = "n"
+
+    if opt == "wo":
+        data_type = ["","_min","_min_RW"]
+    elif opt == "o":
+        data_type = ["","_min"]
+    else:
+        data_type = [""]
+
     out = []
+    if decoy:
+        datadir = os.path.join(datadir,"decoy")
     for i in data_type:
         inf = "Input" + i + ".csv"
         test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx)

@@ -698,9 +698,9 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     if opt_type == "wo":
         run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = True, water = True)
     elif opt_type == "o":
-        run_fragments(fn,datadir,inlig_rdkit, opt = True, water = False)
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = True, water = False)
     else:
-        run_fragments(fn,datadir,inlig_rdkit, opt = False, water = False)
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = False, water = False)
 
 
     
@@ -718,7 +718,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
 
 
-def run_features(datadir,fn, water_type = "rw", opt_type = "wo", ligand_type = "wo", rewrite = False, decoy = "CASF-docking"):
+def run_features(datadir,fn, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False):
     '''
 
     run features
@@ -742,9 +742,9 @@ def run_features(datadir,fn, water_type = "rw", opt_type = "wo", ligand_type = "
         ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
         opt_type = "n"
         water_type = "n"
-        datadir_decoy = os.path.join(datadir,fn,"decoys")
+        datadir_decoy = os.path.join(datadir,"decoys")
         os.system("mkdir " + datadir_decoy)
-        ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fm)
+        ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn)
             
     else:
         inlig_rdkit, inlig_pdb, inpro_pro, inpro_water = get_input(datadir,fn)
