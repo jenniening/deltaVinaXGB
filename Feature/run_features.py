@@ -447,7 +447,6 @@ def get_input_decoy(datadir, datadir_decoy, fn):
     decoy_list = [fn + "_" + str(i) + "_decoy.mol2" for i in range(1,num + 1)]
     rewrite_decoy(ref_ligand_rdkit, decoy_list, ref_fmt, "order")
     rewrite_decoy(ref_ligand_pdb, decoy_list, "pdb", "order")
-    os.file.st_size()
     decoy_rdkit_list = [fn + "_" + str(i) + "_decoy_correct." + ref_fmt for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct." + ref_fmt).st_size != 0]
     decoy_list = [fn + "_" + str(i) + "_decoy_correct.pdb" for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct.pdb").st_size != 0]
 
