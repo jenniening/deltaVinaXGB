@@ -41,7 +41,7 @@ def read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags):
 
 
 def combine(datadir,data_type = "", decoy = False):
-  if not decoy:
+    if not decoy:
         d_frag = {"":0,"_min":1,"_min_RW":2}
         d_wat = {"":None, "_min":None, "_min_RW":os.path.join(datadir,"Feature_BW_min_RW.csv")}
         Vina58 = os.path.join(datadir,"Vina58" + data_type + ".csv")
@@ -55,6 +55,21 @@ def combine(datadir,data_type = "", decoy = False):
         outfile = "Input" + data_type + ".csv"
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags)
         f.to_csv(os.path.join(datadir,outfile),index = False)
+    else:
+        d_wat = {"":None, "_RW":os.path.join(datadir,"Feature_BW_RW.csv")}
+        Vina58 = os.path.join(datadir,"Vina58" + data_type + ".csv")
+        SASA = os.path.join(datadir,"SASA" + ddata_type + ".csv")
+        dE = os.path.join(datadir,"dE_RMSD" + data_type + ".csv")
+        Water = d_wat[data_type]
+        Ion = os.path.join(datadir, "Num_Ions" + ddata_type + ".csv")
+        NumFrags = os.path.join(datadir,"NumFrags.csv")
+        Core = os.path.join(datadir,"Vina_core" + data_type + ".csv")
+        Side = os.path.join(datadir,"Vina_side" + data_type + ".csv")
+        outfile = "Input" + data_type + ".csv"
+        f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags)
+        f.to_csv(os.path.join(datadir,outfile),index = False)
+
+
 
         
     

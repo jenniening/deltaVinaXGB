@@ -269,13 +269,18 @@ def get_RMSD(local_min,lowest,fn):
         #out_error.write(fn + "\n")
     return RMSD
 
-def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs"):
+def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = False):
     confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
     lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
     if calc_type == "GenConfs":
         numConfs = 1000
-        if not (os.path.exists(confs) and os.path.exists(lowest)):
+        if rewrite:
             runGenerator(fn, native, confs, lowest, numConfs)
+        else:
+            if not (os.path.exists(confs) and os.path.exists(lowest)):
+                runGenerator(fn, native, confs, lowest, numConfs)
+            else:
+                print("Use pervious generated confs")
 
     lowest_energy = get_lowest_energy(lowest)
     local_min,native_energy = get_native_energy(native)
