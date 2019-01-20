@@ -58,10 +58,10 @@ def combine(datadir,data_type = "", decoy = False):
     else:
         d_wat = {"":None, "_RW":os.path.join(datadir,"Feature_BW_RW.csv")}
         Vina58 = os.path.join(datadir,"Vina58" + data_type + ".csv")
-        SASA = os.path.join(datadir,"SASA" + ddata_type + ".csv")
+        SASA = os.path.join(datadir,"SASA" + data_type + ".csv")
         dE = os.path.join(datadir,"dE_RMSD" + data_type + ".csv")
         Water = d_wat[data_type]
-        Ion = os.path.join(datadir, "Num_Ions" + ddata_type + ".csv")
+        Ion = os.path.join(datadir, "Num_Ions" + data_type + ".csv")
         NumFrags = os.path.join(datadir,"NumFrags.csv")
         Core = os.path.join(datadir,"Vina_core" + data_type + ".csv")
         Side = os.path.join(datadir,"Vina_side" + data_type + ".csv")
