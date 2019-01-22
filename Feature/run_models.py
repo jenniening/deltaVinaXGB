@@ -4,11 +4,14 @@ import pandas as pd
 import pickle
 
 
-def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, model_index = "1"):
+def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, model_index = "1", decoy = False):
     model_dir = os.path.realpath(model_dir)
     infile = os.path.join(datadir, infile)
     num = len([line for line in open(infile)]) - 1
-    test_in = pd.read_csv(infile,dtype = {"pdb":str})
+    if decoy:
+        test_in = pd.read_csv(infile,dtype = {"pdb":str,"idx":str})
+    else:
+        test_in = pd.read_csv(infile,dtype = {"pdb":str})
 
     # Feature names
     if model_name == "model_allfeatures":
@@ -50,25 +53,41 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
         test_preds = mod.predict(test_features)
         y_test["1_t"]= test_preds
         test_pred = y_test.sum(axis = 1)/1 + test.vina
+    if decoy:
+        test_new = pd.concat([test[["pdb","idx","vina"]],test_pred],axis = 1)
+    else:
+        test_new = pd.concat([test[["pdb","vina"]],test_pred],axis = 1) 
+    
+    if decoy:
+        if rt == "":
+            test_new.columns = ['pdb','idx','vina','XGB']
+        elif rt == "_min":
+            test_new.columns = ['pdb','idx','vina_min','XGB_min']
+        elif rt == "_min_RW":
+            test_new.columns = ['pdb','idx','vina_min_RW','XGB_min_RW']
+        elif rt == "_RW":
+            test_new.columns = ['pdb','idx','vina_RW','XGB_RW']
+    else:
 
-    test_new = pd.concat([test[["pdb","vina"]],test_pred],axis = 1) 
-
-    if rt == "":
-        test_new.columns = ['pdb','vina','XGB']
-    elif rt == "_min":
-        test_new.columns = ['pdb','vina_min','XGB_min']
-    elif rt == "_min_RW":
-        test_new.columns = ['pdb','vina_min_RW','XGB_min_RW']
-    elif rt == "_RW":
-        test_new.columns = ['pdb','vina_RW','XGB_RW']
+        if rt == "":
+            test_new.columns = ['pdb','vina','XGB']
+        elif rt == "_min":
+            test_new.columns = ['pdb','vina_min','XGB_min']
+        elif rt == "_min_RW":
+            test_new.columns = ['pdb','vina_min_RW','XGB_min_RW']
+        elif rt == "_RW":
+            test_new.columns = ['pdb','vina_RW','XGB_RW']
 
     return test_new
 
-def get_output(out,outfile):
+def get_output(out,outfile,decoy):
     n_out = len(out)
     df = out[0]
     for i in range(1,n_out):
-        df = pd.merge(df,out[i],on = "pdb")
+        if decoy:
+            df = pd.merge(df,out[i],on = ["pdb","idx"])
+        else:
+            df = pd.merge(df,out[i],on = "pdb")
     df.to_csv(outfile, index = False)
 
     return None

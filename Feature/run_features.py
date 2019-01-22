@@ -63,19 +63,22 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = True, water = True, decoy
     if decoy:
         ### For CASF bechmark 
         run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = False, min_RW = False, RW = False, decoy = True, decoy_list = decoy_list, decoy_pro = decoy_pro)
-        out = open(os.path.join(datadir,"NumFrags" + decoy_type + ".csv"),"w")
-        out.write("pdb,idx, num_frag\n")
-        out_core = open("Vina_core" + decoy_type + ".csv","w")
-        out_side = open("Vina_side" + decoy_type + ".csv","w")
+        out = open(os.path.join(datadir,"NumFrags_decoys" + decoy_type + ".csv"),"w")
+        out.write("pdb,idx,num_frag\n")
+        out_core = open(os.path.join(datadir,"Vina_core_decoys" + decoy_type + ".csv"),"w")
+        out_core.write("pdb,idx,vina," + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
+        out_side = open(os.path.join(datadir,"Vina_side_decoys" + decoy_type + ".csv"),"w")
+        out_side.write("pdb,idx,vina," + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
         for idx, decoy in enumerate(decoy_list):
+            idx_decoy = decoy.split("_")[1]
             ### i == 0 is for C ###
             ### i in [1,len(decoy_list+1)] is for decoys fragments Vina score ###
-            num_frags = generate_data(fn,idx + 1,datadir_frag)
-            lines = open("Vina_core" + str(idx + 1) + "csv").readlines()
-            out_core.write(fn + "," + str(idx +1) + "," + ",".join(lines[0].split(",")[1:]))
-            lines = open("Vina_side" + str(idx + 1) + "csv").readlines()
-            out_side.write(fn + "," + str(idx +1) + "," + ",".join(lines[0].split(",")[1:]))
-            out.write(fn + "," + str(idx+1) + "," + str(num_frags) + "\n")
+            num_frags = generate_data(fn,str(idx + 1),datadir_frag)
+            lines = open(os.path.join(datadir_frag,"Vina_core_" + str(idx + 1) + ".csv")).readlines()
+            out_core.write(fn + "," + idx_decoy + "," + ",".join(lines[1].split(",")[1:]))
+            lines = open(os.path.join(datadir_frag,"Vina_side_" + str(idx + 1) + ".csv")).readlines()
+            out_side.write(fn + "," + idx_decoy + "," + ",".join(lines[1].split(",")[1:]))
+            out.write(fn + "," + idx_decoy + "," + str(num_frags) + "\n")
         out_core.close()
         out_side.close()
         out.close()
@@ -110,9 +113,12 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = True, water = True, decoy
             num_frags = generate_data(fn,i,datadir_frag)
         out.write(fn + "," + str(num_frags) + "\n")
         out.close()
-
+    os.chdir(datadir)
+    if decoy:
+        os.system("rm -r Frags")
+    
     os.chdir(olddir)
-
+    
     return None 
 
 def renumber(fmt, infile, outfile):
@@ -138,7 +144,7 @@ def renumber(fmt, infile, outfile):
             elif len(atom_old) < len(atom_new):
                 atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
 
-            newline = line.replace(atom_old,atom_new)
+            newline = line.replace(atom_old,atom_new,1)
             atom_lines_new.append(newline)
             atom_dic[atom_key] += 1
 
@@ -165,7 +171,7 @@ def renumber(fmt, infile, outfile):
                 atom_new = atom_new + (len(atom_old) -len(atom_new)) * " "
             elif len(atom_old) < len(atom_new):
                 atom_old = atom_old + (len(atom_new) -len(atom_old)) * " "
-            newline = line.replace(atom_old,atom_new)
+            newline = line.replace(atom_old,atom_new,1)
             atom_lines_new.append(newline)
             atom_dic[atom_key] += 1
 
@@ -192,30 +198,30 @@ def get_input(datadir, fn):
     inlig3 = fn + "_ligand.pdb"
 
     ### check ligand input file ###
-    if inlig2 in os.listdir("."):
-        inlig = inlig2
-        mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
+    if inlig1 in os.listdir("."):
+        inlig = inlig1
+        mol = Chem.MolFromMol2File(inlig,removeHs = False)
         if mol == None:
-            if inlig1 in os.listdir("."):
-                inlig = inlig1
-                mol = Chem.MolFromMol2File(inlig,removeHs = False)
+            if inlig2 in os.listdir("."):
+                inlig = inlig2
+                mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
                 if mol == None:
                     error_message = "Error:input ligand should be checked"
                     sys.exit(error_message)
                 else:
-                    inlig_rdkit = inlig1
+                    inlig_rdkit = inlig2
             else:
-                error_message = "Error:input ligand(sdf) should be checked"
+                error_message = "Error:input ligand(mol2) should be checked"
                 sys.exit(error_message)
         else:
-            inlig_rdkit = inlig2
-    else:
-        inlig = inlig1
-        mol = Chem.MolFromMol2File(inlig,removeHs = False)
-        if mol == None:
-            sys.exit("Error:input ligand(mol2) should be checked\ntry sdf")
-        else:
             inlig_rdkit = inlig1
+    else:
+        inlig = inlig2
+        mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
+        if mol == None:
+            sys.exit("Error:input ligand(sdf) should be checked\ntry sdf")
+        else:
+            inlig_rdkit = inlig2
 
     ### correcting atom name for sasa calculation ###
     if inlig3 not in os.listdir("."):
@@ -227,7 +233,7 @@ def get_input(datadir, fn):
             outlig = inlig3.split(".")[0] + "_rename.pdb"
             cmd = obabel + " -i" + infmt + " " +  outlig_num + " -opdb -O " + outlig
             os.system(cmd)
-            os.system("rm " + outlig_num)
+            #os.system("rm " + outlig_num)
         elif infmt == "sdf":
             outlig = inlig3
             cmd = obabel + " -i" + infmt + " " +  inlig + " -opdb -O " + outlig
@@ -324,7 +330,11 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
+                if len(ref_atoms) != len(atoms):
+                    print("Num of atoms are not same: " + decoy)
+                    continue
                 atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms]
+                
                 new_lines = [ line[0:17] + atoms_coord[idx] + line[46:] for idx, line in enumerate(ref_atoms)]
                 newdecoy = open(decoy.split(".")[0] + "_correct.mol2","w")
                 newdecoy.write("".join(lines[0:atom_idx + 1]))
@@ -338,6 +348,9 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
+                if len(ref_atoms) != len(atoms):
+                    print("Num of atoms are not same: " + decoy)
+                    continue
                 atoms_coord = {line[7:17].strip():"%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms}
                 new_lines = [line[0:17] + atoms_coord[line[7:17].strip()] + line[46:] for line in ref_atoms]
                 newdecoy = open(decoy.split(".")[0] + "_correct.mol2","w")
@@ -348,7 +361,7 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
 
     elif ref_fmt == "sdf":
         previous_lines = open(ref_lig).readlines()
-        atom_num = previous_lines[3].split()[0]
+        atom_num = int(previous_lines[3].split()[0:3])
         ref_atoms = previous_lines[4: atom_num+4]
         if method == "order":
             for decoy in decoy_list:
@@ -356,10 +369,14 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
+                if len(ref_atoms) != len(atoms):
+                    print("Num of atoms are not same: " + decoy)
+                    continue
                 atoms_coord = [ "%10s%10s%10s"%(line.split()[2],line.split()[3],line.split()[4]) for line in atoms]
                 new_lines = [ atoms_coord[idx] + line[30:] for idx, line in enumerate(ref_atoms)]
                 newdecoy = open(decoy.split(".")[0] + "_correct.sdf","w")
-                newdecoy.write("".join(lines[0:4]))
+                newdecoy.write(lines[1])
+                newdecoy.write("".join(previous_lines[1:4]))
                 newdecoy.write("".join(new_lines))
                 newdecoy.write("".join(previous_lines[atom_num+4:]))
                 newdecoy.close()
@@ -376,12 +393,16 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
-                atoms_coord = [ "%8s%8s%8s"%(line.split()[2][0:-1],line.split()[3][0:-1],line.split()[4][0:-1]) for line in atoms]
-                new_lines = [ line[0:31] + atoms_coord[idx] + line[55:] for idx, line in enumerate(ref_atoms)]
+                if len(ref_atoms) != len(atoms):
+                    print("Num of atoms are not same: " + decoy)
+                    continue
+                atoms_coord = [ "%8.3f%8.3f%8.3f"%(float(line.split()[2]),float(line.split()[3]),float(line.split()[4])) for line in atoms]
+                new_lines = [ line[0:30] + atoms_coord[idx] + line[54:] for idx, line in enumerate(ref_atoms)]
                 newdecoy = open(decoy.split(".")[0] + "_correct.pdb","w")
-                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("COMPND    " + lines[1])
+                newdecoy.write("AUTHOR    GENERATED BY OPEN BABEL 2.4.1\n")
                 newdecoy.write("".join(new_lines))
-                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.write("".join(previous_lines[pre_bond_idx + 1:]))
                 newdecoy.close()
         elif method == "name":
             ### nams shoule be unique ###
@@ -390,12 +411,16 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 atom_idx = lines.index("@<TRIPOS>ATOM\n")
                 bond_idx = lines.index("@<TRIPOS>BOND\n")
                 atoms = lines[atom_idx +1:bond_idx]
-                atoms_coord = {line[7:17].strip():"%8s%8s%8s"%(line.split()[2][0:-1],line.split()[3][0:-1],line.split()[4][0:-1]) for line in atoms}
-                new_lines = [line[0:16] + atoms_coord[line[12:16].strip()] + line[54:] for line in ref_atoms]
+                if len(ref_atoms) != len(atoms):
+                    print("Num of atoms are not same: " + decoy)
+                    continue
+                atoms_coord = {line[7:17].strip():"%8.3f%8.3f%8.3f"%(float(line.split()[2]),float(line.split()[3]),float(line.split()[4])) for line in atoms}
+                new_lines = [line[0:30] + atoms_coord[line[12:16].strip()] + line[54:] for line in ref_atoms]
                 newdecoy = open(decoy.split(".")[0] + "_correct.pdb","w")
-                newdecoy.write("".join(lines[0:atom_idx + 1]))
+                newdecoy.write("COMPND    " + lines[1])
+                newdecoy.write("AUTHOR    GENERATED BY OPEN BABEL 2.4.1")
                 newdecoy.write("".join(new_lines))
-                newdecoy.write("".join(previous_lines[pre_bond_idx:]))
+                newdecoy.write("".join(previous_lines[pre_bond_idx + 1:]))
                 newdecoy.close()
 
 
@@ -410,50 +435,60 @@ def get_input_decoy(datadir, datadir_decoy, fn):
     inlig3 = fn + "_ligand_rename.pdb"
 
     ### check ligand input file ###
-    if inlig2 in os.listdir("."):
-        inlig = inlig2
-        mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
+    olddir = os.getcwd()
+    os.chdir(datadir)
+    if inlig1 in os.listdir("."):
+        inlig = inlig1
+        mol = Chem.MolFromMol2File(inlig,removeHs = False)
         if mol == None:
-            if inlig1 in os.listdir("."):
-                inlig = inlig1
-                mol = Chem.MolFromMol2File(inlig,removeHs = False)
+            if inlig2 in os.listdir("."):
+                inlig = inlig2
+                mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
                 if mol == None:
                     error_message = "Error:input ligand should be checked"
                     sys.exit(error_message)
                 else:
-                    inlig_rdkit = inlig1
+                    inlig_rdkit = inlig2
             else:
-                error_message = "Error:input ligand(sdf) should be checked"
+                error_message = "Error:input ligand(mol2) should be checked"
                 sys.exit(error_message)
         else:
-            inlig_rdkit = inlig2
-    else:
-        inlig = inlig1
-        mol = Chem.MolFromMol2File(inlig,removeHs = False)
-        if mol == None:
-            sys.exit("Error:input ligand(mol2) should be checked\ntry sdf")
-        else:
             inlig_rdkit = inlig1
+    else:
+        inlig = inlig2
+        mol = Chem.SDMolSupplier(inlig,removeHs = False)[0]
+        if mol == None:
+            sys.exit("Error:input ligand(sdf) should be checked\ntry sdf")
+        else:
+            inlig_rdkit = inlig2
+    os.chdir(olddir)
 
     ### prepare decoy file ####
     ref_ligand_rdkit = inlig_rdkit
     ref_ligand_pdb = inlig3
+    ### copy reference ligand ###
+    cmd = "cp " + os.path.join(datadir,ref_ligand_rdkit) + " " + datadir_decoy
+    os.system(cmd)
+    cmd = "cp " + os.path.join(datadir,ref_ligand_pdb) + " " + datadir_decoy
+    os.system(cmd)
     ref_fmt = ref_ligand_rdkit.split(".")[1]
-    decoy_file = fn + "_decoy.mol2"
-    os.system("mkdir " + fn)
-    os.chdir(fn)
-    os.system("cp ../" + fn + "_decoy.mol2 .")
+    decoy_file = fn + "_decoys.mol2"
+    os.chdir(datadir_decoy)
+    os.system("cp ../" + fn + "_decoys.mol2 .")
     num = write_decoys(decoy_file, fn)
     decoy_list = [fn + "_" + str(i) + "_decoy.mol2" for i in range(1,num + 1)]
     rewrite_decoy(ref_ligand_rdkit, decoy_list, ref_fmt, "order")
     rewrite_decoy(ref_ligand_pdb, decoy_list, "pdb", "order")
-    decoy_rdkit_list = [fn + "_" + str(i) + "_decoy_correct." + ref_fmt for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct." + ref_fmt).st_size != 0]
-    decoy_list = [fn + "_" + str(i) + "_decoy_correct.pdb" for i in range(1,num + 1) if os.stat(fn + "_" + str(i) + "_decoy_correct.pdb").st_size != 0]
+    
+    decoy_rdkit_list = [fn + "_" + str(i) + "_decoy_correct." + ref_fmt for i in range(1,num + 1) if fn + "_" + str(i) + "_decoy_correct." + ref_fmt in os.listdir(".")]
+    decoy_pdb_list = [fn + "_" + str(i) + "_decoy_correct.pdb" for i in range(1,num + 1) if fn + "_" + str(i) + "_decoy_correct.pdb" in os.listdir(".")]
+    if len(decoy_list) != len(decoy_rdkit_list):
+        print(str(len(decoy_list)-len(decoy_rdkit_list)) + " decoys have been removed")
+        print(decoy_rdkit_list)
+    assert len(decoy_rdkit_list) == len(decoy_pdb_list), "Decoy File Prepration Failed"
 
-    assert len(decoy_rdkit_list) == len(decoy_list), "Decoy File Prepration Failed"
 
-
-    return ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_list
+    return ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list
 
 
 
@@ -533,65 +568,65 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
     feature calculation for decoys
 
     '''
-
-    if water_type == "rw" or "w":
+    if water_type == "rw" or water_type == "w":
         ref_protein = fn + "_proten_RW.pdb"
         d_type = "_RW"
     else:
         ref_protein = fn + "_protein.pdb"
         d_type = ""
     ### copy ref protein ###
-    cmd = "copy " + os.path.join(datadir,ref_protein) + " " + datadir_decoy
+    cmd = "cp " + os.path.join(datadir,ref_protein) + " " + datadir_decoy
     os.system(cmd)
     
 
     outfile_V58= open(os.path.join(datadir_decoy,"Vina58_decoys" + d_type + ".csv"),"w")
     outfile_V58.write('pdb,idx,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
-    outfile_SASA = open(os.path.join(datadir_decoy,"SASA_decoy" + d_type + ".csv"),"w")
+    outfile_SASA = open(os.path.join(datadir_decoy,"SASA_decoys" + d_type + ".csv"),"w")
     f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
     f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
     outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
-    outfile_Ion = open(os.path.join(datadir_decoy,"Num_Ions" + d_type + ".csv"),"w")
+    outfile_Ion = open(os.path.join(datadir_decoy,"Num_Ions_decoys" + d_type + ".csv"),"w")
     outfile_Ion.write("pdb,idx,Ni\n")
 
-    for idx, decoy in enumerate(decoy_pdb_list):
+    for decoy in decoy_pdb_list:
+        idx = decoy.split("_")[1]
 
         ### get Vina58 ###
-        outfile = open(os.path.join(datadir_decoy,"Vina58" + str(idx+1) + ".csv"),"w")
+        outfile = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv"),"w")
         featureVina(outfile, fn, ref_protein, decoy, datadir_decoy)
         outfile.close()
-        lines = open(os.path.join(datadir_decoy,"Vina58" + str(idx+1) + ".csv")).readlines()
-        outfile_V58.write(fn + "," + str(idx + 1) + "," + ",".join(lines[0].split(",")[1:]))
-        rm_cmd = "rm " + os.path.join(datadir_decoy,"Vina58" + str(idx+1) + ".csv")
+        lines = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv")).readlines()
+        outfile_V58.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]) )
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"Vina58" + idx + ".csv")
         os.system(rm_cmd)
-        print("Finish Vina" + str(idx+1))
+        print("Finish Vina" + idx)
 
         ### get SASA ###
-        outfile  = open(os.path.join(datadir_decoy, "SASA" + str(idx+1) + ".csv"),"w")
+        outfile = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv"),"w")
         cal_SASA(outfile,fn,decoy,ref_protein,datadir_decoy)
         outfile.close()
-        lines = open(os.path.join(datadir_decoy, "SASA" + str(idx+1) + ".csv")).readlines()
-        outfile_SASA.write(fn + "," + str(idx + 1) + "," + ",".join(lines[0].split(",")[1:]))
-        rm_cmd = "rm " + os.path.join(datadir_decoy,"SASA" + str(idx+1) + ".csv")
+        lines = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv")).readlines()
+        outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"SASA" + idx + ".csv")
         os.system(rm_cmd)
-        print("Finish SASA" + str(idx+1))
+        print("Finish SASA" + idx)
 
         ### get Ion ###
-        outfile = open(os.path.join(datadir_decoy,"Num_Ions" + str(idx+1) + ".csv"),"w")
+        outfile = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv"),"w")
         cal_Ni(outfile,fn, ref_protein, decoy, datadir_decoy)
         outfile.close()
-        lines = open(os.path.join(datadir_decoy,"Num_Ions" + str(idx+1) + ".csv")).readlines()
-        outfile_Ion.write(fn + "," + str(idx + 1) + "," + ",".join(lines[0].split(",")[1:]))
-        rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + str(idx+1) + ".csv")
+        lines = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")).readlines()
+        outfile_Ion.write(fn + "," + idx  + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")
         os.system(rm_cmd)
-        print("Finish Ion" + str(idx+1))
+        print("Finish Ion" + idx)
     outfile_V58.close()
     outfile_SASA.close()
     outfile_Ion.close()
 
 
     ### get dERMSD ###
-    outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD.csv"),"w")
+    outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys.csv"),"w")
     outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
     ### copy previous generated confs ###
     confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
@@ -599,27 +634,24 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
     cmd = "cp " + confs + " " + datadir_decoy
     os.system(cmd)
     cmd = "cp " + lowest + " " + datadir_decoy
-    for idx, decoy in enumerate(decoy_rdkit_list):
-        outfile = open(os.path.join(datadir_decoy, "dE_RMSD" + str(idx + 1) + ".csv"),"w")
+    os.system(cmd)
+    for decoy in decoy_rdkit_list:
+        idx = decoy.split("_")[1]
+        outfile = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv"),"w")
         feature_cal(outfile,fn, decoy, datadir_decoy, calc_type = "none", rewrite = False)
         outfile.close()
-        lines = open(os.path.join(datadir_decoy, "dE_RMSD" + str(idx + 1) + ".csv")).readlines()
-        outfile_dE.write(fn + "," + str(idx + 1) + "," + ",".join(lines[0].split(",")) + "\n")
-        rm_cmd = "rm " + os.path.join(datadir_decoy,"dE_RMSD" + str(idx+1) + ".csv")
+        lines = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv")).readlines()
+        outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"dE_RMSD" + idx + ".csv")
         os.system(rm_cmd)
-        print("Finish dE_RMSD" + str(idx+1))
+        print("Finish dE_RMSD" + idx)
     outfile_dE.close()
 
     ### run fragments ###
-    ### copy ref_lig ###
-    cmd = "cp " + os.path(datadir, ref_ligand_pdb) +  " " + datadir_decoy
-    os.system(cmd)
-    cmd = "cp " + os.path(datadir, ref_ligand_rdkit) +  " " + datadir_decoy
-    os.system(cmd)
     run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_pdb_list, decoy_type = d_type, decoy_pro = ref_protein)
 
     ### combine data ###
-    combine(datadir,d_type,decoy = True)
+    combine(datadir_decoy,d_type,decoy = True)
 
     return None
 
@@ -717,7 +749,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
 
 
-def run_features(datadir,fn, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False):
+def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False):
     '''
 
     run features
@@ -741,8 +773,6 @@ def run_features(datadir,fn, water_type = "rw", opt_type = "wo", rewrite = False
         ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
         opt_type = "n"
         water_type = "n"
-        datadir_decoy = os.path.join(datadir,"decoys")
-        os.system("mkdir " + datadir_decoy)
         ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn)
             
     else:

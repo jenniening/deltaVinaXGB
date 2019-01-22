@@ -24,6 +24,7 @@ import click
 @click.option("--model", default = "model_allfeatures", show_default = True, help = "model name")
 @click.option("--modeldir",default = "../Model", show_default = True, help = "absolute model directory")
 @click.option("--datadir", default = "../Test_linux", show_default= True, help = "absolute data directory")
+@click.option("--decoydatadir", default = None, show_default = True, help = "decoy datadir, if decoy == True, please provide decoydatadir, and datadir is the directory for reference file")
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
@@ -34,14 +35,20 @@ import click
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 
-def main(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx):
+def main(model, modeldir, datadir, decoydatadir,pdbid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx):
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
     print("file directory: " + datadir)
+    if decoy:
+        decoydatadir = os.path.realpath(decoydatadir)
+        print("pdb index: " + pdbid  )
+        print("ref directory: " + datadir)
+        print("decoy directory: " + decoydatadir)
+    
     print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
-        run_features(datadir,pdbid, water_type = water, opt_type = opt, ligand_type = "wo", rewrite = rewrite, decoy = decoy)
+        run_features(datadir, decoydatadir, pdbid, water_type = water, opt_type = opt, rewrite = rewrite, decoy = decoy)
         os.chdir(olddir)
 
 
@@ -55,29 +62,35 @@ def main(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, deco
         data_type = ["","_min"]
     else:
         data_type = [""]
-
-    out = []
+    
     if decoy:
-        datadir = os.path.join(datadir,"decoy")
-    for i in data_type:
-        inf = "Input" + i + ".csv"
-        test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx)
-        outRF = "RF" + i + ".csv"
-        RF20_main(datadir,inf,outRF)
-        outRF_new = open(os.path.join(datadir,"RF" + i + "_new.csv"),"w")
-        outRF_new.write("pdb,RF20" + i + "\n")
+        datadir = decoydatadir
+        data_type_new = ["_decoys" + i for i in data_type]
+    else:
+        data_type_new = data_type
+    out = []
+    for idx, i in enumerate(data_type):
+        inf = "Input" + data_type_new[idx] + ".csv"
+        test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx, decoy = decoy)  
+        outRF = "RF" + data_type_new[idx] + ".csv"
+        RF20_main(datadir,inf,outRF, decoy)
+        outRF_new = open(os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv"),"w")
+        outRF_new.write("pdb,idx,RF20" + i + "\n")
        	lines = [line for line in open(os.path.join(datadir,outRF))]
-        outRF_new.write(pdbid + "," + lines[1].split(",")[1])
+        outRF_new.write("".join([pdbid + "," + ",".join(line.split(",")[1:]) for line in lines[1:]]))
         outRF_new.close()
-        os.system("mv " + os.path.join(datadir,"RF" + i + "_new.csv") + " " + os.path.join(datadir, "RF" + i + ".csv"))
+        os.system("mv " + os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv") + " " + os.path.join(datadir, "RF" + data_type_new[idx] + ".csv"))
          
         out.append(test_new)
-        outRF = pd.read_csv(os.path.join(datadir,"RF" + i + ".csv"),dtype = {"pdb":str})
+        if decoy:
+            outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str,"idx":str})
+        else:
+            outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str})
         out.append(outRF)
 
 
     os.chdir(datadir)
-    get_output(out,outfile)
+    get_output(out,outfile,decoy)
     os.system("rm " +  "RF*")
     os.chdir(olddir)
 

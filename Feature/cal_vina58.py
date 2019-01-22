@@ -74,7 +74,7 @@ def featureVina(outfile, fn, inpro, inlig, datadir):
     prepareProt(inpro,protpdbqt)
     prepareLig(inlig,ligpdbqt)
     vinalist = runVina(fn,protpdbqt,ligpdbqt)
-    outfile.write( ",".join(vinalist))
+    outfile.write( ",".join(vinalist) + "\n")
     os.chdir(olddir)
     os.system("rm -r Feature_Vina")
 
@@ -92,7 +92,7 @@ def featureVina_flexible(outfile,fn, inpro, inlig, datadir):
     ligpdbqt = inlig
     prepareProt(inpro,protpdbqt)
     vinalist = runVina(fn,protpdbqt,ligpdbqt)
-    outfile.write( ",".join(vinalist))
+    outfile.write(",".join(vinalist) + "\n")
     os.chdir(olddir)
     os.system("rm -r Feature_Vina")
 

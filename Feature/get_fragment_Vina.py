@@ -62,7 +62,7 @@ def get_ref_infor(inlig, ref_list, noname = True):
             ref_old_lines = get_coordinates_from_pdb(ref_old)
         # get the lines for each file
         for num in range(len([i for i in ref_list])):
-            if num == 0 or num == 3:
+            if num == 0:
                 ref_lines["ref_" + str(num)] = [line for line in open(ref_list[0]) if (line[0:4] == "ATOM") or (line[0:6] == "HETATM")]
             else:
                 ref_lines["ref_" + str(num)] = [line[30:54] for line in open(ref_list[num]) if (line[0:4] == "ATOM") or (line[0:6] == "HETATM")]
@@ -70,7 +70,7 @@ def get_ref_infor(inlig, ref_list, noname = True):
         for index, line in enumerate(ref_old_lines): 
             write = False                                  
             for num in range(len([i for i in ref_list])):
-                if num == 0 or num == 3:
+                if num == 0:
                     if len([l for l in ref_lines["ref_0"] if line in l ]) != 0:
                         ref_line = [l for l in ref_lines["ref_0"] if line in l ][0]
                         write = True
@@ -83,7 +83,7 @@ def get_ref_infor(inlig, ref_list, noname = True):
     else:
         # use atom name to find order, only for structure from PDBbind or CSAR
         for num in range(len([i for i in ref_list])):
-            if num == 0 or num == 3:
+            if num == 0:
                 ref_infor["ref_" + str(num) ] = [line for line in open(ref_list[0]) if (line[0:4] == "ATOM") or (line[0:6] == "HETATM")]
             else:
                 ref_infor["ref_" + str(num)] = []
@@ -227,7 +227,7 @@ def get_ref(fn, inlig, datadir, min = True, min_RW = True, RW = True, decoy = Fa
         ref_list.append(os.path.join(datadir,fn +"_ligand_Vina58.pdbqt"))
     if decoy:
         for decoy in decoy_list:
-            ref_list.append(os.path.join(datadir, decoy_list))
+            ref_list.append(os.path.join(datadir, decoy))
     return ref_list
 
 def get_prot(fn,datadir, min = True, min_RW = True, RW = True, decoy = False, decoy_list = None, decoy_pro = None):
@@ -325,10 +325,16 @@ def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = True, min_RW = Tru
         if len(lines) == 1:
             one_atom = True
             atom_type = "One"
-        elif len([line for line in lines if line.split()[2][0:1] != "H"]) == len([line for line in lines if line.split()[2][0:1] == "C"]):
+        elif len(lines) == 4 and len([line for line in lines if line.split()[2][0:1] == "H"]) == 3 and len([line for line in lines if line.split()[2][0:1] == "C"]) == 1:
+            ### CH3 ###
+            one_atom = True
+            atom_type = "CH"
+        elif len(lines) == 6 and len([line for line in lines if line.split()[2][0:1] == "H"]) == 3 and len([line for line in lines if line.split()[2][0:1] == "C"]) == 3:
+            ### CCCH3 ###
             one_atom = True
             atom_type = "CH"
         elif len(lines) == 3 and len([line for line in lines if line.split()[2][0:1] == "N"]) == 3:
+            ### NNN ###
             one_atom = True
             atom_type = "N3"
 
