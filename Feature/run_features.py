@@ -569,7 +569,8 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
 
     '''
     if water_type == "rw" or water_type == "w":
-        ref_protein = fn + "_proten_RW.pdb"
+        ref_protein = fn + "_protein_RW.pdb"
+        ref_protein_only = fn + "_protein.pdb"
         d_type = "_RW"
     else:
         ref_protein = fn + "_protein.pdb"
@@ -577,6 +578,22 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
     ### copy ref protein ###
     cmd = "cp " + os.path.join(datadir,ref_protein) + " " + datadir_decoy
     os.system(cmd)
+    if water_type == "rw" or water_type == "w":
+        cmd = "cp " + os.path.join(datadir,ref_protein_only) + " " + datadir_decoy
+        os.system(cmd)
+        outfile_BW = open(os.path.join(datadir_decoy,"Feature_BW_decoys" + d_type + ".csv"),"w")
+        outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
+        for decoy in decoy_pdb_list:
+            idx = decoy.split("_")[1]
+            outfile = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv"),"w")
+            cal_BW(outfile,fn,ref_protein_only,decoy,ref_protein,datadir_decoy)
+            outfile.close()
+            lines = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")).readlines()
+            outfile_BW.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish BW" + idx)
+        outfile_BW.close()
     
 
     outfile_V58= open(os.path.join(datadir_decoy,"Vina58_decoys" + d_type + ".csv"),"w")
@@ -626,7 +643,7 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
 
 
     ### get dERMSD ###
-    outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys.csv"),"w")
+    outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys" + d_type + ".csv"),"w")
     outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
     ### copy previous generated confs ###
     confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
@@ -772,7 +789,8 @@ def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo",
     if decoy:
         ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
         opt_type = "n"
-        water_type = "n"
+        ### previously, I think CASF-2013/2016 decoys scores should without water, but might be added water effect ###
+        #water_type = "n"
         ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn)
             
     else:
@@ -781,7 +799,10 @@ def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo",
 
     ### receptor water ###
     if water_type != "n":
-        prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, water_type, rewrite)
+        if not decoy:
+            prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, water_type, rewrite)
+        else:
+            print("Consideration of Water Effect for Decoys")
     else:
         print("No Consideration of Water")
 

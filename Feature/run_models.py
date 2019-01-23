@@ -34,6 +34,17 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
         conformation =["dE_global","RMSD_global","number1"]
         featlist =  vina + SASA + ion + water +conformation + ["num_frag"]
         model_dir = os.path.join(model_dir,model_name)
+    
+    elif model_name[0:16] == "model_nofragment":
+        SASA_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
+        SASA = ["P2." + i for i in SASA_type] + ["P2dp.SA","P2dl.SA"]
+        vina =  ["vina1","vina3","vina53","vina55","vina54","vina56","vina4","vina52","vina58","vina48"]
+        water = ["Nbw"] + ["Epw"] + ["Elw"]
+        ion = ["Ni"]
+        conformation =["dE_global","RMSD_global","number1"]
+        featlist =  vina + SASA + ion + water +conformation 
+        model_dir = os.path.join(model_dir,model_name)
+
 
 
     test = test_in.copy()

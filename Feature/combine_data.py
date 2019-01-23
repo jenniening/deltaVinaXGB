@@ -63,13 +63,13 @@ def combine(datadir,data_type = "", decoy = False):
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy)
         f.to_csv(os.path.join(datadir,outfile),index = False)
     else:
-        d_wat = {"":None, "_RW":os.path.join(datadir,"Feature_BW_RW.csv")}
+        d_wat = {"":None, "_RW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv")}
         Vina58 = os.path.join(datadir,"Vina58_decoys" + data_type + ".csv")
         SASA = os.path.join(datadir,"SASA_decoys" + data_type + ".csv")
         dE = os.path.join(datadir,"dE_RMSD_decoys" + data_type + ".csv")
         Water = d_wat[data_type]
         Ion = os.path.join(datadir, "Num_Ions_decoys" + data_type + ".csv")
-        NumFrags = os.path.join(datadir,"NumFrags_decoys.csv")
+        NumFrags = os.path.join(datadir,"NumFrags_decoys" + data_type + ".csv")
         Core = os.path.join(datadir,"Vina_core_decoys" + data_type + ".csv")
         Side = os.path.join(datadir,"Vina_side_decoys" + data_type + ".csv")
         outfile = "Input_decoys" + data_type + ".csv"

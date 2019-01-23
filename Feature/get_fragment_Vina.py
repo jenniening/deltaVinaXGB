@@ -337,7 +337,10 @@ def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = True, min_RW = Tru
             ### NNN ###
             one_atom = True
             atom_type = "N3"
-
+        elif len(lines) == 3 and len([line for line in lines if line.split()[2][0:1] == "N"]) == 1 and len([line for line in lines if line.split()[2][0:1] == "C"]) == 1 and len([line for line in lines if line.split()[2][0:1] == "S"]) == 1 and fn == "3ary":
+            ### SCN in 3ary ###
+            one_atom = True
+            atom_type = "N3"
         if one_atom:
             prev_frag_file = None
             new_lines= get_atom_index(ref_infor, frag, one_atom, atom_type)

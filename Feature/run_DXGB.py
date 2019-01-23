@@ -55,13 +55,20 @@ def main(model, modeldir, datadir, decoydatadir,pdbid, outfile, runfeatures, wat
 
     if decoy:
         opt = "n"
-
-    if opt == "wo":
-        data_type = ["","_min","_min_RW"]
-    elif opt == "o":
-        data_type = ["","_min"]
+        if water == "rw" or water == "w":
+            data_type = ["_RW"]
+        else:
+            data_type = [""]
     else:
-        data_type = [""]
+
+        if opt == "wo":
+            data_type = ["","_min","_min_RW"]
+        elif opt == "o":
+            data_type = ["","_min"]
+        else:
+            data_type = [""]
+    
+    
     
     if decoy:
         datadir = decoydatadir
