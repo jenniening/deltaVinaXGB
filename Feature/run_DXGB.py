@@ -27,6 +27,8 @@ import click
 @click.option("--decoydatadir", default = None, show_default = True, help = "decoy datadir, if decoy == True, please provide decoydatadir, and datadir is the directory for reference file")
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
+@click.option("--prodatadir",default = None, show_default = True, help = "protein directory, needed when protein and ligand are not in same directory")
+@click.option("--proid", default = None, show_default = True, help = "protein id, needed when protein and ligand have different ids")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
 @click.option("--water", default = "rw", show_default = True, help = "water type")
 @click.option("--opt", default = "wo", show_default = True, help = "opt type")
@@ -34,8 +36,9 @@ import click
 @click.option("--rewrite", is_flag = True, help = "rewrite protein_RW, ligand_opt, generated confs or not")
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
+@click.option("--ligname", default = False, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
 
-def main(model, modeldir, datadir, decoydatadir,pdbid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx):
+def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx,ligname):
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
     print("file directory: " + datadir)
@@ -44,11 +47,15 @@ def main(model, modeldir, datadir, decoydatadir,pdbid, outfile, runfeatures, wat
         print("pdb index: " + pdbid  )
         print("ref directory: " + datadir)
         print("decoy directory: " + decoydatadir)
+    if prodatadir:
+        print("protein directory is not same as ref directory: " + prodatadir)
+    if proid:
+        print("protein id is not same as pdb index:" + proid)
     
     print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
-        run_features(datadir, decoydatadir, pdbid, water_type = water, opt_type = opt, rewrite = rewrite, decoy = decoy)
+        run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, rewrite = rewrite, decoy = decoy, ligname = ligname)
         os.chdir(olddir)
 
 
@@ -81,8 +88,12 @@ def main(model, modeldir, datadir, decoydatadir,pdbid, outfile, runfeatures, wat
         test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx, decoy = decoy)  
         outRF = "RF" + data_type_new[idx] + ".csv"
         RF20_main(datadir,inf,outRF, decoy)
+        ### correct wrong pdb name in scientific pattern ###
         outRF_new = open(os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv"),"w")
-        outRF_new.write("pdb,idx,RF20" + i + "\n")
+        if decoy:
+            outRF_new.write("pdb,idx,RF20" + i + "\n")
+        else:
+            outRF_new.write("pdb,RF20" + i + "\n")
        	lines = [line for line in open(os.path.join(datadir,outRF))]
         outRF_new.write("".join([pdbid + "," + ",".join(line.split(",")[1:]) for line in lines[1:]]))
         outRF_new.close()

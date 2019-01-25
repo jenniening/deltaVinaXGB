@@ -283,23 +283,29 @@ def get_input(datadir, fn):
     return inlig_rdkit, inlig3, inpro1, inpro2
 
 
-def write_decoys(infile, fn):
+def write_decoys(infile, fn, ligname = False):
     '''
     split decoys into seperate file
 
     '''
-
+    
     lines = open(infile).readlines()
     n = 0
     flag = False
-    for line in lines:
+    for idx, line in enumerate(lines):
         if line[0] != "#":
             if line == "@<TRIPOS>MOLECULE\n":
-                flag = True
-                n += 1
+                if ligname:
+                    name = lines[idx+1][0:4]
+                    if name == fn:
+                        flag = True
+                        n += 1
+                else:
+                    flag = True
+                    n += 1
                 if n == 1:
                     newfile = open(fn + "_" + str(n) + "_decoy.mol2","w")
-                else:
+                elif n > 1:
                     newfile.close()
                     newfile = open(fn + "_" + str(n) + "_decoy.mol2","w")
             if flag:
@@ -428,7 +434,7 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
     return None
 
     
-def get_input_decoy(datadir, datadir_decoy, fn):
+def get_input_decoy(datadir, datadir_decoy, fn, ligname):
 
     inlig1 = fn + "_ligand.mol2"
     inlig2 = fn + "_ligand.sdf"
@@ -475,7 +481,8 @@ def get_input_decoy(datadir, datadir_decoy, fn):
     decoy_file = fn + "_decoys.mol2"
     os.chdir(datadir_decoy)
     os.system("cp ../" + fn + "_decoys.mol2 .")
-    num = write_decoys(decoy_file, fn)
+    ### ligname True for CASF-2016 screening, since for target-ligand there are so many other structures in decoy mol2 file ### 
+    num = write_decoys(decoy_file, fn, ligname = ligname)
     decoy_list = [fn + "_" + str(i) + "_decoy.mol2" for i in range(1,num + 1)]
     rewrite_decoy(ref_ligand_rdkit, decoy_list, ref_fmt, "order")
     rewrite_decoy(ref_ligand_pdb, decoy_list, "pdb", "order")
@@ -563,23 +570,23 @@ def prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite):
     
     return None
     
-def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n"):
+def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n"):
     '''
     feature calculation for decoys
 
     '''
     if water_type == "rw" or water_type == "w":
-        ref_protein = fn + "_protein_RW.pdb"
-        ref_protein_only = fn + "_protein.pdb"
+        ref_protein = pro + "_protein_RW.pdb"
+        ref_protein_only = pro + "_protein.pdb"
         d_type = "_RW"
     else:
-        ref_protein = fn + "_protein.pdb"
+        ref_protein = pro + "_protein.pdb"
         d_type = ""
     ### copy ref protein ###
-    cmd = "cp " + os.path.join(datadir,ref_protein) + " " + datadir_decoy
+    cmd = "cp " + os.path.join(datadir_pro,ref_protein) + " " + datadir_decoy
     os.system(cmd)
     if water_type == "rw" or water_type == "w":
-        cmd = "cp " + os.path.join(datadir,ref_protein_only) + " " + datadir_decoy
+        cmd = "cp " + os.path.join(datadir_pro,ref_protein_only) + " " + datadir_decoy
         os.system(cmd)
         outfile_BW = open(os.path.join(datadir_decoy,"Feature_BW_decoys" + d_type + ".csv"),"w")
         outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
@@ -668,7 +675,7 @@ def feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_l
     run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_pdb_list, decoy_type = d_type, decoy_pro = ref_protein)
 
     ### combine data ###
-    combine(datadir_decoy,d_type,decoy = True)
+    combine(datadir_decoy,d_type,decoy = True,)
 
     return None
 
@@ -766,7 +773,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
 
 
-def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False):
+def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False, ligname = False):
     '''
 
     run features
@@ -791,7 +798,7 @@ def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo",
         opt_type = "n"
         ### previously, I think CASF-2013/2016 decoys scores should without water, but might be added water effect ###
         #water_type = "n"
-        ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn)
+        ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn, ligname)
             
     else:
         inlig_rdkit, inlig_pdb, inpro_pro, inpro_water = get_input(datadir,fn)
@@ -815,7 +822,11 @@ def run_features(datadir, datadir_decoy, fn, water_type = "rw", opt_type = "wo",
 
     ### update input structures ###
     if decoy:
-        feature_calculation_decoy(datadir, datadir_decoy, fn, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
+        if datadir_pro == None:
+            datadir_pro = datadir
+        if pro == None:
+            pro = fn
+        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
     else:
         feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type)
     
