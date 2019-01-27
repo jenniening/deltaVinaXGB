@@ -37,7 +37,7 @@ elif sys.platform == "darwin":
 
 obabel = path_obabel()
 
-def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
+def run_fragments(fn, datadir, inlig, inlig_pdb, opt = True, water = True, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
     '''
     get Vina58 for core and side
 
@@ -45,7 +45,7 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy
     ### decoy = True only for structures have many docking poses ###
     olddir = os.getcwd()
     os.chdir(datadir)
-    cmd = "mkdir Frags" 
+    cmd = "mkdir Frags"
     os.system(cmd)
     os.chdir("Frags")
 
@@ -60,10 +60,9 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy
     
     ### run Vina ###
     datadir_frag = os.path.join(datadir, "Frags")
-
     if decoy:
-        ### For CASF bechmark ###
-        run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, decoy = True, decoy_list = decoy_list, decoy_pro = decoy_pro)
+        ### For CASF bechmark 
+        run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = False, min_RW = False, RW = False, decoy = True, decoy_list = decoy_list, decoy_pro = decoy_pro)
         out = open(os.path.join(datadir,"NumFrags_decoys" + decoy_type + ".csv"),"w")
         out.write("pdb,idx,num_frag\n")
         out_core = open(os.path.join(datadir,"Vina_core_decoys" + decoy_type + ".csv"),"w")
@@ -83,53 +82,38 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy
         out_core.close()
         out_side.close()
         out.close()
-    else:
-        ### for ligands ###
-        ### all options in run_Vina_Fragment default to False/None ###
-        header = "pdb,vina," + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n"
-        if opt == "rbwo":
-            ### i == 0 is for C; i == 1 for Co; i == 2 for Crwo, i == 3 for Cbwo ###
-            run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = True, min_RW = True, min_BW = True)
-            name_type = ["","_min","min_RW","min_BW"]
-        elif opt == "rwo":
-            ### i == 0 is for C; i == 1 for Crwo ###
-            run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_RW = True)
-            name_type = ["","min_RW"]
-        elif opt == "bwo":
-            ### i == 0 is for C; i == 1 for Cbwo ###
-            run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_BW = True)
-            name_type = ["","min_BW"]
-        elif opt == "pwo":
-            ### i == 0 is for C; i == 1 for Cpwo ###
-            run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_PW = True)
-            name_type = ["","min_PW"]
-        elif opt == "o":
-            ### i == 0 is for C; i == 1 for Co ###
-            run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min = True)
-            name_type = ["","min"]
-        else:
-            ### i == 0 is for C ###
-            run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag)
-            name_type = [""]
-
-        for i in range(len(name_type)):
-            out_core = open(os.path.join(datadir,"Vina_core_" + name_type[i] + ".csv"),"w")
-            out_core.write(header)
-            out_side = open(os.path.join(datadir,"Vina_side_" + name_type[i] + ".csv"),"w")
-            out_side.write(header)
-            lines = open(os.path.join(datadir_frag,"Vina_core_" + str(i) + ".csv")).readlines()
-            out_core.write(fn  + "," + ",".join(lines[1].split(",")[1:]))
-            lines = open(os.path.join(datadir_frag,"Vina_side_" + str(i) + ".csv")).readlines()
-            out_side.write(fn  + "," + ",".join(lines[1].split(",")[1:]))
-        ### num_frag are same for all types of structure ###
+    if water:
+        run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag, min = True, min_RW = True, RW = False, decoy = decoy)
         out = open(os.path.join(datadir,"NumFrags.csv"),"w")
         out.write("pdb,num_frag\n")
-        num_frags = generate_data(fn,"0",datadir_frag)
+        for i in range(3):
+            i = str(i)
+            ### i == 0 is for C; i == 1 for Co; i == 2 for Crwo ###
+            num_frags = generate_data(fn,i,datadir_frag)
         out.write(fn + "," + str(num_frags) + "\n")
         out.close()
 
+    elif water == False and opt == True:
+        run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = True, min_RW = False, RW = False, decoy = False)
+        out = open(os.path.join(datadir,"NumFrags.csv"),"w")
+        out.write("pdb,num_frag\n")
+        for i in range(2):
+            i = str(i)
+            ### i == 0 is for C; i == 1 for Co ###
+            num_frags = generate_data(fn,i,datadir_frag)
+        out.write(fn + "," + str(num_frags) + "\n")
+        out.close()
+    elif water == False and opt == False:
+        run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = False, min_RW = False, RW = False, decoy = False)
+        out = open(os.path.join(datadir,"NumFrags.csv"),"w")
+        out.write("pdb,num_frag\n")
+        for i in range(1):
+            i = str(i)
+            ### i == 0 is for C ###
+            num_frags = generate_data(fn,i,datadir_frag)
+        out.write(fn + "," + str(num_frags) + "\n")
+        out.close()
     os.chdir(datadir)
-
     if decoy:
         os.system("rm -r Frags")
     
@@ -515,42 +499,20 @@ def get_input_decoy(datadir, datadir_decoy, fn, ligname):
 
 
 
-def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, rewrite = False):
+def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, water_type, rewrite):
     '''
-    prepare protein with water for different water type
+    prepare receptor water file for different water type
 
-    water_type: protein part water type, defaults to "rbw"
-            "rbw" --> get protein part water based RW and BW
-            "rw" --> get protein part water based RW
-            "bw" --> get protein part water based BW
-            "pw" --> get protein part water based PW (all waters in protein_all.pdb are considered as protein part water)
+    water_type: receptor water type, defaults to "rw"
+            "rw" --> get receptor water based our criteria
+            "w"  --> all waters in protein_all.pdb are considered as receptor water
             "n"  --> no consideration of water molecules
 
     '''
-    if water_type == "rbw":
-        print("Protein Water: recalculate by both RW and BW")
-        if rewrite:
-            get_Crw(fn,inpro_pro,inpro_water,datadir)
-            print("Finish generate RW")
-            out_total = open("Feature_BW_initial.csv","w")
-            cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)
-            out_total.close()
-            print("Finish generate BW")
-        else:
-            if inpro_pro.split(".")[0] + "_RW.pdb" not in os.listdir(datadir):
-                get_Crw(fn,inpro_pro,inpro_water,datadir)
-            else:
-                print("Use previous generated RW")
-            if inpro_pro.split(".")[0] + "_BW.pdb" not in os.listdir(datadir):
-                out_total = open("Feature_BW_initial.csv","w")
-                cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)
-                out_total.close()
-                print("Finish generate BW")
-            else:
-                print("Use previous RW and BW")
 
-    elif water_type == "rw":
-        print("Protein Water: recalculate by RW")
+
+    if water_type == "rw":
+        print("Receptor Water: recalculate")
         if rewrite:
             get_Crw(fn,inpro_pro,inpro_water,datadir)
             print("Finish generate RW")
@@ -559,102 +521,41 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
                 get_Crw(fn,inpro_pro,inpro_water,datadir)
                 print("Finish generate RW")
             else:
-                print("Use previous RW")
-    elif water_type == "pw":
+                print("Use previous generated RW")
+    elif water_type == "w":
+        print("Receptor Water: use waters in " + fn + "_protein_all.pdb" )
         if rewrite:
             olddir = os.getcwd()
             os.chdir(datadir)
-            cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_PW.pdb"
+            cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_RW.pdb"
             os.system(cmd)
             os.chdir(olddir)
-            print("Finish generated PW")
+            print("Finish copy RW")
         else:
             if inpro_pro.split(".")[0] + "_RW.pdb" not in os.listdir(datadir):
                 olddir = os.getcwd()
                 os.chdir(datadir)
-                cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_PW.pdb"
+                cmd = "cp " + inpro_water + " " + inpro_pro.split(".")[0] + "_RW.pdb"
                 os.system(cmd)
                 os.chdir(olddir)
-                print("Finish generated PW")
+                print("Finish copy RW")
             else:
-                print("Use previous PW")
-
-    elif water_type == "bw":
-        print("Protein Water: recalculate by BW")
-        if rewrite:
-            out_total = open("Feature_BW_initial.csv","w")
-            cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)
-            out_total.close()
-            print("Finish generate BW")
-        else:
-            if inpro_pro.split(".")[0] + "_BW.pdb" not in os.listdir(datadir):
-                out_total = open("Feature_BW_initial.csv","w")
-                cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)
-                out_total.close()
-                print("Finish generate BW")
-            else:
-                print("Use previous BW")
+                print("Use previous copy RW")
 
     return None
 
 
-def prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite = False):
-    '''
-    prepare AutoDock Vina optimized ligand for different optimization type
-
-    opt_type: receptor water type, defaults to "rbwo"
-            "rbwo" --> do optimization for protein without water, with RW and with BW
-            "rwo" --> do optimization for protein with RW
-            "bwo" --> do optimization for protein with BW
-            "pwo" --> do optimization for protein with PW(all waters in protein_all.pdb are considered as protein part water)
-            "o" --> do optimization for protein without water
-            "n" --> no optimization
-
-    '''
-
-    if opt_type == "rbwo":
-        for st in ["","_RW","_BW"]:
+def prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite):
+    if opt_type == "wo":
+        for st in ["","RW"]:
             if rewrite:
                 get_Co(datadir,fn, inlig_pdb, st)
             else:
-                if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
+                if (inlig_pdb.split(".")[0] + "_min.pdb" not in os.listdir(datadir) ) or (inlig_pdb.split(".")[0] + "_min_RW.pdb" not in os.listdir(datadir) ):
                     get_Co(datadir,fn, inlig_pdb, st)
                 else:
-                    print("Use pervious generated C" + st + "O")
-        print("Finish Optimization")
-
-    elif opt_type == "rwo":
-        for st in ["_RW"]:
-            if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st)
-            else:
-                if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st)
-                else:
-                    print("Use pervious generated C" + st + "O")
-        print("Finish Optimization")
-
-    elif opt_type == "bwo":
-        for st in ["_BW"]:
-            if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st)
-            else:
-                if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st)
-                else:
-                    print("Use pervious generated C" + st + "O")
-        print("Finish Optimization")
-
-    elif opt_type == "pwo":
-        for st in ["_PW"]:
-            if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st)
-            else:
-                if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st)
-                else:
-                    print("Use pervious generated C" + st + "O")
-        print("Finish Optimization")
+                    print("Use pervious generated Co, Crwo")
+        print("Finish Co, Crwo")
 
     elif opt_type == "o":
         for st in [""]:
@@ -664,8 +565,8 @@ def prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite = False):
                 if (inlig_pdb.split(".")[0] + "_min.pdb" not in os.listdir(datadir)):
                     get_Co(datadir,fn, inlig_pdb, st)
                 else:
-                    print("Use pervious generated C" + st + "O")         
-        print("Finish Optimization")
+                    print("Use pervious generated Co")         
+        print("Finish Co")
     
     return None
     
@@ -726,11 +627,7 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
 
         ### get SASA ###
         outfile = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv"),"w")
-        try:
-            cal_SASA(outfile,fn,decoy,ref_protein,datadir_decoy)
-        except:
-            ### if SASA failed, means there is no overlap between protein and decoy ###
-            outfile.write(fn + "," + ",".join([0.00 for i in range(30)]) + "\n")
+        cal_SASA(outfile,fn,decoy,ref_protein,datadir_decoy)
         outfile.close()
         lines = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv")).readlines()
         outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
@@ -784,35 +681,30 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
 
 def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type):
     '''
-    feature calculation for ligands (C, Co, Crwo, Cbwo, Cpwo)
+    feature calculation for ligands (C, Co, Crwo)
     
     '''
 
     ### update input structures ###
-    inlig_C = inlig_pdb ### initial structure ###
+    inlig_C = inlig_pdb
     inlig_Co = fn + "_lig_min.pdb"
     inlig_Crwo = fn + "_lig_min_RW.pdb"
-    inlig_Cbwo = fn + "_lig_min_BW.pdb"
-    inlig_Cpwo = fn + "_lig_min_PW.pdb"
 
-    inpro_C = inpro_pro ### protein without water ####
+    inpro_C = inpro_pro
     inpro_Crw = fn + "_protein_RW.pdb"
-    inpro_Cbw = fn + "_protein_BW.pdb"
-    inpro_Cpw = fn + "_protein_PW.pdb"
 
     ################################
 
-    ### get output file type ###
-    if opt_type == "rbwo":
-        d_type = {"":[inpro_C, inlig_C],"_min": [inpro_C, inlig_Co],"_min_RW": [inpro_Crw, inlig_Crwo], "_min_BW":[inpro_Cbw, inlig_Cbwo]}
-    elif opt_type == "rwo":
-        d_type = {"_min_RW": [inpro_Crw, inlig_Crwo]}
-    elif opt_type == "bwo":
-        d_type = {"_min_BW": [inpro_Cbw, inlig_Cbwo]}
-    elif opt_type == "pwo":
-        d_type = {"_min_PW":[inpro_Cpw, inlig_Cpwo]}
+    if opt_type == "wo":
+        d_type = {"":[inpro_C, inlig_C],"_min": [inpro_C, inlig_Co],"_min_RW": [inpro_Crw, inlig_Crwo]}
+        ### get bw ###
+        out_total = open(os.path.join(datadir,"Feature_BW_min_RW.csv"),"w")
+        out_total.write("pdb,Nbw,Epw,Elw\n")
+        cal_BW(out_total,fn,inpro_pro,inlig_Crwo,inpro_Crw,datadir)
+        out_total.close()
+        print("Finish BW")
     elif opt_type == "o":
-        d_type = {"_min":[inpro_C, inlig_Co]}
+        d_type = {"":[inpro_C, inlig_C],"_min": [inpro_C, inlig_Co]}
     else:
         d_type = {"":[inpro_C, inlig_C]}
          
@@ -822,24 +714,11 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
             print("C")
         elif i == "_min":
             print("Co")
-        elif i == "_min_RW":
+        else:
             print("Crwo")
-        elif i == "_min_BW":
-            print("Cbwo")
-        elif i == "_min_PW":
-            print("Cpwo")
 
         inpro = d_type[i][0]
         inlig = d_type[i][1]
-        ### get BW features ###
-        ### only for structure with water in protein ###
-        if i in ["_min_RW", "_min_BW", "_min_PW"]:
-            out_total = open(os.path.join(datadir,"Feature_BW" + i + ".csv"),"w")
-            out_total.write("pdb,Nbw,Epw,Elw\n")
-            cal_BW(out_total,fn,inpro_pro,inlig,inpro,datadir)
-            out_total.close()
-            print("Finish Bridging Water Feature Calculation")
-
         ### get Vina58 ###
         outfile = open(os.path.join(datadir,"Vina58" + i + ".csv"),"w")
         outfile.write('pdb,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
@@ -867,12 +746,19 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     ### get dERMSD ###
     outfile = open(os.path.join(datadir,"dE_RMSD.csv"),"w")
     outfile.write("pdb,dE_global,RMSD_global,number0,number1\n")
-    feature_cal(outfile,fn, inlig_rdkit, datadir, calc_type = "GenConfs", rewrite = rewrite)
+    feature_cal(outfile,fn, inlig_rdkit, datadir, calc_type = "GenConfs")
     outfile.close()
 
     ### run fragments ###
-    run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, opt = opt_type)
+    if opt_type == "wo":
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = True, water = True)
+    elif opt_type == "o":
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = True, water = False)
+    else:
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb,  opt = False, water = False)
 
+
+    
     ### combine data ###
     for i in d_type.keys():
         combine(datadir,i)
@@ -887,38 +773,24 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
 
 
-def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", rewrite = False, decoy = False, ligname = False):
+def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rw", opt_type = "wo", rewrite = False, decoy = False, ligname = False):
     '''
 
     run features
     
-    datadir: directory for structures
-    datadir_pro: directory for protein structure, only for decoys in screening test
-    datadir_decoy: directory for decoy structures, only for decoys
-    fn: pdbid
-    pro: pdbid for protein, only for decoys in screening test
-
-    water_type: protein part water type, defaults to "rbw"
-            "rbw" --> get protein part water based RW and BW
-            "rw" --> get protein part water based RW
-            "bw" --> get protein part water based BW
-            "pw" --> get protein part water based PW (all waters in protein_all.pdb are considered as protein part water)
+    water_type: receptor water type, defaults to "rw"
+            "rw" --> get receptor water based our criteria
+            "w"  --> all waters in protein_all.pdb are considered as receptor water
             "n"  --> no consideration of water molecules
-
-    opt_type: receptor water type, defaults to "rbwo"
-            "rbwo" --> do optimization for protein without water, with RW and with BW
-            "rwo" --> do optimization for protein with RW
-            "bwo" --> do optimization for protein with BW
-            "pwo" --> do optimization for protein with PW(all waters in protein_all.pdb are considered as protein part water)
-            "o" --> do optimization for protein without water
-            "n" --> no optimization
-
+    
+    opt_type: optimization type, defaults to "wo"
+            "wo" --> Crwo, Co
+            "o"  --> Co
+            "n"  --> no optimization 
             
-    rewrite: whether to rewrite all features, defaults to False
+    rewrite: whether to rewrite all features
 
-    decoy: CASF decoys or not, defaults to False
-
-    ligname: whether use ligname to grab decoys (Only in CASF-2016_Screening), defaults to False
+    decoy: CASF decoys or not
 
     '''
     if decoy:
@@ -935,23 +807,21 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
     ### receptor water ###
     if water_type != "n":
         if not decoy:
-            prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig_pdb, water_type, rewrite = rewrite)
+            prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, water_type, rewrite)
         else:
             print("Consideration of Water Effect for Decoys")
-    
     else:
         print("No Consideration of Water")
 
     ### get Co, Crwo ###
     if opt_type != "n":
-        prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite = rewrite)
+        prepare_opt_ligand(datadir,fn,inlig_pdb,opt_type,rewrite)
     else:
         print("No Optimized Ligand")
 
 
     ### update input structures ###
     if decoy:
-        ### consider 
         if datadir_pro == None:
             datadir_pro = datadir
         if pro == None:
@@ -968,5 +838,5 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 if __name__ == "__main__":
     datadir = "/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Test"
     fn = "01"
-    
+    run_features(datadir,fn)
  

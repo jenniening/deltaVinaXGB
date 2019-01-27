@@ -208,7 +208,7 @@ def prepareprot(inprot, protpdbqt):
     os.system(cmd)
 
 
-def get_ref(fn, inlig, datadir, min = True, min_RW = True, RW = True, decoy = False, decoy_list = None):
+def get_ref(fn, inlig, datadir, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False, decoy = False, decoy_list = None):
     '''
     Get reference file
 
@@ -225,12 +225,16 @@ def get_ref(fn, inlig, datadir, min = True, min_RW = True, RW = True, decoy = Fa
         ref_list.append(os.path.join(datadir,fn +"_lig_min_RW.pdb"))
     if RW:
         ref_list.append(os.path.join(datadir,fn +"_ligand_Vina58.pdbqt"))
+    if min_BW:
+        ref_list.append(os.path.join(datadir,fn + "_lig_min_BW.pdb"))
+    if min_PW:
+        ref_list.append(os.path.join(datadir,fn + "_lig_min_PW.pdb"))
     if decoy:
         for decoy in decoy_list:
             ref_list.append(os.path.join(datadir, decoy))
     return ref_list
 
-def get_prot(fn,datadir, min = True, min_RW = True, RW = True, decoy = False, decoy_list = None, decoy_pro = None):
+def get_prot(fn,datadir, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False,decoy = False, decoy_list = None, decoy_pro = None):
     '''
     Get protein pdbqt
 
@@ -248,12 +252,22 @@ def get_prot(fn,datadir, min = True, min_RW = True, RW = True, decoy = False, de
             inprot = os.path.join(datadir,fn +"_protein_RW.pdb")
             inprot_out = os.path.join(datadir,fn +"_protein_RW_Vina58.pdbqt")
             prepareprot(inprot,inprot_out)
-   
-
         prot_list.append(os.path.join(datadir, fn + "_protein_RW_Vina58.pdbqt"))
     if RW:
         prot_list.append(os.path.join(datadir, fn + "_protein_RW_Vina58.pdbqt"))
-    
+    if min_BW:
+        if not os.path.isfile(os.path.join(datadir, fn +"_protein_BW_Vina58.pdbqt")):
+            inprot = os.path.join(datadir,fn +"_protein_BW.pdb")
+            inprot_out = os.path.join(datadir,fn +"_protein_BW_Vina58.pdbqt")
+            prepareprot(inprot,inprot_out)
+        prot_list.append(os.path.join(datadir, fn + "_protein_BW_Vina58.pdbqt"))
+    if min_PW:
+        if not os.path.isfile(os.path.join(datadir, fn +"_protein_PW_Vina58.pdbqt")):
+            inprot = os.path.join(datadir,fn +"_protein_PW.pdb")
+            inprot_out = os.path.join(datadir,fn +"_protein_PW_Vina58.pdbqt")
+            prepareprot(inprot,inprot_out)
+        prot_list.append(os.path.join(datadir, fn + "_protein_PW_Vina58.pdbqt"))
+
     if decoy:
         if not os.path.isfile(os.path.join(datadir,decoy_pro.split(".")[0] + "_Vina58.pdbqt")):
             inprot = os.path.join(datadir,decoy_pro)
@@ -302,13 +316,13 @@ def runVina(fn, frag_id, protpdbqt, ligpdbqt, datadir ):
 
     
 
-def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = True, min_RW = True, RW = True, decoy = False, decoy_list = None, decoy_pro = None):
+def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False, decoy = False, decoy_list = None, decoy_pro = None):
     
     inlig = os.path.join(datadir, inlig)
     # get ref_lig name
-    ref_list = get_ref(fn,inlig, datadir,min, min_RW, RW, decoy, decoy_list)
+    ref_list = get_ref(fn,inlig, datadir,min, min_RW, RW, min_BW, min_PW, decoy, decoy_list)
     # get protein pdbqt
-    prot_list = get_prot(fn,datadir,min,min_RW, RW, decoy, decoy_list, decoy_pro)
+    prot_list = get_prot(fn,datadir,min,min_RW, RW, min_BW, min_PW, decoy, decoy_list, decoy_pro)
     # get previous ligand pdbqt 
     ref_infor = get_ref_infor(inlig, ref_list,noname = True)
     # get fragments name
