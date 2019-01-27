@@ -307,7 +307,7 @@ def get_waterfile(fn,pro, index):
 
 
 
-def cal_BW(out_total,fn,inprot,inlig,inwater,datadir):
+def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
     os.chdir(datadir)
     inidir = os.getcwd()
     pro = os.path.join(datadir,inprot)
@@ -326,6 +326,8 @@ def cal_BW(out_total,fn,inprot,inlig,inwater,datadir):
     out = open("BW.csv","w")
     index = get_BW_final(fn,out,out_total)
     get_waterfile(fn,pro,index)
+    if not Feature:
+        os.system("cp " + fn + "_protein_BW.pdb ../")
     os.chdir(inidir)
     os.system("rm -r BW*")
 

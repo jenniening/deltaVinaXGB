@@ -36,7 +36,7 @@ import click
 @click.option("--rewrite", is_flag = True, help = "rewrite protein_RW, ligand_opt, generated confs or not")
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
-@click.option("--ligname", default = False, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
+@click.option("--ligname", is_flag = True, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
 
 def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx,ligname):
     datadir = os.path.realpath(datadir)
