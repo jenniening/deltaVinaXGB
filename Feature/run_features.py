@@ -90,32 +90,33 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy
         if opt == "rbwo":
             ### i == 0 is for C; i == 1 for Co; i == 2 for Crwo, i == 3 for Cbwo ###
             run_Vina_Fragment(fn, inlig_pdb, datadir, datadir_frag, min = True, min_RW = True, min_BW = True)
-            name_type = ["","_min","min_RW","min_BW"]
+            name_type = ["","_min","_min_RW","_min_BW"]
         elif opt == "rwo":
             ### i == 0 is for C; i == 1 for Crwo ###
             run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_RW = True)
-            name_type = ["","min_RW"]
+            name_type = ["","_min_RW"]
         elif opt == "bwo":
             ### i == 0 is for C; i == 1 for Cbwo ###
             run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_BW = True)
-            name_type = ["","min_BW"]
+            name_type = ["","_min_BW"]
         elif opt == "pwo":
             ### i == 0 is for C; i == 1 for Cpwo ###
             run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min_PW = True)
-            name_type = ["","min_PW"]
+            name_type = ["","_min_PW"]
         elif opt == "o":
             ### i == 0 is for C; i == 1 for Co ###
             run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag,min = True)
-            name_type = ["","min"]
+            name_type = ["","_min"]
         else:
             ### i == 0 is for C ###
             run_Vina_Fragment(fn, inlig_pdb,datadir, datadir_frag)
             name_type = [""]
 
         for i in range(len(name_type)):
-            out_core = open(os.path.join(datadir,"Vina_core_" + name_type[i] + ".csv"),"w")
+            num_frags = generate_data(fn,str(i),datadir_frag)
+            out_core = open(os.path.join(datadir,"Vina_core" + name_type[i] + ".csv"),"w")
             out_core.write(header)
-            out_side = open(os.path.join(datadir,"Vina_side_" + name_type[i] + ".csv"),"w")
+            out_side = open(os.path.join(datadir,"Vina_side" + name_type[i] + ".csv"),"w")
             out_side.write(header)
             lines = open(os.path.join(datadir_frag,"Vina_core_" + str(i) + ".csv")).readlines()
             out_core.write(fn  + "," + ",".join(lines[1].split(",")[1:]))
@@ -124,7 +125,6 @@ def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy
         ### num_frag are same for all types of structure ###
         out = open(os.path.join(datadir,"NumFrags.csv"),"w")
         out.write("pdb,num_frag\n")
-        num_frags = generate_data(fn,"0",datadir_frag)
         out.write(fn + "," + str(num_frags) + "\n")
         out.close()
 
@@ -782,7 +782,7 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
 
     return None
 
-def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type):
+def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite = False):
     '''
     feature calculation for ligands (C, Co, Crwo, Cbwo, Cpwo)
     
@@ -958,7 +958,7 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
             pro = fn
         feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
     else:
-        feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type)
+        feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite)
     
     print("Finish Feature Calculation")
 

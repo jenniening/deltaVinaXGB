@@ -88,6 +88,10 @@ def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, mo
             test_new.columns = ['pdb','vina_min_RW','XGB_min_RW']
         elif rt == "_RW":
             test_new.columns = ['pdb','vina_RW','XGB_RW']
+        elif rt == "_min_BW":
+            test_new.columns = ['pdb','vina_min_BW','XGB_min_BW']
+        elif rt == "_min_PW":
+            test_new.columns = ['pdb','vina_min_PW','XGB_min_PW']
 
     return test_new
 

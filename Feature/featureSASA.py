@@ -122,6 +122,8 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
             os.system(msmsdir + "msms.x86_64Linux2.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
             os.system(msmsdir + "msms.x86_64Linux2.2.6.1-if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
             print('1.1')
+        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+            print("SASA failed")
     elif sys.platform == "darwin":
         os.system(msmsdir + "msms.MacOSX.2.6.1 -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
         os.system(msmsdir + "msms.MacOSX.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
@@ -131,6 +133,8 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
             os.system(msmsdir + "msms.MacOSX.2.6.1 -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
             os.system(msmsdir + "msms.MacOSX.2.6.1 -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
             print('1.1')
+        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+            print("SASA failed")
 
 
     # read surface area to df2
