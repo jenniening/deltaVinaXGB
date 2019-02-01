@@ -92,23 +92,24 @@ def chanPdb(fn):
     os.system(cmd)
 
 
-def get_Co(datadir,fn, inlig, st):
+def get_Co(datadir,fn, inlig, st, decoy = False, pro = None):
     os.chdir(datadir)
     olddir = os.getcwd()
-    if st == "RW" or st == "_RW":
-        inpro = fn + "_protein_RW.pdb"
-        outlig = fn + "_lig_min_RW.pdb"
-    elif st == "BW" or st == "_BW":
-        inpro = fn + "_protein_BW.pdb"
-        outlig = fn + "_lig_min_BW.pdb"
-    elif st == "PW" or st == "_PW":
-        inpro = fn + "_protein_PW.pdb"
-        outlig = fn + "_lig_min_PW.pdb"
-    else:
-        inpro = fn + "_protein.pdb"
-        outlig = fn + "_lig_min.pdb"
     os.system("mkdir vinamin_rigid")
     os.chdir("vinamin_rigid")
+    if st != "" and "_" not in st:
+        st = "_" + st
+    if pro != None:
+        inpro = pro + "_protein" + st + ".pdb"
+    else:
+        inpro = fn + "_protein" + st + ".pdb"
+    
+    if decoy:
+        index = inlig.split("_")[1]
+        outlig = fn + "_" + index + "_decoy_min" + st + ".pdb"
+    else:
+        outlig = fn + "_lig_min" + st + ".pdb"
+        
     genpdbqt(fn,inlig,inpro)
     get_box(fn,inlig)
     runmin(fn)
