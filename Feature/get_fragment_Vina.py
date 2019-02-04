@@ -240,11 +240,18 @@ def get_prot(fn,datadir, min = False, min_RW = False, RW = False, min_BW = False
 
     '''
     prot_list = []
-    if not os.path.isfile(os.path.join(datadir, fn +"_protein_Vina58.pdbqt")):
-        inprot = os.path.join(datadir,fn +"_protein.pdb")
-        inprot_out = os.path.join(datadir,fn + "_protein_Vina58.pdbqt")
-        prepareprot(inprot,inprot_out)
-    prot_list.append(os.path.join(datadir, fn + "_protein_Vina58.pdbqt"))
+    if decoy_pro == None:
+        if not os.path.isfile(os.path.join(datadir, fn +"_protein_Vina58.pdbqt")):
+            inprot = os.path.join(datadir,fn +"_protein.pdb")
+            inprot_out = os.path.join(datadir,fn + "_protein_Vina58.pdbqt")
+            prepareprot(inprot,inprot_out)
+        prot_list.append(os.path.join(datadir, fn + "_protein_Vina58.pdbqt"))
+    else:
+        if not os.path.isfile(os.path.join(datadir,decoy_pro.split(".")[0] + "_Vina58.pdbqt")):
+            inprot = os.path.join(datadir,decoy_pro)
+            inprot_out = os.path.join(datadir,decoy_pro.split(".")[0] + "_Vina58.pdbqt")
+            prepareprot(inprot,inprot_out)
+        prot_list.append(os.path.join(datadir, decoy_pro.split(".")[0] + "_Vina58.pdbqt"))
     if min:
         prot_list.append(os.path.join(datadir, fn + "_protein_Vina58.pdbqt"))
     if min_RW:

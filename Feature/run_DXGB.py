@@ -26,19 +26,20 @@ import click
 @click.option("--datadir", default = "../Test_linux", show_default= True, help = "absolute data directory")
 @click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
-@click.option("--decoy", is_flag = True, help = "decoy flag, if True, water = 'n', opt = 'n'")
+@click.option("--decoy", is_flag = True, help = "decoy flag")
 @click.option("--decoydatadir", default = None, show_default = True, help = "decoy datadir, if decoy == True, please provide decoydatadir, and datadir is the directory for reference file")
 @click.option("--prodatadir",default = None, show_default = True, help = "protein directory, needed when protein and ligand are not in same directory")
 @click.option("--proid", default = None, show_default = True, help = "protein id, needed when protein and ligand have different ids")
 @click.option("--runfeatures",is_flag = True, show_default = True, help = "run features calculation")
 @click.option("--water", default = "rbw", show_default = True, help = "water type")
 @click.option("--opt", default = "rbwo", show_default = True, help = "opt type")
+@click.option("--decoytype",default = "docking",show_default = True, help = "decoy type")
 @click.option("--rewrite", is_flag = True, help = "rewrite protein part water generation, ligand optimization, ligand conformation generation or not")
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 @click.option("--ligname", is_flag = True, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
 
-def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, rewrite, average, modelidx,ligname):
+def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname):
 
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
@@ -48,6 +49,7 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
         print("pdb index: " + pdbid  )
         print("ref directory: " + datadir)
         print("decoy directory: " + decoydatadir)
+        print("decoy type: " + decoytype)
     if prodatadir:
         print("protein directory is not same as ref directory: " + prodatadir)
     if proid:
@@ -56,22 +58,32 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
     print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
-        run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, rewrite = rewrite, decoy = decoy, ligname = ligname)
+        run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, decoy_type = decoytype, rewrite = rewrite, decoy = decoy, ligname = ligname)
         os.chdir(olddir)
 
 
     if decoy:
-        opt = "n"
-        if water == "rbw":
-            data_type = ["","_RW","_BW"]
-        elif water == "rw":
-            data_type = ["_RW"]
-        elif water == "bw":
-            data_type == ["_BW"]
-        elif water == "pw":
-            data_type == ["_PW"]
+        if opt == "rbwo":
+            data_type = ["","_min","_min_RW","_min_BW"]
+        elif opt == "rwo":
+            data_type = ["_min_RW"]
+        elif opt == "bwo":
+            data_type = ["_min_BW"]
+        elif opt == "pwo":
+            data_type = ["_min_PW"]
+        elif opt == "o":
+            data_type = ["_min"]
         else:
-            data_type = [""]
+            if water == "rbw":
+                data_type = ["","_RW","_BW"]
+            elif water == "rw":
+                data_type = ["_RW"]
+            elif water == "bw":
+                data_type == ["_BW"]
+            elif water == "pw":
+                data_type == ["_PW"]
+            else:
+                data_type = [""]
     else:
 
         if opt == "rbwo":

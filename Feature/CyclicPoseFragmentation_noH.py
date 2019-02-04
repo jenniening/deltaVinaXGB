@@ -192,7 +192,7 @@ def GetMacroCyclicFragmentIdx(newrings, biggest_index, mol=None, confId=-1):
                             sidechain_connection.append(k)
                             core_connection.append(i)
                     else:
-                        biggest_and_neighbor.add(k)
+                        biggest_and_neighbor.append(k)
         n += 1
     biggest_and_neighbor = set(biggest_and_neighbor)
                 

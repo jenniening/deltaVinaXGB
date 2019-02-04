@@ -598,7 +598,7 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
     return None
 
 
-def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rewrite = False):
+def prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite = False):
     '''
     prepare AutoDock Vina optimized ligand for different optimization type
 
@@ -615,10 +615,10 @@ def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rew
     if opt_type == "rbwo":
         for st in ["","_RW","_BW"]:
             if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                get_Co(datadir,fn, inlig_pdb, st)
             else:
                 if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                    get_Co(datadir,fn, inlig_pdb, st)
                 else:
                     print("Use pervious generated C" + st + "O")
         print("Finish Optimization")
@@ -626,10 +626,10 @@ def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rew
     elif opt_type == "rwo":
         for st in ["_RW"]:
             if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                get_Co(datadir,fn, inlig_pdb, st)
             else:
                 if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                    get_Co(datadir,fn, inlig_pdb, st)
                 else:
                     print("Use pervious generated C" + st + "O")
         print("Finish Optimization")
@@ -637,10 +637,10 @@ def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rew
     elif opt_type == "bwo":
         for st in ["_BW"]:
             if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro )
+                get_Co(datadir,fn, inlig_pdb, st)
             else:
                 if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro )
+                    get_Co(datadir,fn, inlig_pdb, st)
                 else:
                     print("Use pervious generated C" + st + "O")
         print("Finish Optimization")
@@ -648,10 +648,10 @@ def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rew
     elif opt_type == "pwo":
         for st in ["_PW"]:
             if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                get_Co(datadir,fn, inlig_pdb, st)
             else:
                 if fn + "_lig_min" + st + ".pdb" not in os.listdir(datadir):
-                    get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                    get_Co(datadir,fn, inlig_pdb, st)
                 else:
                     print("Use pervious generated C" + st + "O")
         print("Finish Optimization")
@@ -659,248 +659,126 @@ def prepare_opt(datadir, fn, inlig_pdb, opt_type, decoy = False, pro = None, rew
     elif opt_type == "o":
         for st in [""]:
             if rewrite:
-                get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                get_Co(datadir,fn, inlig_pdb, st)
             else:
                 if (inlig_pdb.split(".")[0] + "_min.pdb" not in os.listdir(datadir)):
-                    get_Co(datadir,fn, inlig_pdb, st, decoy = decoy, pro = pro)
+                    get_Co(datadir,fn, inlig_pdb, st)
                 else:
                     print("Use pervious generated C" + st + "O")         
         print("Finish Optimization")
     
     return None
-
-
-def prepare_opt_decoy(datadir_pro, datadir_decoy, fn, pro, decoy_pdb_list, opt_type ):
-    '''
-    optimize decoy structure provided by CASF-2013/CASF-2016 screening set
-
-    '''
-
-    os.chdir(datadir_decoy)
-    ### copy protein structrue in current directory ###
-    if opt_type == "rbwo":
-        for st in ["","_RW","_BW"]:
-            cmd = "cp " + os.path.join(datadir_pro, pro + "_protein" + st + ".pdb") + " ."
-            os.system(cmd)
-    elif opt_type == "rwo":
-        cmd = "cp " + os.path.join(datadir_pro, pro + "_protein_RW.pdb") + " ."
-        os.system(cmd)
-    elif opt_type == "bwo":
-        cmd = "cp " + os.path.join(datadir_pro, pro + "_protein_BW.pdb") + " ."
-        os.system(cmd)
-    elif opt_type == "pwo":
-        cmd = "cp " + os.path.join(datadir_pro, pro + "_protein_PW.pdb") + " ."
-        os.system(cmd)
-    else:
-        cmd = "cp " + os.path.join(datadir_pro, pro + "_protein.pdb") + " ."
-        os.system(cmd)
-    for decoy in decoy_pdb_list:
-        idx = decoy.split("_")[1]
-        prepare_opt(datadir_decoy, fn, decoy, opt_type, decoy = True, pro = pro)
-        print("Decoy" + idx)
-        break
-
-    return None
-        
-def prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type):
-    '''
-    copy protein part for decoy structures 
-
-    '''
-
-    ref_protein = pro + "_protein.pdb"
-    ref_protein_1 = None
-    ref_protein_2 = None
-    ref_protein_3 = None
-
-    if water_type == "rbw":
-        ref_protein_1 = pro + "_protein_RW.pdb"
-        ref_protein_2 = pro + "_protein_BW.pdb"
-    elif water_type == "rw":
-        ref_protein_1 = pro + "_protein_RW.pdb"
-    elif water_type == "bw":
-        ref_protein_1 = pro + "_protein_BW.pdb"
-    elif water_type == "pw":
-        ref_protein_1 = pro + "_protein_PW.pdb"
-
-    ### copy ref protein ###
-    if ref_protein not in os.listdir(datadir_decoy):
-        cmd = "cp " + os.path.join(datadir_pro,ref_protein) + " " + datadir_decoy
-        os.system(cmd)
-    if ref_protein_1 and ref_protein_1 not in os.listdir(datadir_decoy):
-        cmd = "cp " + os.path.join(datadir_pro,ref_protein_1) + " " + datadir_decoy
-        os.system(cmd)
-    if ref_protein_2 and ref_protein_2 not in os.listdir(datadir_decoy):
-        cmd = "cp " + os.path.join(datadir_pro,ref_protein_2) + " " + datadir_decoy
-        os.system(cmd)
     
-    return None
-    
-
-    
-def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n",opt_type = "n"):
+def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n"):
     '''
     feature calculation for decoys
 
-    for docking decoys: only has water_type but not opt_type
-    for screeening decoys: has both water_type and opt_type, they are corresponding to each other
-
     '''
-    ### update input structures ###
-    inlig_C = decoy_pdb_list ### initial structure ###
-    inlig_Co = [fn + "_" + decoy.split("_")[1] + "_decoy_min.pdb" for decoy in decoy_pdb_list]
-    inlig_Crwo = [fn + "_" + decoy.split("_")[1] + "_decoy_min_RW.pdb" for decoy in decoy_pdb_list]
-    inlig_Cbwo = [fn + "_" + decoy.split("_")[1] + "_decoy_min_BW.pdb" for decoy in decoy_pdb_list]
-    inlig_Cpwo = [fn + "_" + decoy.split("_")[1] + "_decoy_min_PW.pdb" for decoy in decoy_pdb_list]
-
-    inpro_C = pro + "_protein.pdb" ### protein without water ####
-    inpro_Crw = pro + "_protein_RW.pdb"
-    inpro_Cbw = pro + "_protein_BW.pdb"
-    inpro_Cpw = pro + "_protein_PW.pdb"
-
-    ################################
-    if opt_type == "rbwo":
-        d_type = {"":[inpro_C, inlig_C],"_min": [inpro_C, inlig_Co],"_min_RW": [inpro_Crw, inlig_Crwo], "_min_BW":[inpro_Cbw, inlig_Cbwo]}
-    elif opt_type == "rwo":
-        d_type = {"_min_RW": [inpro_Crw, inlig_Crwo]}
-    elif opt_type == "bwo":
-        d_type = {"_min_BW": [inpro_Cbw, inlig_Cbwo]}
-    elif opt_type == "pwo":
-        d_type = {"_min_PW":[inpro_Cpw, inlig_Cpwo]}
-    elif opt_type == "o":
-        d_type = {"_min":[inpro_C, inlig_Co]}
+    if water_type == "rw" or water_type == "w":
+        ref_protein = pro + "_protein_RW.pdb"
+        ref_protein_only = pro + "_protein.pdb"
+        d_type = "_RW"
     else:
-        if water_type == "rbw":
-            d_type = {"":[inpro_C, inlig_C], "_RW":[inpro_Crw, inlig_C], "_BW":[inpro_Cbw, inlig_C]}
-        elif water_type == "rw":
-            d_type = {"_RW":[inpro_Crw, inlig_C]}
-        elif water_type == "bw":
-            d_type = {"_BW":[inpro_Cbw, inlig_C]}
-        elif water_type == "pw":
-            d_type = {"_BW":[inpro_Cpw, inlig_C]}
-        else:
-            d_type = {"":[inpro_C, inlig_C]}
-
-
-    for i in d_type.keys():
-        if i == "":
-            print("C")
-        elif i == "_min":
-            print("Co")
-        elif i == "_min_RW":
-            print("Crwo")
-        elif i == "_RW":
-            print("Crw")
-        elif i == "_min_BW":
-            print("Cbwo")
-        elif i == "_BW":
-            print("Cbw")
-        elif i == "_min_PW":
-            print("Cpwo")
-        elif i == "_PRW":
-            print("Cpw")
-        
-        inpro = d_type[i][0]
-        decoy_list = d_type[i][1]
-        ### get BW features ###
-        ### only for structure with water in protein ###
-        if i in ["_RW","_min_RW","_BW","_min_BW"]:
-            ref_protein_only = inpro_C
-            outfile_BW = open(os.path.join(datadir_decoy,"Feature_BW_decoys" + i + ".csv"),"w")
-            outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
-            for decoy in decoy_list:
-                idx = decoy.split("_")[1]
-                outfile = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv"),"w")
-                cal_BW(outfile,fn,ref_protein_only,decoy,inpro,datadir_decoy)
-                outfile.close()
-                lines = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")).readlines()
-                outfile_BW.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-                rm_cmd = "rm " + os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")
-                os.system(rm_cmd)
-                print("Finish BW" + idx )
-            outfile_BW.close()
-    
-
-        outfile_V58= open(os.path.join(datadir_decoy,"Vina58_decoys" + i + ".csv"),"w")
-        outfile_V58.write('pdb,idx,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
-        outfile_SASA = open(os.path.join(datadir_decoy,"SASA_decoys" + i + ".csv"),"w")
-        f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
-        outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
-        outfile_Ion = open(os.path.join(datadir_decoy,"Num_Ions_decoys" + i + ".csv"),"w")
-        outfile_Ion.write("pdb,idx,Ni\n")
-
-        for decoy in decoy_list:
+        ref_protein = pro + "_protein.pdb"
+        d_type = ""
+    ### copy ref protein ###
+    cmd = "cp " + os.path.join(datadir_pro,ref_protein) + " " + datadir_decoy
+    os.system(cmd)
+    if water_type == "rw" or water_type == "w":
+        cmd = "cp " + os.path.join(datadir_pro,ref_protein_only) + " " + datadir_decoy
+        os.system(cmd)
+        outfile_BW = open(os.path.join(datadir_decoy,"Feature_BW_decoys" + d_type + ".csv"),"w")
+        outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
+        for decoy in decoy_pdb_list:
             idx = decoy.split("_")[1]
-            ### get Vina58 ###
-            outfile = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv"),"w")
-            featureVina(outfile, fn, inpro, decoy, datadir_decoy)
+            outfile = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv"),"w")
+            cal_BW(outfile,fn,ref_protein_only,decoy,ref_protein,datadir_decoy)
             outfile.close()
-            lines = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv")).readlines()
-            outfile_V58.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]) )
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"Vina58" + idx + ".csv")
+            lines = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")).readlines()
+            outfile_BW.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")
             os.system(rm_cmd)
-            print("Finish Vina" + idx)
-
-            ### get SASA ###
-            outfile = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv"),"w")
-            try:
-                cal_SASA(outfile,fn,decoy,inpro,datadir_decoy)
-            except:
-                ### if SASA failed, means there is no overlap between protein and decoy ###
-                outfile.write(fn + "," + ",".join([0.00 for i in range(30)]) + "\n")
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv")).readlines()
-            outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"SASA" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish SASA" + idx)
-
-            ### get Ion ###
-            outfile = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv"),"w")
-            cal_Ni(outfile,fn, inpro, decoy, datadir_decoy)
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")).readlines()
-            outfile_Ion.write(fn + "," + idx  + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish Ion" + idx)
-            break
-        outfile_V58.close()
-        outfile_SASA.close()
-        outfile_Ion.close()
-
-        ### run fragments ###
-        run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
-
-
+            print("Finish BW" + idx)
+        outfile_BW.close()
     
+
+    outfile_V58= open(os.path.join(datadir_decoy,"Vina58_decoys" + d_type + ".csv"),"w")
+    outfile_V58.write('pdb,idx,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
+    outfile_SASA = open(os.path.join(datadir_decoy,"SASA_decoys" + d_type + ".csv"),"w")
+    f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
+    f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
+    outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
+    outfile_Ion = open(os.path.join(datadir_decoy,"Num_Ions_decoys" + d_type + ".csv"),"w")
+    outfile_Ion.write("pdb,idx,Ni\n")
+
+    for decoy in decoy_pdb_list:
+        idx = decoy.split("_")[1]
+
+        ### get Vina58 ###
+        outfile = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv"),"w")
+        featureVina(outfile, fn, ref_protein, decoy, datadir_decoy)
+        outfile.close()
+        lines = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv")).readlines()
+        outfile_V58.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]) )
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"Vina58" + idx + ".csv")
+        os.system(rm_cmd)
+        print("Finish Vina" + idx)
+
+        ### get SASA ###
+        outfile = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv"),"w")
+        try:
+            cal_SASA(outfile,fn,decoy,ref_protein,datadir_decoy)
+        except:
+            ### if SASA failed, means there is no overlap between protein and decoy ###
+            outfile.write(fn + "," + ",".join([0.00 for i in range(30)]) + "\n")
+        outfile.close()
+        lines = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv")).readlines()
+        outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"SASA" + idx + ".csv")
+        os.system(rm_cmd)
+        print("Finish SASA" + idx)
+
+        ### get Ion ###
+        outfile = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv"),"w")
+        cal_Ni(outfile,fn, ref_protein, decoy, datadir_decoy)
+        outfile.close()
+        lines = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")).readlines()
+        outfile_Ion.write(fn + "," + idx  + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")
+        os.system(rm_cmd)
+        print("Finish Ion" + idx)
+    outfile_V58.close()
+    outfile_SASA.close()
+    outfile_Ion.close()
+
+
     ### get dERMSD ###
-    if "dE_RMSD_decoys.csv" not in os.listdir(datadir_decoy):
-        outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys.csv"),"w")
-        outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
-        ### copy previous generated confs ###
-        confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
-        lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
-        cmd = "cp " + confs + " " + datadir_decoy
-        os.system(cmd)
-        cmd = "cp " + lowest + " " + datadir_decoy
-        os.system(cmd)
-        for decoy in decoy_rdkit_list:
-            idx = decoy.split("_")[1]
-            outfile = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv"),"w")
-            feature_cal(outfile,fn, decoy, datadir_decoy, calc_type = "none", rewrite = False)
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv")).readlines()
-            outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"dE_RMSD" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish dE_RMSD" + idx)
-        outfile_dE.close()
+    outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys" + d_type + ".csv"),"w")
+    outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
+    ### copy previous generated confs ###
+    confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
+    lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
+    cmd = "cp " + confs + " " + datadir_decoy
+    os.system(cmd)
+    cmd = "cp " + lowest + " " + datadir_decoy
+    os.system(cmd)
+    for decoy in decoy_rdkit_list:
+        idx = decoy.split("_")[1]
+        outfile = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv"),"w")
+        feature_cal(outfile,fn, decoy, datadir_decoy, calc_type = "none", rewrite = False)
+        outfile.close()
+        lines = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv")).readlines()
+        outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+        rm_cmd = "rm " + os.path.join(datadir_decoy,"dE_RMSD" + idx + ".csv")
+        os.system(rm_cmd)
+        print("Finish dE_RMSD" + idx)
+    outfile_dE.close()
+
+    ### run fragments ###
+    run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_pdb_list, decoy_type = d_type, decoy_pro = ref_protein)
 
     ### combine data ###
-    for i in d_type.keys():
-        combine(datadir_decoy,i,decoy = True)
+    combine(datadir_decoy,d_type,decoy = True,)
 
     return None
 
@@ -1004,7 +882,12 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     return None
 
 
-def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", decoy_type = "docking", rewrite = False, decoy = False, ligname = False):
+
+
+
+
+
+def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", rewrite = False, decoy = False, ligname = False):
     '''
 
     run features
@@ -1038,19 +921,9 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
     ligname: whether use ligname to grab decoys (Only in CASF-2016_Screening), defaults to False
 
     '''
-
-
-
     if decoy:
-        if datadir_pro == None:
-            datadir_pro = datadir
-        if pro == None:
-            pro = fn
         ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
-        ### for CASF-2013/2016 screening, we can do local optimization for decoys with or without water, but for docking, we can't since RMSD will be changed ##
-        ### for CASF-2013/2016 docking, we can do rescoring with water, but no optimization ###
-        if decoy_type == "docking":
-            opt_type = "n"
+        opt_type = "n"
         ### previously, I think CASF-2013/2016 decoys scores should without water, but might be added water effect ###
         #water_type = "n"
         ref_ligand_rdkit, ref_ligand_pdb, decoy_rdkit_list, decoy_pdb_list = get_input_decoy(datadir,datadir_decoy, fn, ligname)
@@ -1064,7 +937,6 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
         if not decoy:
             prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig_pdb, water_type, rewrite = rewrite)
         else:
-            prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type)
             print("Consideration of Water Effect for Decoys")
     
     else:
@@ -1072,18 +944,19 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 
     ### get Co, Crwo ###
     if opt_type != "n":
-        if not decoy:
-            prepare_opt(datadir, fn, inlig_pdb, opt_type, rewrite = rewrite)
-        else:
-            print("Do optimization for decoys")
-            prepare_opt_decoy(datadir_pro, datadir_decoy, fn, pro, decoy_pdb_list, opt_type)
+        prepare_opt_ligand(datadir, fn, inlig_pdb, opt_type, rewrite = rewrite)
     else:
         print("No Optimized Ligand")
 
 
     ### update input structures ###
     if decoy:
-        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type, opt_type = opt_type)
+        ### consider 
+        if datadir_pro == None:
+            datadir_pro = datadir
+        if pro == None:
+            pro = fn
+        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
     else:
         feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite)
     
