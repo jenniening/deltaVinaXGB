@@ -49,7 +49,10 @@ def read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy):
 
 def combine(datadir,data_type = "", decoy = False):
     if not decoy:
-        d_wat = {"":None, "_min":None, "_min_RW":os.path.join(datadir,"Feature_BW_min_RW.csv"), "_min_BW":os.path.join(datadir,"Feature_BW_min_BW.csv"), "_min_PW":os.path.join(datadir,"Feature_BW_min_PW.csv")}
+        d_wat = {"":None, "_min":None, 
+                "_min_RW":os.path.join(datadir,"Feature_BW_min_RW.csv"), 
+                "_min_BW":os.path.join(datadir,"Feature_BW_min_BW.csv"), 
+                "_min_PW":os.path.join(datadir,"Feature_BW_min_PW.csv")}
         Vina58 = os.path.join(datadir,"Vina58" + data_type + ".csv")
         SASA = os.path.join(datadir,"SASA" + data_type + ".csv")
         dE = os.path.join(datadir,"dE_RMSD.csv")
@@ -62,10 +65,17 @@ def combine(datadir,data_type = "", decoy = False):
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy)
         f.to_csv(os.path.join(datadir,outfile),index = False)
     else:
-        d_wat = {"":None, "_RW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv")}
+        d_wat = {"":None,"_min":None,
+                "_BW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                "_RW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                "_PW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                "_min_RW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                "_min_BW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                "_min_PW":os.path.join(datadir,"Feature_BW_decoys" + data_type + ".csv"),
+                }
         Vina58 = os.path.join(datadir,"Vina58_decoys" + data_type + ".csv")
         SASA = os.path.join(datadir,"SASA_decoys" + data_type + ".csv")
-        dE = os.path.join(datadir,"dE_RMSD_decoys" + data_type + ".csv")
+        dE = os.path.join(datadir,"dE_RMSD_decoys.csv")
         Water = d_wat[data_type]
         Ion = os.path.join(datadir, "Num_Ions_decoys" + data_type + ".csv")
         NumFrags = os.path.join(datadir,"NumFrags_decoys" + data_type + ".csv")

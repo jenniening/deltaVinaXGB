@@ -172,20 +172,29 @@ def GetMacroCyclicFragmentIdx(newrings, biggest_index, mol=None, confId=-1):
     print("The core size after connection: "  + str(len(newrings[biggest_index])))
     biggest = newrings[biggest_index]
     
-    biggest_and_neighbor = biggest.copy()
+    #biggest_and_neighbor = biggest.copy()
+    biggest_and_neighbor = [i for i in biggest]
+    biggest_new = [i for i in biggest]
     sidechain_connection = [] ### belong to the side_chain connection 
     core_connection = [] ### belong to the MacroCyclicFragment connection
-    for i in biggest:
-        atom = mol.GetAtomWithIdx(i)
-        for j in atom.GetNeighbors():
-            k = j.GetIdx()
-            if k not in biggest_and_neighbor:
-                bond = [ bond for bond in atom.GetBonds() if (bond.GetBeginAtomIdx() == k) or (bond.GetEndAtomIdx() == k)][0] 
-                if bond.GetBondType() == Chem.BondType.SINGLE and j.GetAtomicNum() not in [1] :
-                    sidechain_connection.append(k)
-                    core_connection.append(i)
-                else:
-                    biggest_and_neighbor.add(k)
+    n = 0 
+    ### update biggest and neighbor untill no change in biggest_and_neighbor list ###
+    while len(biggest_new) != len(biggest_and_neighbor) or n == 0:
+        biggest_new = biggest_and_neighbor
+        for i in biggest:
+            atom = mol.GetAtomWithIdx(i)
+            for j in atom.GetNeighbors():
+                k = j.GetIdx()
+                if k not in biggest_and_neighbor:
+                    bond = [ bond for bond in atom.GetBonds() if (bond.GetBeginAtomIdx() == k) or (bond.GetEndAtomIdx() == k)][0] 
+                    if bond.GetBondType() == Chem.BondType.SINGLE and j.GetAtomicNum() not in [1] :
+                        if k not in sidechain_connection:
+                            sidechain_connection.append(k)
+                            core_connection.append(i)
+                    else:
+                        biggest_and_neighbor.add(k)
+        n += 1
+    biggest_and_neighbor = set(biggest_and_neighbor)
                 
     oldAtomIdxs = biggest_and_neighbor
     return biggest_and_neighbor, sidechain_connection, core_connection

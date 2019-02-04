@@ -702,22 +702,40 @@ def prepare_opt_decoy(datadir_pro, datadir_decoy, fn, pro, decoy_pdb_list, opt_t
 
     return None
         
+def prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type):
+    '''
+    copy protein part for decoy structures 
 
-if water_type == "rw" or water_type == "w":
-            ref_protein = pro + "_protein_RW.pdb"
-            ref_protein_only = pro + "_protein.pdb"
-            d_type = "_RW"
-        else:
-            ref_protein = pro + "_protein.pdb"
-            d_type = ""
+    '''
+
+    ref_protein = pro + "_protein.pdb"
+    ref_protein_1 = None
+    ref_protein_2 = None
+    ref_protein_3 = None
+
+    if water_type == "rbw":
+        ref_protein_1 = pro + "_protein_RW.pdb"
+        ref_protein_2 = pro + "_protein_BW.pdb"
+    elif water_type == "rw":
+        ref_protein_1 = pro + "_protein_RW.pdb"
+    elif water_type == "bw":
+        ref_protein_1 = pro + "_protein_BW.pdb"
+    elif water_type == "pw":
+        ref_protein_1 = pro + "_protein_PW.pdb"
+
     ### copy ref protein ###
     if ref_protein not in os.listdir(datadir_decoy):
         cmd = "cp " + os.path.join(datadir_pro,ref_protein) + " " + datadir_decoy
         os.system(cmd)
-    if water_type == "rw" or water_type == "w":
-        if ref_protein_only not in os.listdir(datadir_decoy):
-            cmd = "cp " + os.path.join(datadir_pro,ref_protein_only) + " " + datadir_decoy
-            os.system(cmd)
+    if ref_protein_1 and ref_protein_1 not in os.listdir(datadir_decoy):
+        cmd = "cp " + os.path.join(datadir_pro,ref_protein_1) + " " + datadir_decoy
+        os.system(cmd)
+    if ref_protein_2 and ref_protein_2 not in os.listdir(datadir_decoy):
+        cmd = "cp " + os.path.join(datadir_pro,ref_protein_2) + " " + datadir_decoy
+        os.system(cmd)
+    
+    return None
+    
 
     
 def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n",opt_type = "n"):
@@ -855,8 +873,6 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
         ### run fragments ###
         run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
 
-    ### combine data ###
-    combine(datadir_decoy,d_type,decoy = True,)
 
     
     ### get dERMSD ###
@@ -882,11 +898,9 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
             print("Finish dE_RMSD" + idx)
         outfile_dE.close()
 
-    ### run fragments ###
-    run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_pdb_list, decoy_type = d_type, decoy_pro = ref_protein)
-
     ### combine data ###
-    combine(datadir_decoy,d_type,decoy = True,)
+    for i in d_type.keys():
+        combine(datadir_decoy,i,decoy = True)
 
     return None
 
@@ -990,11 +1004,6 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     return None
 
 
-
-
-
-
-
 def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", decoy_type = "docking", rewrite = False, decoy = False, ligname = False):
     '''
 
@@ -1029,7 +1038,14 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
     ligname: whether use ligname to grab decoys (Only in CASF-2016_Screening), defaults to False
 
     '''
+
+
+
     if decoy:
+        if datadir_pro == None:
+            datadir_pro = datadir
+        if pro == None:
+            pro = fn
         ### CASF-2013/2016 docking/screening, no water has been used in decoy preparation ###
         ### for CASF-2013/2016 screening, we can do local optimization for decoys with or without water, but for docking, we can't since RMSD will be changed ##
         ### for CASF-2013/2016 docking, we can do rescoring with water, but no optimization ###
@@ -1048,7 +1064,7 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
         if not decoy:
             prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig_pdb, water_type, rewrite = rewrite)
         else:
-            prepare_rw_decoy()
+            prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type)
             print("Consideration of Water Effect for Decoys")
     
     else:
@@ -1067,11 +1083,6 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 
     ### update input structures ###
     if decoy:
-        ### consider 
-        if datadir_pro == None:
-            datadir_pro = datadir
-        if pro == None:
-            pro = fn
         feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
     else:
         feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite)

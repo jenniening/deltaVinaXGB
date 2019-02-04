@@ -385,8 +385,9 @@ def generate_data(fn, data_type,datadir):
     columns = ["pdb","idx","vina"] + ["vina" + str(i) for i in range(1,59)]
     infile = os.path.join(datadir, "Vina_score_" + data_type + ".csv")
     if len([line for line in open(infile)]) == 1:
-        ### no sidechain and whole structure is core ###
-        num_frag = 0
+        ### no sidechain and whole structure is core, the number of fragment is 1 ###
+        ### no structures with 0 fragments ###
+        num_frag = 1
     else:
         num_frag = len([line for line in open(infile)])
 
@@ -402,7 +403,7 @@ def generate_data(fn, data_type,datadir):
         df_core = df[df["idx"] == 1].copy()
         df_core.drop("idx",axis=1,inplace=True)
         df_core.to_csv(os.path.join(datadir,"Vina_core_" + data_type + ".csv"), index = False)
-        if num_frag != 0:
+        if num_frag != 1:
             ### sum scores for all side fragments ###
             df_side = df[df["idx"] != 1].copy().groupby("pdb").agg({col:np.sum for col in df.columns[2:]})
             df_side.reset_index(inplace = True)
