@@ -694,11 +694,11 @@ def prepare_opt_decoy(datadir_pro, datadir_decoy, fn, pro, decoy_pdb_list, opt_t
     else:
         cmd = "cp " + os.path.join(datadir_pro, pro + "_protein.pdb") + " ."
         os.system(cmd)
-        
     for decoy in decoy_pdb_list:
         idx = decoy.split("_")[1]
         prepare_opt(datadir_decoy, fn, decoy, opt_type, decoy = True, pro = pro)
         print("Decoy" + idx)
+        break
 
     return None
         
@@ -865,7 +865,7 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
             rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")
             os.system(rm_cmd)
             print("Finish Ion" + idx)
-
+            break
         outfile_V58.close()
         outfile_SASA.close()
         outfile_Ion.close()
@@ -1083,7 +1083,7 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 
     ### update input structures ###
     if decoy:
-        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type)
+        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type, opt_type = opt_type)
     else:
         feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite)
     

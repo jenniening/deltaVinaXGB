@@ -38,8 +38,9 @@ import click
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 @click.option("--ligname", is_flag = True, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
+@click.option("--featuretype", default = "all", help = "which feature will be calculated")
 
-def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname):
+def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname, featuretype):
 
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
@@ -55,10 +56,13 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
     if proid:
         print("protein id is not same as pdb index:" + proid)
     
+    if runfeatures:
+        print("feature will be calculated:" + featuretype)
+    
     print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
-        run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, decoy_type = decoytype, rewrite = rewrite, decoy = decoy, ligname = ligname)
+        run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, decoy_type = decoytype, rewrite = rewrite, decoy = decoy, ligname = ligname, feature_type = featuretype)
         os.chdir(olddir)
 
 

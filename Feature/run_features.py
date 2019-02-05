@@ -37,7 +37,7 @@ elif sys.platform == "darwin":
 
 obabel = path_obabel()
 
-def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, water = None, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
+def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
     '''
     get Vina58 for core and side
 
@@ -737,8 +737,173 @@ def prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type):
     return None
     
 
-    
-def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n",opt_type = "n"):
+###### ---------------------- run feature functions ---------------------#######
+
+def run_Vina_features(datadir, d_type, fn, inpro, inlig, decoy = False, decoy_list = None):
+    '''
+    calculate Vina features
+
+    '''
+
+    if decoy:
+        outfile_V58 = open(os.path.join(datadir,"Vina58_decoys" + d_type + ".csv"),"w")
+        outfile_V58.write('pdb,idx,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
+        for decoy in decoy_list:
+            idx = decoy.split("_")[1]
+            outfile = open(os.path.join(datadir,"Vina58" + idx + ".csv"),"w")
+            featureVina(outfile, fn, inpro, decoy, datadir)
+            outfile.close()
+            lines = open(os.path.join(datadir,"Vina58" + idx + ".csv")).readlines()
+            outfile_V58.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]) )
+            rm_cmd = "rm " + os.path.join(datadir,"Vina58" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish Vina" + idx)
+
+    else:
+        outfile = open(os.path.join(datadir,"Vina58" + d_type + ".csv"),"w")
+        outfile.write('pdb,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
+        featureVina(outfile, fn, inpro, inlig, datadir)
+        outfile.close()
+        print("Finish Vina")
+
+    return None
+
+
+def run_SASA_features(datadir, d_type, fn, inpro, inlig, decoy = False, decoy_list = None):
+    '''
+    calculate SASA features
+
+    '''
+
+    f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
+    f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
+    if decoy:
+        outfile_SASA = open(os.path.join(datadir,"SASA_decoys" + d_type + ".csv"),"w")
+        outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
+        for decoy in decoy_list:
+            outfile = open(os.path.join(datadir, "SASA" + idx + ".csv"),"w")
+            try:
+                cal_SASA(outfile,fn,decoy,inpro,datadir)
+            except:
+                ### if SASA failed, means there is no overlap between protein and decoy ###
+                outfile.write(fn + "," + ",".join([0.00 for i in range(30)]) + "\n")
+            outfile.close()
+            lines = open(os.path.join(datadir, "SASA" + idx + ".csv")).readlines()
+            outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir,"SASA" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish SASA" + idx)
+    else:
+        out_SASA = open(os.path.join(datadir, "SASA" + d_type + ".csv"),"w")
+        out_SASA.write("pdb," + ",".join(f_feature) + "\n")
+        cal_SASA(out_SASA,fn,inlig,inpro,datadir)
+        out_SASA.close()
+        print("Finish SASA")
+
+    return None
+
+def run_Ion_features(datadir, d_type, fn, inpro, inlig, decoy = False, decoy_list = None):
+    '''
+    calculate Ion features
+
+    '''
+
+    if decoy:
+        outfile_Ion = open(os.path.join(datadir,"Num_Ions_decoys" + d_type + ".csv"),"w")
+        outfile_Ion.write("pdb,idx,Ni\n")
+        for decoy in decoy_list:
+            outfile = open(os.path.join(datadir,"Num_Ions" + idx + ".csv"),"w")
+            cal_Ni(outfile, fn, inpro, decoy, datadir)
+            outfile.close()
+            lines = open(os.path.join(datadir,"Num_Ions" + idx + ".csv")).readlines()
+            outfile_Ion.write(fn + "," + idx  + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir,"Num_Ions" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish Ion" + idx)
+
+    else:
+        outfile = open(os.path.join(datadir,"Num_Ions" + d_type + ".csv"),"w")
+        outfile.write("pdb,Ni\n")
+        cal_Ni(outfile,fn, inpro, inlig, datadir)
+        outfile.close()
+        print("Finish Ion")
+
+    return None
+
+
+def run_BW_features(datadir, d_type, fn, inpro_pro, inlig, inpro, decoy = False, decoy_list = None):
+    '''
+    calculate BW features 
+
+    '''
+
+    if decoy:
+        outfile_BW = open(os.path.join(datadir,"Feature_BW_decoys" + d_type + ".csv"),"w")
+        outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
+        for decoy in decoy_list:
+            idx = decoy.split("_")[1]
+            outfile = open(os.path.join(datadir,"Feature_BW" + idx + ".csv"),"w")
+            cal_BW(outfile,fn,inpro_pro,decoy,inpro,datadir)
+            outfile.close()
+            lines = open(os.path.join(datadir,"Feature_BW" + idx + ".csv")).readlines()
+            outfile_BW.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir,"Feature_BW" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish BW" + idx )
+        outfile_BW.close()
+    else:
+        out_total = open(os.path.join(datadir,"Feature_BW" + d_type + ".csv"),"w")
+        out_total.write("pdb,Nbw,Epw,Elw\n")
+        cal_BW(out_total,fn,inpro_pro,inlig,inpro,datadir)
+        out_total.close()
+        print("Finish Bridging Water Feature Calculation")
+
+    return None
+
+def run_dE_features(datadir, fn, inlig_rdkit, decoy = False, decoy_rdkit_list = None):
+    '''
+    calculate dE features
+
+    '''
+
+    if decoy:
+        outfile_dE = open(os.path.join(datadir,"dE_RMSD_decoys.csv"),"w")
+        outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
+        for decoy in decoy_rdkit_list:
+            idx = decoy.split("_")[1]
+            outfile = open(os.path.join(datadir, "dE_RMSD" + idx + ".csv"),"w")
+            feature_cal(outfile, fn, decoy, datadir, calc_type = "none", rewrite = False)
+            outfile.close()
+            lines = open(os.path.join(datadir, "dE_RMSD" + idx + ".csv")).readlines()
+            outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
+            rm_cmd = "rm " + os.path.join(datadir,"dE_RMSD" + idx + ".csv")
+            os.system(rm_cmd)
+            print("Finish dE_RMSD" + idx)
+        outfile_dE.close()
+    else:
+        outfile = open(os.path.join(datadir,"dE_RMSD.csv"),"w")
+        outfile.write("pdb,dE_global,RMSD_global,number0,number1\n")
+        feature_cal(outfile,fn, inlig_rdkit, datadir, calc_type = "GenConfs", rewrite = rewrite)
+        outfile.close()
+
+    return None
+
+def run_Frag_features(datadir, fn, inlig_rdkit, inlig_pdb, opt_type, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
+    '''
+    calculate fragments features
+
+    '''
+
+    if decoy:
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
+    else:
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, opt = opt_type)
+
+    return None
+
+
+###### ---------------------- run feature calculations ---------------------#######    
+def feature_calculation_decoy(datadir, datadir_pro, datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = "n",opt_type = "n", feature_type = "all"):
     '''
     feature calculation for decoys
 
@@ -805,98 +970,56 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
         ### get BW features ###
         ### only for structure with water in protein ###
         if i in ["_RW","_min_RW","_BW","_min_BW"]:
-            ref_protein_only = inpro_C
-            outfile_BW = open(os.path.join(datadir_decoy,"Feature_BW_decoys" + i + ".csv"),"w")
-            outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
-            for decoy in decoy_list:
-                idx = decoy.split("_")[1]
-                outfile = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv"),"w")
-                cal_BW(outfile,fn,ref_protein_only,decoy,inpro,datadir_decoy)
-                outfile.close()
-                lines = open(os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")).readlines()
-                outfile_BW.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-                rm_cmd = "rm " + os.path.join(datadir_decoy,"Feature_BW" + idx + ".csv")
-                os.system(rm_cmd)
-                print("Finish BW" + idx )
-            outfile_BW.close()
-    
+            inpro_pro = inpro_C
+            if feature_type == "all" or feature_type == "BW:
+                run_BW_features(datadir_decoy, i, fn, inpro_pro, inlig = None, inpro, decoy = True, decoy_list = decoy_list)
+                print("Finish Bridging Water Feature Calculation")
+            else:
+                print("Use previous calculated Bridging Water Feature")
 
-        outfile_V58= open(os.path.join(datadir_decoy,"Vina58_decoys" + i + ".csv"),"w")
-        outfile_V58.write('pdb,idx,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
-        outfile_SASA = open(os.path.join(datadir_decoy,"SASA_decoys" + i + ".csv"),"w")
-        f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
-        outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
-        outfile_Ion = open(os.path.join(datadir_decoy,"Num_Ions_decoys" + i + ".csv"),"w")
-        outfile_Ion.write("pdb,idx,Ni\n")
+        ### get Vina58 ###
+        if feature_type == "all" or feature_type == "Vina":
+            run_Vina_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            print("Finish Vina")
+        else:
+            print("Use previous calculated Vina")
 
-        for decoy in decoy_list:
-            idx = decoy.split("_")[1]
-            ### get Vina58 ###
-            outfile = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv"),"w")
-            featureVina(outfile, fn, inpro, decoy, datadir_decoy)
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy,"Vina58" + idx + ".csv")).readlines()
-            outfile_V58.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]) )
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"Vina58" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish Vina" + idx)
+        ### get sasa ###
+        if feature_type == "all" or feature_type == "SASA":
+            run_SASA_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            print("Finish SASA")
+        else:
+            print("Use previous calculated SASA")
 
-            ### get SASA ###
-            outfile = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv"),"w")
-            try:
-                cal_SASA(outfile,fn,decoy,inpro,datadir_decoy)
-            except:
-                ### if SASA failed, means there is no overlap between protein and decoy ###
-                outfile.write(fn + "," + ",".join([0.00 for i in range(30)]) + "\n")
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy, "SASA" + idx + ".csv")).readlines()
-            outfile_SASA.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"SASA" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish SASA" + idx)
-
-            ### get Ion ###
-            outfile = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv"),"w")
-            cal_Ni(outfile,fn, inpro, decoy, datadir_decoy)
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")).readlines()
-            outfile_Ion.write(fn + "," + idx  + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"Num_Ions" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish Ion" + idx)
-            break
-        outfile_V58.close()
-        outfile_SASA.close()
-        outfile_Ion.close()
+        ### get ion ###
+        if feature_type == "all" or feature_type == "Ion":
+            run_Ion_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            print("Finish Ion")
+        else:
+            print("Use previous calculated Ion")
 
         ### run fragments ###
-        run_fragments(fn, datadir_decoy, ref_ligand_rdkit, ref_ligand_pdb, opt = False, water = False, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
+        if feature_type == "all" or feature_type == "Frag":
+            run_Frag_features(datadir_decoy, fn, ref_ligand_rdkit, ref_ligand_pdb, opt_type = None, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
+
+        else:
+            print("Use previous calculated Frags")
 
 
-    
     ### get dERMSD ###
-    if "dE_RMSD_decoys.csv" not in os.listdir(datadir_decoy):
-        outfile_dE = open(os.path.join(datadir_decoy,"dE_RMSD_decoys.csv"),"w")
-        outfile_dE.write("pdb,idx,dE_global,RMSD_global,number0,number1\n")
-        ### copy previous generated confs ###
-        confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
-        lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
-        cmd = "cp " + confs + " " + datadir_decoy
-        os.system(cmd)
-        cmd = "cp " + lowest + " " + datadir_decoy
-        os.system(cmd)
-        for decoy in decoy_rdkit_list:
-            idx = decoy.split("_")[1]
-            outfile = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv"),"w")
-            feature_cal(outfile,fn, decoy, datadir_decoy, calc_type = "none", rewrite = False)
-            outfile.close()
-            lines = open(os.path.join(datadir_decoy, "dE_RMSD" + idx + ".csv")).readlines()
-            outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
-            rm_cmd = "rm " + os.path.join(datadir_decoy,"dE_RMSD" + idx + ".csv")
-            os.system(rm_cmd)
-            print("Finish dE_RMSD" + idx)
-        outfile_dE.close()
+    if feature_type == "all" or feature_type == "dE":
+        if "dE_RMSD_decoys.csv" not in os.listdir(datadir_decoy):
+            ### copy previous generated confs by other type decoys ###
+            confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
+            lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
+            cmd = "cp " + confs + " " + datadir_decoy
+            os.system(cmd)
+            cmd = "cp " + lowest + " " + datadir_decoy
+            run_dE_features(datadir_decoy, fn, inlig_rdkit = None, decoy = True, decoy_rdkit_list = decoy_rdkit_list)
+        else:
+            print("Use previous calculated dE")
+    else:
+        print("Use previous calculated dE")
 
     ### combine data ###
     for i in d_type.keys():
@@ -904,7 +1027,8 @@ def feature_calculation_decoy(datadir, datadir_pro,datadir_decoy, fn, pro, ref_l
 
     return None
 
-def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite = False):
+
+def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite = False, feature_type = "all"):
     '''
     feature calculation for ligands (C, Co, Crwo, Cbwo, Cpwo)
     
@@ -953,47 +1077,49 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
         inpro = d_type[i][0]
         inlig = d_type[i][1]
+
         ### get BW features ###
         ### only for structure with water in protein ###
+
         if i in ["_min_RW", "_min_BW", "_min_PW"]:
-            out_total = open(os.path.join(datadir,"Feature_BW" + i + ".csv"),"w")
-            out_total.write("pdb,Nbw,Epw,Elw\n")
-            cal_BW(out_total,fn,inpro_pro,inlig,inpro,datadir)
-            out_total.close()
-            print("Finish Bridging Water Feature Calculation")
+            if feature_type == "all" or feature_type == "BW":
+                run_BW_features(datadir, fn, inpro_pro, inlig, inpro)
+                print("Finish Bridging Water Feature Calculation")
+            else:
+                print("Use previous calculated Bridging Water Feature")
 
         ### get Vina58 ###
-        outfile = open(os.path.join(datadir,"Vina58" + i + ".csv"),"w")
-        outfile.write('pdb,vina,' + ','.join(['vina' + str(n+1) for n in range(58)]) + "\n")
-        featureVina(outfile, fn, inpro, inlig, datadir)
-        outfile.close()
-        print("Finish Vina")
+        if feature_type == "all" or feature_type == "Vina":
+            run_Vina_features(datadir, i, fn, inpro, inlig)
+            print("Finish Vina")
+        else:
+            print("Use previous calculated Vina")
 
         ### get sasa ###
-        f_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        f_feature = ["P2." + i for i in f_type] + ["P2dl." + i for i in f_type] + ["P2dp." + i for i in f_type]
-
-        out_SASA = open(os.path.join(datadir, "SASA" + i + ".csv"),"w")
-        out_SASA.write("pdb," + ",".join(f_feature) + "\n")
-        cal_SASA(out_SASA,fn,inlig,inpro,datadir)
-        out_SASA.close()
-        print("Finish SASA")
+        if feature_type == "all" or feature_type == "SASA":
+            run_SASA_features(datadir, i, fn, inpro, inlig)
+            print("Finish SASA")
+        else:
+            print("Use previous calculated SASA")
 
         ### get ion ###
-        outfile = open(os.path.join(datadir,"Num_Ions" + i + ".csv"),"w")
-        outfile.write("pdb,Ni\n")
-        cal_Ni(outfile,fn, inpro, inlig, datadir)
-        outfile.close()
-        print("Finish Ion")
+        if feature_type == "all" or feature_type == "Ion":
+            run_Ion_features(datadir, i, fn, inpro, inlig)
+            print("Finish Ion")
+        else:
+            print("Use previous calculated Ion")
 
     ### get dERMSD ###
-    outfile = open(os.path.join(datadir,"dE_RMSD.csv"),"w")
-    outfile.write("pdb,dE_global,RMSD_global,number0,number1\n")
-    feature_cal(outfile,fn, inlig_rdkit, datadir, calc_type = "GenConfs", rewrite = rewrite)
-    outfile.close()
-
+    if feature_type == "all" or feature_type == "dE":
+        run_dE_features(datadir, fn, inlig_rdkit)
+    else:
+        print("Use previous calculated dE")
+        
     ### run fragments ###
-    run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, opt = opt_type)
+    if feature_type == "all" or feature_type == "Frag":
+        run_Frag_features(datadir, fn, inlig_rdkit, inlig_pdb, opt_type)
+    else:
+        print("Use previous calculated Frags")
 
     ### combine data ###
     for i in d_type.keys():
@@ -1004,7 +1130,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     return None
 
 
-def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", decoy_type = "docking", rewrite = False, decoy = False, ligname = False):
+def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw", opt_type = "rbwo", decoy_type = "docking", rewrite = False, decoy = False, ligname = False, feature_type = "all"):
     '''
 
     run features
@@ -1037,9 +1163,15 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 
     ligname: whether use ligname to grab decoys (Only in CASF-2016_Screening), defaults to False
 
+    feature_type: which feature will be calcuated, defaults to "all"
+            "Vina" --> only calculate Vina58 features
+            "SASA" --> only calculate SASA features
+            "BW" --> only calculate BW features
+            "dE" --> only calculate ligand satbility features
+            "Ion" --> only calculate Ion features
+            "Frag" --> only calculate Fragments features
+
     '''
-
-
 
     if decoy:
         if datadir_pro == None:
@@ -1067,7 +1199,7 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
             prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type)
             print("Consideration of Water Effect for Decoys")
     
-    else:
+    else:\
         print("No Consideration of Water")
 
     ### get Co, Crwo ###
@@ -1083,9 +1215,10 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
 
     ### update input structures ###
     if decoy:
-        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,water_type = water_type, opt_type = opt_type)
+        feature_calculation_decoy(datadir,datadir_pro,datadir_decoy, fn, pro, ref_ligand_rdkit,ref_ligand_pdb,decoy_rdkit_list,decoy_pdb_list,
+                                    water_type = water_type, opt_type = opt_type, feature_type = feature_type)
     else:
-        feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite)
+        feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, water_type, opt_type, rewrite, feature_type)
     
     print("Finish Feature Calculation")
 
