@@ -38,7 +38,7 @@ import click
 @click.option("--average",is_flag = True, help = "average for 10 models")
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 @click.option("--ligname", is_flag = True, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
-@click.option("--featuretype", default = "all", help = "which feature will be calculated")
+@click.option("--featuretype", default = "all", show_default = True, help = "which feature will be calculated, options:all,Vina,SASA,BW,Ion,Frag,dE ")
 
 def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname, featuretype):
 
@@ -67,6 +67,8 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
 
 
     if decoy:
+        if decoytype == "docking":
+            opt = "n"
         if opt == "rbwo":
             data_type = ["","_min","_min_RW","_min_BW"]
         elif opt == "rwo":

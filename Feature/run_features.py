@@ -698,7 +698,6 @@ def prepare_opt_decoy(datadir_pro, datadir_decoy, fn, pro, decoy_pdb_list, opt_t
         idx = decoy.split("_")[1]
         prepare_opt(datadir_decoy, fn, decoy, opt_type, decoy = True, pro = pro)
         print("Decoy" + idx)
-        break
 
     return None
         
@@ -781,6 +780,7 @@ def run_SASA_features(datadir, d_type, fn, inpro, inlig, decoy = False, decoy_li
         outfile_SASA = open(os.path.join(datadir,"SASA_decoys" + d_type + ".csv"),"w")
         outfile_SASA.write("pdb,idx," + ",".join(f_feature) + "\n")
         for decoy in decoy_list:
+            idx = decoy.split("_")[1]
             outfile = open(os.path.join(datadir, "SASA" + idx + ".csv"),"w")
             try:
                 cal_SASA(outfile,fn,decoy,inpro,datadir)
@@ -812,6 +812,7 @@ def run_Ion_features(datadir, d_type, fn, inpro, inlig, decoy = False, decoy_lis
         outfile_Ion = open(os.path.join(datadir,"Num_Ions_decoys" + d_type + ".csv"),"w")
         outfile_Ion.write("pdb,idx,Ni\n")
         for decoy in decoy_list:
+            idx = decoy.split("_")[1]
             outfile = open(os.path.join(datadir,"Num_Ions" + idx + ".csv"),"w")
             cal_Ni(outfile, fn, inpro, decoy, datadir)
             outfile.close()
@@ -842,6 +843,7 @@ def run_BW_features(datadir, d_type, fn, inpro_pro, inlig, inpro, decoy = False,
         outfile_BW.write("pdb,idx,Nbw,Epw,Elw\n")
         for decoy in decoy_list:
             idx = decoy.split("_")[1]
+            idx = decoy.split("_")[1]
             outfile = open(os.path.join(datadir,"Feature_BW" + idx + ".csv"),"w")
             cal_BW(outfile,fn,inpro_pro,decoy,inpro,datadir)
             outfile.close()
@@ -860,7 +862,7 @@ def run_BW_features(datadir, d_type, fn, inpro_pro, inlig, inpro, decoy = False,
 
     return None
 
-def run_dE_features(datadir, fn, inlig_rdkit, decoy = False, decoy_rdkit_list = None):
+def run_dE_features(datadir, fn, inlig_rdkit, decoy = False, decoy_rdkit_list = None, rewrite = False):
     '''
     calculate dE features
 
@@ -872,7 +874,7 @@ def run_dE_features(datadir, fn, inlig_rdkit, decoy = False, decoy_rdkit_list = 
         for decoy in decoy_rdkit_list:
             idx = decoy.split("_")[1]
             outfile = open(os.path.join(datadir, "dE_RMSD" + idx + ".csv"),"w")
-            feature_cal(outfile, fn, decoy, datadir, calc_type = "none", rewrite = False)
+            feature_cal(outfile, fn, decoy, datadir, calc_type = "none", rewrite = rewrite)
             outfile.close()
             lines = open(os.path.join(datadir, "dE_RMSD" + idx + ".csv")).readlines()
             outfile_dE.write(fn + "," + idx + "," + ",".join(lines[0].split(",")[1:]))
@@ -895,7 +897,7 @@ def run_Frag_features(datadir, fn, inlig_rdkit, inlig_pdb, opt_type, decoy = Fal
     '''
 
     if decoy:
-        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
+        run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, decoy = True, decoy_list = decoy_list, decoy_type = decoy_type, decoy_pro = decoy_pro)
     else:
         run_fragments(fn, datadir, inlig_rdkit, inlig_pdb, opt = opt_type)
 
@@ -967,33 +969,35 @@ def feature_calculation_decoy(datadir, datadir_pro, datadir_decoy, fn, pro, ref_
         
         inpro = d_type[i][0]
         decoy_list = d_type[i][1]
+        inlig = None
+        inlig_rdkit = None
         ### get BW features ###
         ### only for structure with water in protein ###
         if i in ["_RW","_min_RW","_BW","_min_BW"]:
             inpro_pro = inpro_C
-            if feature_type == "all" or feature_type == "BW:
-                run_BW_features(datadir_decoy, i, fn, inpro_pro, inlig = None, inpro, decoy = True, decoy_list = decoy_list)
+            if feature_type == "all" or feature_type == "BW":
+                run_BW_features(datadir_decoy, i, fn, inpro_pro, inlig, inpro, decoy = True, decoy_list = decoy_list)
                 print("Finish Bridging Water Feature Calculation")
             else:
                 print("Use previous calculated Bridging Water Feature")
 
         ### get Vina58 ###
         if feature_type == "all" or feature_type == "Vina":
-            run_Vina_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            run_Vina_features(datadir_decoy, i, fn, inpro, inlig, decoy = True, decoy_list = decoy_list)
             print("Finish Vina")
         else:
             print("Use previous calculated Vina")
 
         ### get sasa ###
         if feature_type == "all" or feature_type == "SASA":
-            run_SASA_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            run_SASA_features(datadir_decoy, i, fn, inpro, inlig, decoy = True, decoy_list = decoy_list)
             print("Finish SASA")
         else:
             print("Use previous calculated SASA")
 
         ### get ion ###
         if feature_type == "all" or feature_type == "Ion":
-            run_Ion_features(datadir_decoy, i, fn, inpro, inlig = None, decoy = True, decoy_list = decoy_list)
+            run_Ion_features(datadir_decoy, i, fn, inpro, inlig, decoy = True, decoy_list = decoy_list)
             print("Finish Ion")
         else:
             print("Use previous calculated Ion")
@@ -1015,7 +1019,7 @@ def feature_calculation_decoy(datadir, datadir_pro, datadir_decoy, fn, pro, ref_
             cmd = "cp " + confs + " " + datadir_decoy
             os.system(cmd)
             cmd = "cp " + lowest + " " + datadir_decoy
-            run_dE_features(datadir_decoy, fn, inlig_rdkit = None, decoy = True, decoy_rdkit_list = decoy_rdkit_list)
+            run_dE_features(datadir_decoy, fn, inlig_rdkit, decoy = True, decoy_rdkit_list = decoy_rdkit_list)
         else:
             print("Use previous calculated dE")
     else:
@@ -1082,8 +1086,9 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
         ### only for structure with water in protein ###
 
         if i in ["_min_RW", "_min_BW", "_min_PW"]:
+            inpro_pro = inpro_C
             if feature_type == "all" or feature_type == "BW":
-                run_BW_features(datadir, fn, inpro_pro, inlig, inpro)
+                run_BW_features(datadir, i, fn, inpro_pro, inlig, inpro)
                 print("Finish Bridging Water Feature Calculation")
             else:
                 print("Use previous calculated Bridging Water Feature")
@@ -1111,7 +1116,7 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
 
     ### get dERMSD ###
     if feature_type == "all" or feature_type == "dE":
-        run_dE_features(datadir, fn, inlig_rdkit)
+        run_dE_features(datadir, fn, inlig_rdkit, rewrite)
     else:
         print("Use previous calculated dE")
         
@@ -1199,7 +1204,7 @@ def run_features(datadir, datadir_pro, datadir_decoy, fn, pro, water_type = "rbw
             prepare_rec_decoy(datadir_decoy, datadir_pro, pro, water_type)
             print("Consideration of Water Effect for Decoys")
     
-    else:\
+    else:
         print("No Consideration of Water")
 
     ### get Co, Crwo ###
