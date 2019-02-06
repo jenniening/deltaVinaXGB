@@ -1,0 +1,21 @@
+REMARK  2 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C2_2  and  O1_3 
+REMARK    2  A    between atoms: C7_8  and  O2_9 
+ROOT
+HETATM    1  C2  ZY7 A   1      31.057  -7.261  63.882  1.00  0.00    -0.002 A 
+HETATM    2  C3  ZY7 A   1      30.647  -8.595  64.384  1.00  0.00     0.081 A 
+HETATM    3  C5  ZY7 A   1      31.319  -9.136  65.488  1.00  0.00     0.074 A 
+HETATM    4  C6  ZY7 A   1      32.105  -6.611  64.540  1.00  0.00     0.017 A 
+HETATM    5  C7  ZY7 A   1      32.741  -7.175  65.636  1.00  0.00     0.038 A 
+HETATM    6  C8  ZY7 A   1      32.354  -8.432  66.105  1.00  0.00     0.070 A 
+ENDROOT
+BRANCH   2   7
+HETATM    7  O1  ZY7 A   1      29.621  -9.244  63.741  1.00  0.00    -0.355 OA
+HETATM    8  C4  ZY7 A   1      29.190 -10.561  64.111  1.00  0.00     0.210 C 
+ENDBRANCH   2   7
+BRANCH   6   9
+HETATM    9  O2  ZY7 A   1      32.982  -8.972  67.195  1.00  0.00    -0.356 OA
+HETATM   10  C19 ZY7 A   1      33.553  -8.135  68.202  1.00  0.00     0.210 C 
+ENDBRANCH   6   9
+TORSDOF 2

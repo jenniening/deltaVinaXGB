@@ -181,7 +181,7 @@ def GetMacroCyclicFragmentIdx(newrings, biggest_index, mol=None, confId=-1):
     ### update biggest and neighbor untill no change in biggest_and_neighbor list ###
     while len(biggest_new) != len(biggest_and_neighbor) or n == 0:
         biggest_new = biggest_and_neighbor
-        for i in biggest:
+        for i in biggest_new:
             atom = mol.GetAtomWithIdx(i)
             for j in atom.GetNeighbors():
                 k = j.GetIdx()
