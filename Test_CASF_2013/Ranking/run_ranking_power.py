@@ -6,8 +6,8 @@ def run_ranking(score_name, score_dir, relation):
 if __name__ == "__main__":
     datadir = "/scratch/jl7003/deltaVinaXGB_develop/Test_CASF_2013/Ranking/our_score_0129"
     #datadir = "/beegfs/jl7003/CASF-2016/power_scoring/other_score"
-    model_name = "model_17"
-    #model_name = "RF"
+    model_name = "model_37"
+    #model_name = "RF_remove2016"
     relation = "negative"
     for i in ["C","Co","Crwo","Cbwo"]:
         score_dir = datadir + "/" + model_name + "/"
