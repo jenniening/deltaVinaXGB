@@ -20,8 +20,3 @@ Get all options
 ```
 python run_DXGB.py --help
 ```
-Run test
-
-```
-python run_DXGB.py --runfeatures --rw --water
-```
