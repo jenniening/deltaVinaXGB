@@ -49,7 +49,7 @@ def read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy):
 
 def combine(datadir,data_type = "", decoy = False):
     if not decoy:
-        d_wat = {"":None, "_min":None, 
+        d_wat = {"":None, "_BW": os.path.join(datadir,"Feature_BW_BW.csv"), "_RW":os.path.join(datadir,"Feature_BW_RW.csv"), "_min":None, 
                 "_min_RW":os.path.join(datadir,"Feature_BW_min_RW.csv"), 
                 "_min_BW":os.path.join(datadir,"Feature_BW_min_BW.csv"), 
                 "_min_PW":os.path.join(datadir,"Feature_BW_min_PW.csv")}

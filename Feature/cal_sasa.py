@@ -35,7 +35,6 @@ def cal_SASA(out,fn,lig,pro,datadir):
     sasa_lig = sasa_features.sasa_lig
 
     out.write(fn + "," +  ",".join([str(round(i,2) )for i in sasa_com]) + "," + ",".join([str(round(i,2) )for i in sasa_lig]) + "," + ",".join([str(round(i,2) )for i in sasa_pro]) + "\n")
-
     return None
 
 

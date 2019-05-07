@@ -15,6 +15,7 @@ def get_Docking(pdblist, relation = "positive"):
     pdblist.remove("3f3a")
     for fn in pdblist:
         dk13 = pd.read_csv(fn + "_score.dat", sep = '[,, ,\t]+',engine='python')
+        dk13.columns = ["#code","score"]
         dk13["score"] = dk13["score"].astype(float)
         #print(dk13.head)
         if relation == "negative":
@@ -36,9 +37,9 @@ def get_Docking(pdblist, relation = "positive"):
         if len(dk13.loc[(dk13['rank'] < 4) & (dk13['RMSD'] < 2.0)]['#code'].unique()) >= 1:
             sr_3 += 1
         correct_list.append(dk13.loc[(dk13['rank'] < 1) & (dk13['RMSD'] > 2.0)]['#code'].unique())
-    sr_1 = round(sr_1 / 194 * 100, 2)
-    sr_2 = round(sr_2 / 194 * 100, 2)
-    sr_3 = round(sr_3 / 194 * 100, 2)
+    sr_1 = round((sr_1 + 1) / 195 * 100, 2)
+    sr_2 = round((sr_2 + 1) / 195 * 100, 2)
+    sr_3 = round((sr_3 + 1) / 195 * 100, 2)
     print(sr_1,sr_2,sr_3)
 
     return sr_1, sr_2, sr_3, correct_list

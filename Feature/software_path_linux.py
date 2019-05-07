@@ -3,7 +3,7 @@ import os
 # Change the softwaters we need use here
 
 def path_python():
-    python = "~/anaconda3/bin/python"
+    python = "/beegfs/anaconda3_latest/bin/python"
     return python
 
 def path_mgl_python():
@@ -17,7 +17,7 @@ def path_mgl_script():
     return MGLUTIL
 
 def path_vina():
-    vina = "/scratch/jl7003/deltaVinaXGB_develop/vina_package/bin/vina_linux"
+    vina = "/beegfs/jl7003/deltaVinaXGB_develop/vina_package/bin/vina_linux"
     return vina
 
 def path_obabel():
@@ -33,5 +33,5 @@ def path_Rscript():
     return R
 
 def path_RF20da():
-    RF20da = "/scratch/jl7003/deltaVinaXGB_develop/Feature/RF20.rda"
+    RF20da = "/beegfs/jl7003/deltaVinaXGB_develop/Feature/RF20.rda"
     return RF20da

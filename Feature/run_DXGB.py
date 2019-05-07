@@ -67,8 +67,6 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
 
 
     if decoy:
-        if decoytype == "docking":
-            opt = "n"
         if opt == "rbwo":
             data_type = ["","_min","_min_RW","_min_BW"]
         elif opt == "rwo":
@@ -103,9 +101,16 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
         elif opt == "o":
             data_type = ["_min"]
         else:
-            data_type = [""]
-    
-    
+            if water == "rbw":
+                data_type = ["","_RW","_BW"]
+            elif water == "rw":
+                data_type = ["_RW"]
+            elif water == "bw":
+                data_type == ["_BW"]
+            elif water == "pw":
+                data_type == ["_PW"]
+            else:
+                data_type = [""]
     
     if decoy:
         datadir = decoydatadir

@@ -21,7 +21,7 @@ def get_Ranking(score, relation = "positive"):
     refdata = pd.read_csv("Score_Rank.dat",sep = " ")
     refdata.columns = ["#code", "Prot", "lig", "pKd"]
     newdf = pd.merge(refdata,score,on = "#code")
-    newdf["rank_org"] = newdf.groupby("Prot")["pKd"].rank(method = "min", ascending = False)
+    newdf["rank_org"] = newdf.groupby("Prot")["pKd"].rank(method = "min",ascending = False)
     newdf["rank_pre"] = newdf.groupby("Prot")["score"].rank(method = "min", ascending = False)
     ### High ###
     data = newdf[newdf["rank_org"] == newdf["rank_pre"]].groupby("Prot").size()

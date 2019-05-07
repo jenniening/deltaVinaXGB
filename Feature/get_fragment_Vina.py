@@ -290,7 +290,8 @@ def get_prot(fn,datadir, min = False, min_RW = False, RW = False, min_BW = False
 
 def get_frag(fn,frag_dir):
     frag_num =  len([ filename for filename in os.listdir(frag_dir) if ("frag" in filename) and (filename.endswith(".pdb"))])
-    frag_list = [os.path.join(frag_dir,'%s_ligand_frag%02d.pdb'%(fn, i) )for i in range(1,frag_num + 1)]
+    base = [ filename for filename in os.listdir(frag_dir) if ("frag" in filename) and (filename.endswith(".pdb"))][0].split("frag")[0]
+    frag_list = [os.path.join(frag_dir,'%sfrag%02d.pdb'%(base, i) )for i in range(1,frag_num + 1)]
 
 
     return frag_list

@@ -289,8 +289,6 @@ def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = F
     num_1, num_2 = num_structure_change(confs,native_energy)
     outfile.write(fn + "," + str(dE) + "," + str(RMSD) + "," + str(num_1) + "," + str(num_2) + "\n")
     outfile.close()
-
-
     
     return None
 
