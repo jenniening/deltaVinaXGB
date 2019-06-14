@@ -88,8 +88,8 @@ def cluster_conformers(mol, mode="RMSD", threshold=0.2):
     print("The total number of conformers before clustering: " + str(n))
 
     dmat = []
-    for i in range(n-1):
-        for j in range(i+1,n):
+    for i in range(n):
+        for j in range(i):
             dmat.append(Chem.rdMolAlign.AlignMol(mol,mol,i,j,atomMap = [(k, k) for k in heavyatomidx]))
             #dmat.append(Chem.rdMolAlign.GetBestRMS(mol,mol,i,j,map=[[(k, k) for k in heavyatomidx]]))
             #print(dmat)
@@ -270,6 +270,8 @@ def get_RMSD(local_min,lowest,fn):
     return RMSD
 
 def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = False):
+    olddir = os.getcwd()
+    os.chdir(datadir)
     confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
     lowest = os.path.join(datadir, fn + "_ligand_global_min.sdf")
     if calc_type == "GenConfs":
@@ -289,7 +291,7 @@ def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = F
     num_1, num_2 = num_structure_change(confs,native_energy)
     outfile.write(fn + "," + str(dE) + "," + str(RMSD) + "," + str(num_1) + "," + str(num_2) + "\n")
     outfile.close()
-    
+    os.chdir(olddir)
     return None
 
 
