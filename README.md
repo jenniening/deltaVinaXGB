@@ -52,7 +52,7 @@ Note:
 2) Using different version of RDKit, the ligand stability features can be slightly different.
 3) Abbrevations: RW --> receptor water; BW --> bridging water
 
-Ref: 
+### Reference
 1. Wang, C.; Zhang, Y. K., Improving Scoring-Docking-Screening Powers of Protein-Ligand Scoring Functions using Random Forest. J. Comput. Chem. 2017, 38, 169-177. https://doi.org/10.1002/jcc.24667
 
 
