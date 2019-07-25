@@ -22,7 +22,7 @@ Install source code
 ```
 python setup.py install
 ```
-Before running model, remember change the python, R, obabel, mgl tools paths into your own directorys in Feature/software_path_mac or Feature/software_path_linux. <br>
+Before running model, remember change the python, R, obabel, mgl tools paths into your own directorys in Feature/software_path_mac.py or Feature/software_path_linux.py file. <br>
 
 ### Data
 Before calculating scores, three inputfiles are needed:<br>
