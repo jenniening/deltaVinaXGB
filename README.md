@@ -42,10 +42,10 @@ Run test example
 ```
 python run_DXGB.py --runfeatures --average
 ```
---runfeatures flag is for feature calculation, default is to calculate all features.
---average flag is for average predictions from 10 models.
-The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.
-If you want to get deltaVinaRF scores as well, add --runrf
+--runfeatures flag is for feature calculation, default is to calculate all features.<br>
+--average flag is for ensemble predictions from 10 models.<br>
+The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.<br>
+If you want to get deltaVinaRF scores as well, add --runrf. <br>
 
 Note:
 1) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
