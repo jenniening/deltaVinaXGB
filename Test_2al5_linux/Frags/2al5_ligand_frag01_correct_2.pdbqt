@@ -1,0 +1,14 @@
+REMARK  0 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+ROOT
+HETATM    1  N1  FWD A   1      20.607  61.769  28.791  1.00  0.00    -0.304 N 
+HETATM    2  C1  FWD A   1      21.149  61.637  27.493  1.00  0.00     0.329 A 
+HETATM    3  O1  FWD A   1      20.491  61.602  26.485  1.00  0.00    -0.246 OA
+HETATM    4  N2  FWD A   1      22.558  61.539  27.472  1.00  0.00    -0.273 N 
+HETATM    5  C2  FWD A   1      23.428  61.567  28.545  1.00  0.00     0.289 A 
+HETATM    6  O2  FWD A   1      24.634  61.458  28.433  1.00  0.00    -0.265 OA
+HETATM    7  C3  FWD A   1      22.740  61.709  29.872  1.00  0.00     0.199 A 
+HETATM    8  C4  FWD A   1      21.388  61.828  29.902  1.00  0.00     0.143 A 
+HETATM    9  H1  FWD A   1      22.977  61.438  26.570  1.00  0.00     0.173 HD
+ENDROOT
+TORSDOF 0
