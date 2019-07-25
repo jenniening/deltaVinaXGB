@@ -20,10 +20,10 @@ Install source code
 python setup.py install
 ```
 ### Data
-Before calculating scores, three inputfiles are needed:
-pdbid_ligand.mol2/sdf         --> ligand structure file
-pdbid_protein.pdb             --> protein structure file
-pdbid_protein_all.pdb         --> protein with water molecules structure file
+Before calculating scores, three inputfiles are needed:<br>
+pdbid_ligand.mol2/sdf         --> ligand structure file<br>
+pdbid_protein.pdb             --> protein structure file<br>
+pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 
 ### Usage 
 
