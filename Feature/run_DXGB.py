@@ -25,8 +25,10 @@ from Feature.run_models import *
 @click.option("--modelidx", default = "1", show_default = True, help = "model index")
 @click.option("--ligname", is_flag = True, help = "whether use pdbid to get decoys with same name (CASF-2013/2016 screening)")
 @click.option("--featuretype", default = "all", show_default = True, help = "which feature will be calculated, options:all,Vina,SASA,BW,Ion,Frag,dE ")
+@click.option("--runrf", is_flag=True, help="get deltaVinaRF20 scores or not")
 
-def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname, featuretype):
+
+def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfile, runfeatures, water, opt, decoy, decoytype, rewrite, average, modelidx,ligname, featuretype, runrf):
 
     datadir = os.path.realpath(datadir)
     print("pdb index: " + pdbid  )
@@ -106,29 +108,31 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
     for idx, i in enumerate(data_type):
         inf = "Input" + data_type_new[idx] + ".csv"
         test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx, decoy = decoy)  
-        outRF = "RF" + data_type_new[idx] + ".csv"
-        RF20_main(datadir,inf,outRF, decoy)
-        ### correct wrong pdb name in scientific pattern ###
-        outRF_new = open(os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv"),"w")
-        if decoy:
-            outRF_new.write("pdb,idx,RF20" + i + "\n")
-        else:
-            outRF_new.write("pdb,RF20" + i + "\n")
-       	lines = [line for line in open(os.path.join(datadir,outRF))]
-        outRF_new.write("".join([pdbid + "," + ",".join(line.split(",")[1:]) for line in lines[1:]]))
-        outRF_new.close()
-        os.system("mv " + os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv") + " " + os.path.join(datadir, "RF" + data_type_new[idx] + ".csv"))
-         
         out.append(test_new)
-        if decoy:
-            outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str,"idx":str})
-        else:
-            outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str})
-        out.append(outRF)
+        if runrf:
+            outRF = "RF" + data_type_new[idx] + ".csv"
+            RF20_main(datadir,inf,outRF, decoy)
+            ### correct wrong pdb name in scientific pattern ###
+            outRF_new = open(os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv"),"w")
+            if decoy:
+                outRF_new.write("pdb,idx,RF20" + i + "\n")
+            else:
+                outRF_new.write("pdb,RF20" + i + "\n")
+       	    lines = [line for line in open(os.path.join(datadir,outRF))]
+            outRF_new.write("".join([pdbid + "," + ",".join(line.split(",")[1:]) for line in lines[1:]]))
+            outRF_new.close()
+            os.system("mv " + os.path.join(datadir,"RF" + data_type_new[idx] + "_new.csv") + " " + os.path.join(datadir, "RF" + data_type_new[idx] + ".csv"))
+         
+            if decoy:
+                outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str,"idx":str})
+            else:
+                outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str})
+            out.append(outRF)
 
     os.chdir(datadir)
     get_output(out,outfile,decoy)
-    os.system("rm " +  "RF*")
+    if runrf:
+        os.system("rm " +  "RF*")
     os.chdir(olddir)
 
     return None

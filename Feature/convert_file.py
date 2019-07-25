@@ -34,9 +34,8 @@ def convert_RF20(infile,outfile,decoy):
     newfile.to_csv(outfile,index = False)
     return None
 	
-def get_RF20(infile, outfile, decoy):
+def get_RF20(RF20da, infile, outfile, decoy):
     RFfile = open("get_RF20.R","w")
-    RF20da = path_RF20da()
     if decoy:
         RFfile.write("library(randomForest)\n" + "load('" + RF20da + "')\n" +
                  "args <- commandArgs(trailingOnly = TRUE)\ninfn = args[1]\noutfn = args[2]\n" + 
@@ -56,8 +55,9 @@ def get_RF20(infile, outfile, decoy):
     return None
 	
 def RF20_main(datadir,infile, outfile, decoy):
+    RF20da = path_RF20da()
     olddir = os.getcwd()
     os.chdir(datadir)
     convert_RF20(infile,"RF_input.csv", decoy)
-    get_RF20("RF_input.csv",outfile, decoy)
+    get_RF20(RF20da, "RF_input.csv",outfile, decoy)
     os.chdir(olddir)
