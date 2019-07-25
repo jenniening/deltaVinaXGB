@@ -1,0 +1,14 @@
+REMARK  1 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: O1_2  and  P1_3 
+ROOT
+HETATM    1  P1  PRP A   1      31.054 -12.225  42.569  1.00  0.00     0.422 P 
+HETATM    2  O6  PRP A   1      30.149 -11.139  42.804  1.00  0.00    -0.617 OA
+HETATM    3  O7  PRP A   1      32.064 -12.224  43.574  1.00  0.00    -0.617 OA
+HETATM    4  O8  PRP A   1      31.474 -12.499  41.215  1.00  0.00    -0.617 OA
+ENDROOT
+BRANCH   1   5
+HETATM    5  O5  PRP A   1      30.372 -13.573  42.946  1.00  0.00    -0.280 OA
+HETATM    6  C5  PRP A   1      29.193 -14.006  42.332  1.00  0.00     0.217 C 
+ENDBRANCH   1   5
+TORSDOF 1

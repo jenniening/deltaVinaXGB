@@ -1,0 +1,7 @@
+REMARK  0 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+ROOT
+HETATM    1  O2  PRP A   1      27.393 -17.469  44.787  1.00  0.00    -0.388 OA
+HETATM    2  H7  PRP A   1      28.171 -16.958  44.976  1.00  0.00     0.210 HD
+ENDROOT
+TORSDOF 0
