@@ -2,29 +2,15 @@ import os
 import sys
 import click
 import pandas as pd
-
-if sys.platform == "linux":
-    from software_path_linux import path_python
-    from software_path_linux import path_obabel
-elif sys.platform == "darwin":
-    from software_path_mac import path_python
-    from software_path_mac import path_obabel
-from convert_file import RF20_main
-import run_features
-from run_features import run_features
-import run_models
-from run_models import run_model
-from run_models import get_output
-import click
-
-
-
+from Feature.convert_file import RF20_main as RF20_main
+from Feature.run_features import run_features as run_features
+from Feature.run_models import *
 
 @click.command()
-@click.option("--model", default = "model_allfeatures", show_default = True, help = "model name")
+@click.option("--model", default = "DXGB", show_default = True, help = "model name")
 @click.option("--modeldir",default = "../Model", show_default = True, help = "absolute model directory")
-@click.option("--datadir", default = "../Test_linux", show_default= True, help = "absolute data directory")
-@click.option("--pdbid", default = "01", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
+@click.option("--datadir", default = "../Test_2al5", show_default= True, help = "absolute data directory")
+@click.option("--pdbid", default = "2al5", show_default = True, help = "pdbid, ligand input should be pdbid_ligand.mol2 or sdf,\nprotein input should be pdbid_protein_all.pdb")
 @click.option("--outfile", default = "score.csv",show_default = True, help = "output filename")
 @click.option("--decoy", is_flag = True, help = "decoy flag")
 @click.option("--decoydatadir", default = None, show_default = True, help = "decoy datadir, if decoy == True, please provide decoydatadir, and datadir is the directory for reference file")
@@ -64,7 +50,6 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
     if runfeatures:
         run_features(datadir, prodatadir, decoydatadir, pdbid, proid, water_type = water, opt_type = opt, decoy_type = decoytype, rewrite = rewrite, decoy = decoy, ligname = ligname, feature_type = featuretype)
         os.chdir(olddir)
-
 
     if decoy:
         if opt == "rbwo":
@@ -141,16 +126,14 @@ def main(model, modeldir, datadir, decoydatadir, prodatadir, pdbid, proid, outfi
             outRF = pd.read_csv(os.path.join(datadir,"RF" + data_type_new[idx] + ".csv"),dtype = {"pdb":str})
         out.append(outRF)
 
-
     os.chdir(datadir)
     get_output(out,outfile,decoy)
     os.system("rm " +  "RF*")
     os.chdir(olddir)
 
-
+    return None
 
 if __name__ == "__main__":
-
     main()
 
 

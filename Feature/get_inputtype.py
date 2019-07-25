@@ -1,4 +1,3 @@
-
 def get_inputtype(input):
     type = "Wrong Type"
     if input.split("/")[-1].split(".")[-1] == "mol2":

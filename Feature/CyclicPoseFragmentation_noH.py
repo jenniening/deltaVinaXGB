@@ -1,21 +1,13 @@
-##################################################
-##### BACE1 cyclic ligand pose fragmentation
-##### Author: cyang; 
-##### Time: 11/16/2018
-##### Requirement: numpy, rdkit
-##################################################
-
+#-----------------------------------------------------------------------------
+# Cyclic Fragmentation 
+#-----------------------------------------------------------------------------
 import os, sys
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
 def get_spec_N(mol,AtomIdxs):
-    ''' 
-    Get the N index for N with no less than 3 bonds
-
-    '''
-
+    ''' Get the N index for N with no less than 3 bonds '''
     spec_N_type1 = []
     spec_N_type2 = []
     for atom in mol.GetAtoms():
@@ -30,17 +22,10 @@ def get_spec_N(mol,AtomIdxs):
                 spec_N_type1.append(atom.GetIdx())
                 print("There is a spec N type1:" + str(atom.GetIdx()))
 
-            
-
     return spec_N_type1, spec_N_type2
 
-
 def check_cutting(rings, max_size_idx, mol):
-    '''
-    Check the number of sidechains after cutting, more is better
-
-    '''
-
+    ''' Check the number of sidechains after cutting, more is better '''
     max_fgs = 0
     for idx in max_size_idx:
         _,sidechain_connection,_ = GetMacroCyclicFragmentIdx(rings, idx, mol=mol, confId=-1)
@@ -49,15 +34,11 @@ def check_cutting(rings, max_size_idx, mol):
             max_idx = idx
     return max_idx
 
-
 def max_ring(mol, rings, cut_type = "only1"):
     '''
     Get the large ring index based on size and cutting 
-    
     :param cut_type: how many core used, defaults to "only1"
-
     '''
-
     size_infor = [len(i) for i in rings]
     max_size = len(rings[0])
     max_size_idx = [idx for idx, i in enumerate(size_infor) if i == max_size]
@@ -75,7 +56,6 @@ def max_ring(mol, rings, cut_type = "only1"):
 
     return core_idx
     
-
 def determine_intersect(ring_sets):
     Flag = False
     for i in ring_sets:
@@ -85,16 +65,10 @@ def determine_intersect(ring_sets):
                     Flag = True
     return Flag
                 
-
 def get_large_ring(cut_type, mol=None, confId=-1):
-    '''
-    Get ring element infor and the lager ring index
-    
-    '''
+    ''' Get ring element infor and the lager ring index '''
     rings = sorted([set(i) for i in Chem.GetSymmSSSR(mol)], key=lambda x: len(x), reverse=True)
-
     newrings = []
-
     for i in range(0,len(rings)):
         newlist = [k for k in rings[i]]
         for j in range(0, len(rings)):
@@ -103,7 +77,6 @@ def get_large_ring(cut_type, mol=None, confId=-1):
         if set(newlist) not in newrings:
             newrings.append(set(newlist))
     newrings = sorted(newrings,key=lambda x: len(x), reverse=True)
-
     n = 0 
     while determine_intersect(newrings):
         latestrings = []
@@ -119,10 +92,7 @@ def get_large_ring(cut_type, mol=None, confId=-1):
             if set(newlist) not in latestrings:
                 latestrings.append(set(newlist))
         newrings = latestrings
- 
-    
     newrings = sorted(newrings,key=lambda x: len(x), reverse=True)
-    
     if len(newrings[0]) <= 10:
         # combine all rings connected by one single bond
         print("The largest ring size: " + str(len(newrings[0])))
@@ -139,8 +109,7 @@ def get_large_ring(cut_type, mol=None, confId=-1):
                             newlist.extend(list(newrings[j]))
             latestrings.append(set(newlist))
         newrings = latestrings
-        newrings = sorted(newrings,key=lambda x: len(x), reverse=True)
-            
+        newrings = sorted(newrings,key=lambda x: len(x), reverse=True) 
         while determine_intersect(newrings):
             latestrings = []
             for i in newrings:
@@ -155,23 +124,16 @@ def get_large_ring(cut_type, mol=None, confId=-1):
                 if set(newlist) not in latestrings:
                     latestrings.append(set(newlist))
             newrings = latestrings
-
-
     # get large ring index
     biggest_index_list = max_ring(mol, newrings, cut_type = cut_type )
     #biggest = newrings[biggest_index]
 
     return newrings, biggest_index_list
 
-
 def GetMacroCyclicFragmentIdx(newrings, biggest_index, mol=None, confId=-1):
-    '''
-    Get the AtomIdx of core fragment and the connection information with side chains
-
-    '''
+    ''' Get the AtomIdx of core fragment and the connection information with side chains '''
     print("The core size after connection: "  + str(len(newrings[biggest_index])))
     biggest = newrings[biggest_index]
-    
     #biggest_and_neighbor = biggest.copy()
     biggest_and_neighbor = [i for i in biggest]
     biggest_new = [i for i in biggest]
@@ -194,23 +156,15 @@ def GetMacroCyclicFragmentIdx(newrings, biggest_index, mol=None, confId=-1):
                     else:
                         biggest_and_neighbor.append(k)
         n += 1
-    biggest_and_neighbor = set(biggest_and_neighbor)
-                
+    biggest_and_neighbor = set(biggest_and_neighbor)  
     oldAtomIdxs = biggest_and_neighbor
     return biggest_and_neighbor, sidechain_connection, core_connection
 
 
 
 def GetFragmentConf(AtomIdxs, connectIdxs, mol=None, confId=-1):
-    '''
-    Get the 3D conformation of newly edited fragment
-    
-    '''
-
+    ''' Get the 3D conformation of newly edited fragment '''
     oldAtomIdxs = AtomIdxs
-    #print(AtomIdxs)
-    #print(connectIdxs)
-
     ed_mol   = Chem.rdchem.EditableMol(Chem.rdchem.Mol())
     conf_old = mol.GetConformer(confId)
     conf_new = Chem.rdchem.Conformer()
@@ -234,7 +188,6 @@ def GetFragmentConf(AtomIdxs, connectIdxs, mol=None, confId=-1):
                 cutoff_index.append(n)
             n += 1
     spec_N_type1, spec_N_type2 = get_spec_N(mol,connectIdxs)
-    
     for bond in mol.GetBonds():
         bIdx = bond.GetBeginAtomIdx()
         eIdx = bond.GetEndAtomIdx()
@@ -243,20 +196,15 @@ def GetFragmentConf(AtomIdxs, connectIdxs, mol=None, confId=-1):
                 ed_mol.AddBond(mapOldIdxToNewIdx[bIdx], mapOldIdxToNewIdx[eIdx],order = Chem.BondType.SINGLE)
             else:
                 ed_mol.AddBond(mapOldIdxToNewIdx[bIdx], mapOldIdxToNewIdx[eIdx],order = bond.GetBondType())
-    
     mol = ed_mol.GetMol()
-    #Chem.SanitizeMol()
     mol.AddConformer(conf_new)
     # add H for connection atoms
     mol.UpdatePropertyCache()
     #mol_H = Chem.AddHs(mol,explicitOnly=False,addCoords=True,onlyOnAtoms=cutoff_index)
-
     return mol
 
 def get_atoms_to_visit(atom, seen_ids):
-    '''
-    search for all the available neightbors in the side chain
-    '''
+    ''' Search for all the available neightbors in the side chain '''
     neighbor_ids = []
     neighbor_atoms = []
     for bond in atom.GetBonds():
@@ -292,18 +240,14 @@ def WriteFragmentSDF(mol, mol_name):
     writer.SetKekulize(False)
     writer.write(mol)
     writer.close()
-
+    return None
 
 def WriteFragmentPDB(mol, mol_name):
     Chem.MolToPDBFile(mol,mol_name)
-
-
+    return None
 
 def runMethod(mol, basename,cut_type):
-    '''
-    Run method 
-
-    '''
+    ''' Run method '''
     rings = sorted([set(i) for i in Chem.GetSymmSSSR(mol)], key=lambda x: len(x), reverse=True)
     if len(rings) == 0:
         print("No Rings")
@@ -341,17 +285,12 @@ def runMethod(mol, basename,cut_type):
 
 def main(): 
     args = sys.argv[1:]
-
     if not args:
         print ('usage: python CyclicPoseFragmentation_noH.py [--input] filename.format')
-
         sys.exit(1)
-
     elif sys.argv[1] == '--help':
         print ('usage: python CyclicPoseFragmentation_noH.py [--input] filename.format')
-
         sys.exit(1)
-
     elif sys.argv[1] == '--input':
         infile = sys.argv[2]
         basename = os.path.basename(infile)
@@ -363,10 +302,9 @@ def main():
             print("mol2")
             mol = Chem.MolFromMol2File(infile, removeHs=False)
         runMethod(mol, basename, cut_type)
-    
-
     else:
         sys.exit(1)
+    return None
 
 if __name__ == '__main__':
     main()

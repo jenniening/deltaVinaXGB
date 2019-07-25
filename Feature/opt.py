@@ -1,34 +1,23 @@
-"""
-Get Co, Crwo ligand structure
-"""
-__author__ = "Jianing Lu"
-__copyright__ = "Copyright 2018, NYU"
-__license__ = ""
-
 #-----------------------------------------------------------------------------
-# Imports
+# Optimized Structure
 #-----------------------------------------------------------------------------
 import os
 import fileinput
 import sys
-import get_pdbinfo
-if sys.platform == "linux":
-    import software_path_linux as path
-elif sys.platform == "darwin":
-    import software_path_mac as path
+import Feature.get_pdbinfo as get_pdbinfo
 
+if sys.platform == "linux":
+    import Feature.software_path_linux as path
+elif sys.platform == "darwin":
+    import Feature.software_path_mac as path
 
 MGLPY =path.path_mgl_python()
 MGLUTIL = path.path_mgl_script()
 vina = path.path_vina()
 obable = path.path_obabel()
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 #### Do minimization, structure file should have hydrogen atom!!!####
 ## generate the refined data list
-
 ## generate the box for mol2 file
 def get_box(fn, inlig):
     if inlig.split(".")[-1] == "mol2":
@@ -86,11 +75,12 @@ def genpdbqt(fn, ligpdb, propdb):
 def runmin(fn):
     cmd = vina + " --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
     os.system(cmd)
+    return None
 
 def chanPdb(fn):
     cmd = obable  + " -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
     os.system(cmd)
-
+    return None
 
 def get_Co(datadir,fn, inlig, st, decoy = False, pro = None):
     os.chdir(datadir)

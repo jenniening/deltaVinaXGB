@@ -1,46 +1,25 @@
-"""
-Get Crw protein structure
-"""
-__author__ = "Jianing Lu"
-__copyright__ = "Copyright 2018, NYU"
-__license__ = ""
-
 #-----------------------------------------------------------------------------
-# Imports
+# Crw
 #-----------------------------------------------------------------------------
-import get_pdbinfo
 import numpy as np
-
 import os
 import sys
+import Feature.get_pdbinfo as get_pdbinfo
 
 if sys.platform == "linux":
-    import software_path_linux as path 
+    import Feature.software_path_linux as path 
 elif sys.platform == "darwin":
-    import software_path_mac as path
+    import Feature.software_path_mac as path
 
 MGLPY = path.path_mgl_python()
 MGLUTIL = path.path_mgl_script()
 vina = path.path_vina()
 obable = path.path_obabel()
 
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-
-
-#####Part1 get the structural information of water molecules and get the water molecules based on structual information #####
-
 def get_RW(fn, inpro):
-    '''
-    Select the HOH in [2.0, 3.5] of protein
-
-    '''
+    ''' Select the HOH in [2.0, 3.5] of protein '''
 
     outfile = open("RW_info.txt","w")
-
     pro = get_pdbinfo.pdbinfo(fn,file = inpro)
     pro_atoms = pro.getPolarAtoms()
     protein,waters = get_pdbinfo.pdbinfo(fn, lines = pro_atoms).getProteinWaters()
@@ -84,10 +63,7 @@ def get_RW(fn, inpro):
     return None
 
 def get_water(fn,water):
-    '''
-    Get water residue index and water molecule file
-    
-    '''
+    ''' Get water residue index and water molecule file '''
  
     Residue_all = set([line.split(",")[4] for line in open("RW_info.txt")])
     print("RW satisfiles distance requirement:" + str(len(Residue_all)))
@@ -115,10 +91,7 @@ def get_water(fn,water):
 
 
 def addH(fn):
-    '''
-    Add H to water molecule file (Vina need)
-    
-    '''
+    ''' Add H to water molecule file (Vina need) '''
 
     for filename in os.listdir("."):
         if filename.startswith("RW") and filename.endswith(".pdb"):
@@ -146,14 +119,8 @@ def addH(fn):
 
     return None
 
-
-#####Part2 calculate the vinascore #####
-
 def runVina(fn,pro):
-    '''
-    Get pdbqt file of protein, water and run Vina
-
-    '''
+    ''' Get pdbqt file of protein, water and run Vina '''
 
     olddir = os.getcwd()
     os.system("mkdir vina_RW")
@@ -184,14 +151,8 @@ def runVina(fn,pro):
 
     return None
 
-
-#####Part3 Get the vina score information #####
-
 def get_result_PW(fn,out_PW): 
-    '''
-    Get PW result 
-    
-    '''
+    ''' Get PW result '''
 
     olddir = os.getcwd()
     os.chdir("vina_RW")
@@ -209,12 +170,8 @@ def get_result_PW(fn,out_PW):
 
     return None
 
-
 def get_RW_final(fn,out,out_total):
-    '''
-    Get RW which satisfiles Vina score requirement 
-
-    '''
+    ''' Get RW which satisfiles Vina score requirement '''
 
     value_PW = 0.00
     m = 0
@@ -232,13 +189,8 @@ def get_RW_final(fn,out,out_total):
     
     return index
 
-#####Part4 Get final receptor water molecules #####
-
 def get_waterfile(fn, pro, index):
-    '''
-    Get final RW water file and protein file 
-   
-    '''
+    ''' Get final RW water file and protein file '''
     
     ### get final rw water file ###
     out = open("RW_total.pdb","w")
@@ -275,13 +227,8 @@ def get_waterfile(fn, pro, index):
      
     return None
 
-
-
 def get_Crw(fn,inprot,inwater,datadir):
-    '''
-    run all functions 
-
-    '''
+    ''' run all functions '''
 
     os.chdir(datadir)
     pro = os.path.join(datadir,inprot)
@@ -304,30 +251,7 @@ def get_Crw(fn,inprot,inwater,datadir):
 
     return None
 
-
-def main():
-    args = sys.argv[1:]
-    print(args)
-    if args[-1] == "file":
-        pdbfile = open('%s'%(args[0] + args[1]),'r')
-        pdblist = []
-        for i in pdbfile:
-            pdblist.append(i.rstrip())
-    else:
-        pdblist = []
-        pdblist.append(args[1])
-    print(pdblist)
-    datadir = args[0]
-    for fn in pdblist:
-        inpro = fn + "_protein.pdb"
-        inpro_water = fn + "_protein_all.pdb"
-        get_Crw(fn,inpro,inpro_water,datadir)
-    
-    return None
-
-
 if __name__ == '__main__':
-    #main()
     fn = "3c2f"
     inprot = fn + "_protein.pdb"
     inwater = fn + "_protein_all.pdb"

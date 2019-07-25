@@ -1,12 +1,16 @@
-
+#-----------------------------------------------------------------------------
+# Ion Feature
+#-----------------------------------------------------------------------------
 import os
-import get_pdbinfo
+import Feature.get_pdbinfo as get_pdbinfo
+from Feature.get_pdbinfo import *
 import numpy as np
 import sys
+
 if sys.platform == "linux":
-    from software_path_linux import path_obabel
+    from Feature.software_path_linux import path_obabel
 elif sys.platform == "darwin":
-    from software_path_mac import path_obabel
+    from Feature.software_path_mac import path_obabel
 
 obable = path_obabel()
 
@@ -75,64 +79,8 @@ def cal_Ni(outfile,fn, inprot, inlig, datadir):
     #os.system("rm " + infile)
     outfile.write(fn + "," + str(num) + "\n")
 
-def main():
-    args = sys.argv[1:]
-    if args[-1] == "file":
-        pdbfile = open('%s'%(args[0] + args[1]),'r')
-        pdblist = []
-        for i in pdbfile.readlines():
-            pdblist.append(i[0:4])
-    else:
-        pdblist = []
-        pdblist.append(args[1])
-    datadir = args[0]
-    outfile = open(datadir + "Num_Ions.csv","w")
-    outfile_RW = open(datadir + "Num_Ions_RW.csv","w")
-    outfile_min = open(datadir + "Num_Ions_min.csv","w")
-    outfile_min_RW = open(datadir + "Num_Ions_min_RW.csv","w")
-    outfile.write("pdb,Ni\n")
-    outfile_RW.write("pdb,Ni\n")
-    outfile_min.write("pdb,Ni\n")
-    outfile_min_RW.write("pdb,Ni\n")
-    for fn in pdblist:
-        inpro = fn + "_protein.pdb"
-        inpro_RW = fn + "_protein_RW.pdb"
-        if fn + "_ligand.mol2" in os.listdir(datadir):
-            inlig = fn + "_ligand.mol2"
-        elif fn + "_ligand.sdf" in os.listdir(datadir):
-            inlig =  fn + "_ligand.sdf"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -isdf " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
-            inlig = inlig_out
-        elif fn + "_ligand_rigid.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_rigid.pdbqt"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
-            inlig = inlig_out
-        elif fn + "_ligand_flexible.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_flexible.pdbqt"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir+ inlig_out)
-            inlig = inlig_out
-
-        else:
-            print("wrong ligand input file format, it should be mol2, sdf, or pdbqt")
-        cal_Ni(outfile,fn,inpro,inlig,datadir)
-        cal_Ni(outfile_RW,fn,inpro_RW,inlig,datadir)
-        inlig_min = fn + "_lig_min.pdb"
-        cal_Ni(outfile_min,fn,inpro,inlig_min,datadir)
-        inlig_min_RW = fn + "_lig_min_RW.pdb"
-        cal_Ni(outfile_min_RW,fn,inpro_RW,inlig_min_RW,datadir)
-
-    outfile.close()
-    outfile_RW.close()
-    outfile_min.close()
-    outfile_min_RW.close()
-
-    return None
-
 if __name__ == "__main__":
-    #main()
+    ### test ###
     outfile = open("/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test/Num_Ions.csv","w")
     fn = "4q90"
     inprot = fn + "_protein.pdb"

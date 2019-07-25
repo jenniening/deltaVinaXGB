@@ -1,3 +1,6 @@
+#-----------------------------------------------------------------------------
+# Combine Features
+#-----------------------------------------------------------------------------
 import pandas as pd
 import os
 
@@ -84,13 +87,6 @@ def combine(datadir,data_type = "", decoy = False):
         outfile = "Input_decoys" + data_type + ".csv"
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy)
         f.to_csv(os.path.join(datadir,outfile),index = False)
-
-
-
-        
-    
-
-
 
 if __name__ == "__main__":
 

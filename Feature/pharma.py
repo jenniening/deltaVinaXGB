@@ -1,22 +1,9 @@
-"""
-Pharmacophore type assignment for protein and ligand.
-"""
-
-__author__ = "Jianing Lu"
-__copyright__ = "Copyright 2017, NYU"
-__license__ = ""
-
 #-----------------------------------------------------------------------------
-# Imports
+# Pharmacophore type assignment for protein and ligand
 #-----------------------------------------------------------------------------
-
 import os, sys
 import pybel
 import openbabel as ob
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
 class pharma:
     """Pharmacophore Type Assignment for Protein and Ligand
@@ -269,8 +256,6 @@ class pharma:
                 else:
                     f.write(lines)
         f.close()
-
-
 
 def test():
 

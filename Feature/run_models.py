@@ -3,49 +3,19 @@ import os
 import pandas as pd
 import pickle
 
-
-def run_model(infile,datadir,rt, model_dir, model_name = "1", average = True, model_index = "1", decoy = False):
+def run_model(infile, datadir,rt, model_dir, model_name="DXGB", average=True, model_index="1", decoy=False):
     model_dir = os.path.realpath(model_dir)
     infile = os.path.join(datadir, infile)
     num = len([line for line in open(infile)]) - 1
+
     if decoy:
         test_in = pd.read_csv(infile,dtype = {"pdb":str,"idx":str})
     else:
         test_in = pd.read_csv(infile,dtype = {"pdb":str})
 
     # Feature names
-    if model_name == "model_allfeatures":
-        SASA_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        SASA = ["P2." + i for i in SASA_type] + ["P2dl." + i for i in SASA_type] + ["P2dp." + i for i in SASA_type]
-        vina =  ["vina" + str(i) for i in range(1,59)]
-        water = ["Nbw"] + ["Epw"] + ["Elw"]
-        ion = ["Ni"]
-        conformation =["dE_global","RMSD_global","number1"]
-        featlist =  vina +  SASA  + ion + water +conformation
- 
-        model_dir = os.path.join(model_dir, model_name)
-
-    elif model_name[0:14] == "model_fragment":
-        SASA_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        SASA = ["P2." + i for i in SASA_type] + ["P2dp.SA","P2dl.SA"]
-        vina =  ["vina_x","vina_y","vina1","vina3","vina53","vina55","vina54","vina56","vina4","vina52","vina58","vina48"]
-        water = ["Nbw"] + ["Epw"] + ["Elw"]
-        ion = ["Ni"]
-        conformation =["dE_global","RMSD_global","number1"]
-        featlist =  vina + SASA + ion + water +conformation + ["num_frag"]
-        model_dir = os.path.join(model_dir,model_name)
-    
-    elif model_name[0:16] == "model_nofragment":
-        SASA_type = ["P","N","DA","D","A","AR","H","PL","HA","SA"]
-        SASA = ["P2." + i for i in SASA_type] + ["P2dp.SA","P2dl.SA"]
-        vina =  ["vina1","vina3","vina53","vina55","vina54","vina56","vina4","vina52","vina58","vina48"]
-        water = ["Nbw"] + ["Epw"] + ["Elw"]
-        ion = ["Ni"]
-        conformation =["dE_global","RMSD_global","number1"]
-        featlist =  vina + SASA + ion + water +conformation 
-        model_dir = os.path.join(model_dir,model_name)
-
-
+    model_dir = os.path.join(model_dir, model_name)
+    featlist = [line.rstrip() for line in open(os.path.join(model_dir, "featlist.csv"))]
 
     test = test_in.copy()
     test_features = test[featlist].values

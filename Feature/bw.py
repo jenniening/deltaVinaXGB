@@ -1,37 +1,24 @@
-"""
-Get bridging water features
-"""
-__author__ = "Jianing Lu"
-__copyright__ = "Copyright 2018, NYU"
-__license__ = ""
-
 #-----------------------------------------------------------------------------
-# Imports
+# Bridging Water Features 
 #-----------------------------------------------------------------------------
-import get_pdbinfo
-from get_pdbinfo import *
-import numpy as np
-
 import os
 import sys
+import numpy as np
+from Feature.get_pdbinfo import *
+
+#check system platform
 if sys.platform == "linux":
-    from software_path_linux import *
+    from Feature.software_path_linux import *
 elif sys.platform == "darwin":
-    from software_path_mac import *
+    from Feature.software_path_mac import *
 
 MGLPY = path_mgl_python()
-
 MGLUTIL = path_mgl_script()
-
 vina = path_vina()
 obable = path_obabel()
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-""" Part1 get the structural information of water molecules and get the bridging water molecules based on structure information """
-""" Outfile: bridging_water_info.txt BridgingWater_n.pdb """
+#get the structural information of water molecules and get the bridging water molecules based on structure information
+#output: bridging_water_info.txt BridgingWater_n.pdb
 
 def get_angle(a,b,c):
     ba = a - b
@@ -44,17 +31,17 @@ def get_angle(a,b,c):
 def get_BW(fn,water,lig):
     outfile = open("BW_info.txt","w")
 
-    lig = get_pdbinfo.pdbinfo(fn,file = lig)
+    lig = pdbinfo(fn,file = lig)
     lig = lig.getPolarAtoms()
-    pro = get_pdbinfo.pdbinfo(fn,file = water)
+    pro = pdbinfo(fn,file = water)
     pro_atoms = pro.getPolarAtoms()
-    protein,waters = get_pdbinfo.pdbinfo(fn, lines = pro_atoms).getProteinWaters()
+    protein,waters = pdbinfo(fn, lines = pro_atoms).getProteinWaters()
 
-    waters_coord_init = get_pdbinfo.pdbinfo(fn,lines = waters).getCoords()
-    protein_coord_init = get_pdbinfo.pdbinfo(fn,lines = protein).getCoords()
-    ligand_coord_init = get_pdbinfo.pdbinfo(fn,lines=lig).getCoords()
+    waters_coord_init = pdbinfo(fn,lines = waters).getCoords()
+    protein_coord_init = pdbinfo(fn,lines = protein).getCoords()
+    ligand_coord_init = pdbinfo(fn,lines=lig).getCoords()
 
-    ### select the HOH in 3.5 of ligand/protein ###
+    ### select the HOH in 3.5 of ligand/protein
     waters_coord = np.expand_dims(waters_coord_init, 1)
     protein_coord = np.expand_dims(protein_coord_init,0)
     ligand_coord = np.expand_dims(ligand_coord_init,0)
@@ -62,9 +49,7 @@ def get_BW(fn,water,lig):
     if waters_coord.shape[0] == 0:
         print("No Bridging Water")
         outfile.close()
-
     else:
-
         distance_pw = np.linalg.norm(waters_coord - protein_coord, axis = 2)
         distance_lw = np.linalg.norm(waters_coord - ligand_coord, axis = 2)
         distance_pw_min = np.min(distance_pw, axis = 1)
@@ -88,21 +73,21 @@ def get_BW(fn,water,lig):
                             angle = get_angle(p_coord, bw_coord, l_coord)
                             if angle >= 60:
                                 bw_line = waters[idx]
-                                bw_chain = get_pdbinfo.chid(bw_line)
+                                bw_chain = chid(bw_line)
                                 if bw_chain != " ":
-                                    bw_name = str(int(get_pdbinfo.resi(bw_line))) + "." + get_pdbinfo.chid(bw_line)
+                                    bw_name = str(int(resi(bw_line))) + "." + chid(bw_line)
                                 else:
-                                    bw_name = str(int(get_pdbinfo.resi(bw_line)))
+                                    bw_name = str(int(resi(bw_line)))
                                 pro_line = protein[num1]
                                 lig_line = lig[num2]
-                                pro_chain = get_pdbinfo.chid(pro_line)
-                                pro_name = get_pdbinfo.resn(pro_line)
+                                pro_chain = chid(pro_line)
+                                pro_name = resn(pro_line)
                                 if pro_chain != " ":
-                                    pro_idx = str(int(get_pdbinfo.resi(pro_line))) + "." + pro_chain 
+                                    pro_idx = str(int(resi(pro_line))) + "." + pro_chain 
                                 else:
-                                    pro_idx = str(int(get_pdbinfo.resi(pro_line)))
-                                pro_aname = get_pdbinfo.atmn(pro_line).strip()
-                                lig_name = get_pdbinfo.atmn(lig_line).strip()
+                                    pro_idx = str(int(resi(pro_line)))
+                                pro_aname = atmn(pro_line).strip()
+                                lig_name = atmn(lig_line).strip()
                                 outline = fn + "," + pro_name + "," + pro_idx + "," + pro_aname + "," + bw_name + "," + lig_name + "," + str(round(i1,2)) + "," + str(round(i2,2)) + "," + str(int(round(angle))) + "\n"
                                 outfile.write(outline)
         outfile.close()
@@ -110,11 +95,7 @@ def get_BW(fn,water,lig):
     return None
 
 def get_water(fn,water):
-    '''
-    Get water residue index and water molecule file
-    
-    '''
- 
+    #Get water residue index and water molecule file
     Residue_all = set([line.split(",")[4] for line in open("BW_info.txt")])
     print("BW satisfiles structural requirement:" + str(len(Residue_all)))
     index = open("water_index.txt","w")
@@ -138,16 +119,11 @@ def get_water(fn,water):
 
     return None
 
-
 def addH(fn):
-    '''
-    Add H to water molecule file (Vina need)
-    
-    '''
-
+    ''' Add H to water molecule file (Vina need) '''
     for filename in os.listdir("."):
         if filename.startswith("BW") and filename.endswith(".pdb"):
-            atoms = get_pdbinfo.pdbinfo(file = filename).getAtoms()
+            atoms = pdbinfo(file = filename).getAtoms()
             if len(atoms) == 3:
                 continue
             else:
@@ -171,8 +147,7 @@ def addH(fn):
 
     return None
 
-
-#####Part3 calculate the vinascore
+#calculate vinascore
 def genPDBQT(fn,pro,lig):
     olddir = os.getcwd()
     os.system("mkdir vina_BW")
@@ -184,7 +159,6 @@ def genPDBQT(fn,pro,lig):
     os.system(cmd1)
     os.system(cmd2)
     for n, line in enumerate(open("../water_index.txt")):
-        
         line = line.rstrip()
         if "." in line:
             wpdb = "../BW_" + line.split(".")[0] + "_" + line.split(".")[1] + ".pdb"
@@ -200,14 +174,12 @@ def genPDBQT(fn,pro,lig):
             os.system(cmd_lw)
         except:
             os.system("touch FAIL.log")
-
     os.chdir(olddir)
+
     return None
 
-
-
-#####Part4 Get the vina score information
-#####outfile: PWE_seperate.dat, LWE_seperate.dat, bridgingwater_vinascore_seperate.dat, bridgingwater_vinascore_total.dat
+#get vina score information
+#outfile: PWE_seperate.dat, LWE_seperate.dat, bridgingwater_vinascore_seperate.dat, bridgingwater_vinascore_total.dat
 def get_result_PW(fn,out_PW):
     num = 0
     olddir = os.getcwd()
@@ -227,7 +199,6 @@ def get_result_PW(fn,out_PW):
     out_PW.close()
     return None
 
-
 def get_result_LW(fn,out_LW):
     num = 0
     olddir = os.getcwd()
@@ -246,8 +217,6 @@ def get_result_LW(fn,out_LW):
     os.chdir(olddir)
     out_LW.close()
     return None
-
-
 
 def get_BW_final(fn,out,out_total):
     value_PW = 0.00
@@ -269,10 +238,8 @@ def get_BW_final(fn,out,out_total):
     out_total.write(fn  + "," + str(m) + "," + str(value_PW) + "," + str(value_LW) + "\n")
     return index_list
 
-#####Part5 based on vina score information to get the bridging water molecules
-#####outfile: Bridging_water_total.pdb, fn_protein_SF_bridgingwater.pdb
-
-
+#get the bridging water molecules
+#outfile: Bridging_water_total.pdb, fn_protein_SF_bridgingwater.pdb
 def get_waterfile(fn,pro, index):
     out = open("BW_total.pdb","w")
     for idx, line in enumerate(open("water_index.txt")):
@@ -305,8 +272,6 @@ def get_waterfile(fn,pro, index):
     out_rec.close()
     return None
 
-
-
 def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
     os.chdir(datadir)
     inidir = os.getcwd()
@@ -331,62 +296,8 @@ def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
     os.chdir(inidir)
     os.system("rm -r BW*")
 
-
-
-
-def main():
-    args = sys.argv[1:]
-    if args[-1] == "file":
-        pdbfile = open('%s'%(args[0] + args[1]),'r')
-        pdblist = []
-        for i in pdbfile.readlines():
-            pdblist.append(i[0:4])
-    else:
-        pdblist = []
-        pdblist.append(args[1])
-    datadir = args[0]
-    out_total = open(datadir + "Feature_BW_RW.csv","w")
-    out_total.write("pdb,Nbw,Epw,Elw\n")
-    out_total_min = open(datadir + "Feature_BW_min_RW.csv","w")
-    out_total_min.write("pdb,Nbw,Epw,Elw\n")
-    for fn in pdblist:
-        inpro = fn + "_protein.pdb"
-        inpro_water = fn + "_protein_RW.pdb"
-        if fn + "_ligand.pdb" in os.listdir(datadir):
-            inlig = fn + "_ligand.pdb"
-        elif fn + "_ligand.mol2" in os.listdir(datadir):
-            inlig = fn + "_ligand.mol2"
-            inlig_out = fn + "_ligand.pdb"
-            os.system(obable + " -imol2 " + datadir + inlig + " -opdb -O " + datadir + inlig_out)
-            inlig = inlig_out
-        elif fn + "_ligand.sdf" in os.listdir(datadir):
-            inlig =  fn + "_ligand.sdf"
-            inlig_out =  fn + "_ligand.pdb"
-            os.system(obable + " -isdf " + datadir + inlig + " -opdb -O " + datadir + inlig_out)
-            inlig = inlig_out
-        elif fn + "_ligand_rigid.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_rigid.pdbqt"
-            inlig_out =  fn + "_ligand.pdb"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -opdb -O " + datadir + inlig_out)
-            inlig = inlig_out
-        elif fn + "_ligand_flexible.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_flexible.pdbqt"
-            inlig_out =  fn + "_ligand.pdb"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -opdb -O " + datadir +  inlig_out)
-            inlig = inlig_out
-
-        else:
-            print("wrong ligand input file format, it should be pdb, mol2, sdf, or pdbqt")
-        cal_BW(out_total,fn,inpro,inlig,inpro_water,datadir)
-        inlig_min = fn + "_lig_min_RW.pdb"
-        cal_BW(out_total_min,fn,inpro,inlig_min,inpro_water,datadir)
-    out_total.close()
-    out_total_min.close()
-
-    return None
-
 if __name__ == "__main__":
-    #main()
+    ### test ###
     fn = "3c2f"
     out_total = open("/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test/Feature_BW.csv","w")
     datadir = "/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test"

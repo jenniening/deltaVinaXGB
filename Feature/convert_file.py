@@ -1,14 +1,17 @@
+#-----------------------------------------------------------------------------
+# Convert File for deltaVinaRF20
+#-----------------------------------------------------------------------------
 import sys
 import os
 import pandas as pd
+
 if sys.platform == "linux":
-    from software_path_linux import path_Rscript
-    from software_path_linux import path_RF20da
+    from Feature.software_path_linux import *
 elif sys.platform == "darwin":
-    from software_path_mac import path_Rscript
-    from software_path_mac import path_RF20da
+    from Feature.software_path_mac import *
 	
 Rscript = path_Rscript()
+
 def convert_RF20(infile,outfile,decoy):
     if decoy:
         infile = pd.read_csv(infile,dtype = {"pdb":str, "idx":str})

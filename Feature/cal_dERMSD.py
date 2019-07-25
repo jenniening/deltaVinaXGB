@@ -1,50 +1,43 @@
-import sys 
-#print(sys.path)
-try:
-    sys.path.remove('/share/apps/chimera/1.11.2/lib/python2.7/site-packages')
-except ValueError:
-    pass
+#-----------------------------------------------------------------------------
+# Ligand Stablity Features 
+#-----------------------------------------------------------------------------
 import os
+import sys 
 import rdkit
-import get_inputtype
-from get_inputtype import get_inputtype
+import random 
+from Feature.get_inputtype import *
 from rdkit import Chem
 from rdkit.Chem import PandasTools
 from rdkit.Chem import AllChem
 from rdkit.ML.Cluster import Butina
-import sys
+
+### check system platform 
 if sys.platform == "linux":
-    from software_path_linux import path_obabel
+    from Feature.software_path_linux import path_obabel
 elif sys.platform == "darwin":
-    from software_path_mac import path_obabel
-import random
+    from Feature.software_path_mac import path_obabel
+
+### set random seed for whole script
 random.seed(10)
 
 obable = path_obabel()
 
-
 #-----------------------------------------------------------------------------
-# Hyper-parameters:
+# parameters used in conformation generation:
 # random_seed = 1
 # cluster RMSD cutoff = 0.5
 # global minimum energy cutoff = 1
 # number conformations = 1000
 #-----------------------------------------------------------------------------
 
-
-
 def gen_conformers(mol, numConfs):
-    """
-    Generate conformation using ETKDG
-    """
-
-    
+    ''' Generate conformation using ETKDG '''
     ps = AllChem.ETKDG()
     ps.randomSeed = 1
     ps.pruneRmsThresh = 0.1
     ps.numThreads = 0
     ids = AllChem.EmbedMultipleConfs(mol,numConfs, ps)
-    print(list(ids))
+    #print(list(ids))
     
     # minimization
     for conformerId in ids:
@@ -59,22 +52,16 @@ def gen_conformers(mol, numConfs):
     return list(ids)
 
 def calc_energy(mol, conformerId):
-    """
-    MMFF minimization and energy calculation 
-    """
+    ''' MMFF minimization and energy calculation '''
     mp = AllChem.MMFFGetMoleculeProperties(mol)
     # solvent(water) dielectronic constant
     mp.SetMMFFDielectricConstant(80)
-    
     ff = AllChem.MMFFGetMoleculeForceField(mol, mp, confId=conformerId)
     energy = ff.CalcEnergy()
-    
     return energy
 
 def cluster_conformers(mol, mode="RMSD", threshold=0.2):
-    """
-    Cluster conf based on heavy atom rmsd and Butina is used for clustering
-    """
+    ''' Cluster conf based on heavy atom rmsd and Butina '''
 
     # get heavy atom idx
     heavyatomidx = []
@@ -98,37 +85,27 @@ def cluster_conformers(mol, mode="RMSD", threshold=0.2):
                                       threshold, isDistData=True, reordering=True)
     return rms_clusters
 
-
-def runGenerator(fn, input_file, outfile, outfile_min, numConfs,addH = False):
-    """
-    Generate conformation as sdf for each mol2 file
-    """
-
+def runGenerator(fn, input_file, outfile, outfile_min, numConfs, addH=False):
+    ''' Generate conformation as sdf for each mol2 file '''
     ftype = get_inputtype(input_file)
-    
     w = Chem.SDWriter(outfile)
     w_min = Chem.SDWriter(outfile_min)
-    
     if ftype == "mol2":
         mol = Chem.MolFromMol2File(input_file,removeHs=False)
     elif ftype == "smi":
         mol = Chem.MolFromSmiles(input_file,removeHs=False)
     elif ftype == "sdf":
         mol = Chem.SDMolSupplier(input_file,removeHs=False)[0]
-
     if addH:
         mol = Chem.AddHs(mol)
     print("mol has been read")
 
-
     # generate the confomers
     conformerIds = gen_conformers(mol, numConfs)
-    print(conformerIds)
+    #print(conformerIds)
     # clustering
     rmsClusters = cluster_conformers(mol, "RMSD", 0.5)
-    
     conformerPropsDict = {}
-    
     n = 0
     energy_list = []
     for clusterId in rmsClusters:
@@ -145,10 +122,8 @@ def runGenerator(fn, input_file, outfile, outfile_min, numConfs,addH = False):
             for key in conformerPropsDict[conformerId].keys():
                 mol.SetProp(key, str(conformerPropsDict[conformerId][key]))
             w.write(mol, confId = conformerId)
-    
     print("The total number of conformers after clustring: " + str(n))
     print("The lowest energy: " + str(min(energy_list)))
-    
     # get conformation with lowest energy
     for clusterId in rmsClusters:
         n += 1
@@ -166,10 +141,7 @@ def runGenerator(fn, input_file, outfile, outfile_min, numConfs,addH = False):
     return None
 
 def minimize_native(native):
-    """
-    Get the local minimum structure
-    :return: local minimum structure
-    """
+    ''' Get the local minimum structure '''
     file_type = get_inputtype(native)
     m = None
     if file_type == "mol2":
@@ -184,7 +156,6 @@ def minimize_native(native):
     mp = AllChem.MMFFGetMoleculeProperties(m)
     # solvent(water) dielectronic constant
     mp.SetMMFFDielectricConstant(80)
-    
     ff = AllChem.MMFFGetMoleculeForceField(m, mp)
     ff.Initialize()
     ff.Minimize(maxIts=1000)
@@ -192,9 +163,7 @@ def minimize_native(native):
     return m,mp
 
 def get_lowest_energy(lowest):
-    """
-    Get the global minimum energy
-    """
+    ''' Get the global minimum energy '''
     df_confs = PandasTools.LoadSDF(lowest)
     df_confs["energy_abs"] = df_confs["energy_abs"].astype(float)
     lowest = df_confs.sort_values(["energy_abs"]).energy_abs.min()
@@ -203,9 +172,7 @@ def get_lowest_energy(lowest):
 
 
 def get_native_energy(native, write = True):
-    """
-    Get the local minimum energy
-    """
+    ''' Get the local minimum energy '''
     m,mp = minimize_native(native)
     ff = AllChem.MMFFGetMoleculeForceField(m,mp)
     native_energy = ff.CalcEnergy()
@@ -226,19 +193,13 @@ def get_native_energy(native, write = True):
     return m, native_energy
 
 def energy_difference(lowest, native_energy):
-    """
-    Get the dE feature
-    :param lowest: global minimum energy
-    :param native_energy: local minimum energy
-    """
+    ''' Get the dE feature '''
     dE = lowest - native_energy
 
     return dE
 
-def num_structure_change(confs,native):
-    """
-    Get number of conformations satisfying requirements --> for entropy
-    """
+def num_structure_change(confs, native):
+    ''' Get number of conformations satisfying requirements --> for entropy '''
     df_confs = PandasTools.LoadSDF(confs)
     df_confs["energy_abs"] = df_confs["energy_abs"].astype(float)
     lowest = df_confs.sort_values(["energy_abs"]).energy_abs.min()
@@ -247,26 +208,19 @@ def num_structure_change(confs,native):
     
     return num_1, num_2
 
-def get_RMSD(local_min,lowest,fn):
-    """
-    Get the RMSD between local minimum and global minimum
-    """
-
+def get_RMSD(local_min, lowest, fn):
+    ''' Get the RMSD between local minimum and global minimum '''
     RMSD = None
     lowest = Chem.SDMolSupplier(lowest)[0]
-
     heavyatomidx = []
     for a in lowest.GetAtoms():
             if a.GetAtomicNum() != 1:
                 heavyatomidx.append(a.GetIdx())
-    
     m = Chem.RemoveHs(local_min)
     try:
         RMSD = Chem.rdMolAlign.GetBestRMS(m,lowest)
     except:
-
         RMSD = Chem.rdMolAlign.AlignMol(m,lowest,-1,-1,atomMap = [(k, k) for k in heavyatomidx])
-        #out_error.write(fn + "\n")
     return RMSD
 
 def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = False):
@@ -292,8 +246,8 @@ def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = F
     outfile.write(fn + "," + str(dE) + "," + str(RMSD) + "," + str(num_1) + "," + str(num_2) + "\n")
     outfile.close()
     os.chdir(olddir)
-    return None
 
+    return None
 
 def main():
     args = sys.argv[1:]

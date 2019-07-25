@@ -1,33 +1,16 @@
-"""
-Pharamcophore based SASA for complex
-"""
-
-__author__ = "Jianing Lu"
-__copyright__ = "Copyright 2018, NYU"
-__license__ = ""
-
 #-----------------------------------------------------------------------------
-# Imports
+# Pharamcophore based SASA for complex (Author: Cheng Wang)
 #-----------------------------------------------------------------------------
-
 import os, sys, pybel
-try:
-    sys.path.remove('/share/apps/chimera/1.11.2/lib/python2.7/site-packages')
-except ValueError:
-    pass
 import openbabel as ob
 import numpy as np
 import pandas as pd
+from .pharma import pharma
 
-from pharma import pharma
 if sys.platform == "linux":
     from software_path_linux import path_msms
 elif sys.platform == "darwin":
     from software_path_mac import path_msms
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
 
 msmsdir = path_msms()
 
@@ -48,7 +31,6 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     df
 
     """
-
     # create tmp folder for all intermediate files
     olddir = os.getcwd()
     os.chdir(MSMSDIR)
@@ -135,7 +117,6 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
             print('1.1')
         if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
             print("SASA failed")
-
 
     # read surface area to df2
     df2 = {}

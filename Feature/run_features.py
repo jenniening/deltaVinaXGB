@@ -3,37 +3,36 @@ import sys
 
 import rdkit 
 from rdkit import Chem
-import get_pdbinfo
+import Feature.get_pdbinfo as get_pdbinfo
 
-import CyclicPoseFragmentation_noH
-from CyclicPoseFragmentation_noH import runMethod
-import get_fragment_Vina
-from get_fragment_Vina import generate_data
-from get_fragment_Vina import run_Vina_Fragment
+import Feature.CyclicPoseFragmentation_noH
+from Feature.CyclicPoseFragmentation_noH import runMethod
+import Feature.get_fragment_Vina
+from Feature.get_fragment_Vina import generate_data
+from Feature.get_fragment_Vina import run_Vina_Fragment
 
-import bw
-from bw import cal_BW
-import rw
-from rw import get_Crw
-import opt
-from opt import get_Co
-import cal_vina58
-from cal_vina58 import featureVina
-import cal_sasa
-from cal_sasa import cal_SASA
-import cal_dERMSD
-from cal_dERMSD import feature_cal
-import cal_ion
-from cal_ion import cal_Ni
+import Feature.bw
+from Feature.bw import cal_BW
+import Feature.rw 
+from Feature.rw import get_Crw
+import Feature.opt
+from Feature.opt import get_Co
+import Feature.cal_vina58
+from Feature.cal_vina58 import featureVina
+import Feature.cal_sasa
+from Feature.cal_sasa import cal_SASA
+import Feature.cal_dERMSD
+from Feature.cal_dERMSD import feature_cal
+import Feature.cal_ion
+from Feature.cal_ion import cal_Ni
 
-import combine_data
-from combine_data import combine
-
+import Feature.combine_data
+from Feature.combine_data import combine
 
 if sys.platform == "linux":
-    from software_path_linux import path_obabel
+    from Feature.software_path_linux import path_obabel
 elif sys.platform == "darwin":
-    from software_path_mac import path_obabel
+    from Feature.software_path_mac import path_obabel
 
 obabel = path_obabel()
 

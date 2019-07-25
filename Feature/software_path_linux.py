@@ -1,6 +1,4 @@
-import os
-
-# Change the softwaters we need use here
+# Change the softwares we need use (Linux)
 
 def path_python():
     python = "/beegfs/anaconda3_latest/bin/python"

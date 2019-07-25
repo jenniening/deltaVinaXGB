@@ -1,42 +1,36 @@
+#-----------------------------------------------------------------------------
+# Fragmentation Features
+#-----------------------------------------------------------------------------
 import os
 import fileinput
 import sys
 import pandas as pd
 import numpy as np
-import get_pdbinfo
-import get_inputtype
-from get_inputtype import get_inputtype
+import Feature.get_pdbinfo as get_pdbinfo
+import Feature.get_inputtype as get_inputtype
+from Feature.get_inputtype import get_inputtype
 
 if sys.platform == "linux":
-    import software_path_linux as path
+    import Feature.software_path_linux as path
 elif sys.platform == "darwin":
-    import software_path_mac as path
-
-
+    import Feature.software_path_mac as path
 
 MGLPY = path.path_mgl_python()
 MGLUTIL = path.path_mgl_script()
 vina = path.path_vina()
 
 def get_coordinates_from_mol2(infile):
-    '''
-    Get coordinates from mol2 file
-
-    '''
+    ''' Get coordinates from mol2 file '''
     init_lines = [line for line in open(infile)]
     atom_index = [index for index, line in enumerate(init_lines) if line[0:13] == "@<TRIPOS>ATOM"][0]
     bond_index = [index for index, line in enumerate(init_lines) if line[0:13] == "@<TRIPOS>BOND"][0]
     lines = [line for index, line in enumerate(init_lines)][atom_index + 1:bond_index]
-    #coordinates = [ "%8s%8s%8s"%(line[16:46].split()[0][0:-1], line[16:46].split()[1][0:-1], line[16:46].split()[2][0:-1]) for line in lines]
     coordinates = [str("%8.3f%8.3f%8.3f"%(float(line[16:46].split()[0]), float(line[16:46].split()[1]),float(line[16:46].split()[2]))) for line in lines]
 
     return coordinates
 
 def get_coordinates_from_pdb(infile):
-    '''
-    Get coordinates from pdb file
-
-    '''
+    ''' Get coordinates from pdb file '''
 
     lines = get_pdbinfo.pdbinfo(file = infile).getAtoms()
     Coords = get_pdbinfo.pdbinfo(lines = lines).getCoords()
@@ -44,12 +38,9 @@ def get_coordinates_from_pdb(infile):
     
     return coordinates
 
-
 def get_ref_infor(inlig, ref_list, noname = True):
-    '''
-    Get reference coordinates and charge
+    ''' Get reference coordinates and charge '''
 
-    '''
     ref_infor = {"ref_" + str(num): [] for num in range(len([i for i in ref_list])) }
     if noname:
         # use lines order to finder order
@@ -93,13 +84,9 @@ def get_ref_infor(inlig, ref_list, noname = True):
                     ref_infor["ref_" + str(num)].append([line for line in ref_lines if (line.split()[2] == name)][0])
     return ref_infor
 
-
-
 def get_atom_index(ref_infor, frag_file, one_atom, atom_type):
-    '''
-    Get updated coordinates and charge for fragments
-    
-    '''
+    ''' Get updated coordinates and charge for fragments '''
+
     new_lines = {"frag_" + str(num): [] for num in range(len(ref_infor.keys()))}
     lines_frag = [line for line in open(frag_file) if line[0:6] == "HETATM"]
     heavy_atom_length = len([line for line in lines_frag if line.split()[2][0:1] != "H"])
@@ -141,13 +128,9 @@ def get_atom_index(ref_infor, frag_file, one_atom, atom_type):
            
     return new_lines
 
-
- 
 def write_frag_pdbqt(prev_frag_file, new_frag, new_frag_file_list):
-    '''
-    Write new pdbqt file with corrected charge for fragments (C, Co, Crwo)
+    ''' Write new pdbqt file with corrected charge for fragments (C, Co, Crwo) '''
 
-    '''
     keys = ["frag_" + str(num) for num in range(len(new_frag_file_list))]
 
     if prev_frag_file != None:
@@ -174,13 +157,9 @@ def write_frag_pdbqt(prev_frag_file, new_frag, new_frag_file_list):
             outfile.close()
 
     return None
-
-     
+ 
 def get_pdbqt(frag,prev_frag_pdbqt, datadir):
-    '''
-    Generate pdbqt file for fragments
-
-    '''
+    ''' Generate pdbqt file for fragments '''
 
     cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l " + frag + " -o " + prev_frag_pdbqt +  " -U 'nphs'"
     os.system(cmd)
@@ -188,31 +167,21 @@ def get_pdbqt(frag,prev_frag_pdbqt, datadir):
     return None
 
 def preparelig(inlig, ligpdbqt):
-    """
-    Prepare ligand PDBQT file by MGLTools 
-    
-    """
+    ''' Prepare ligand PDBQT file by MGLTools '''
     print("Generate ligand pdbqt")
-
     cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l " + inlig  + " -o " + ligpdbqt +  " -U 'nphs'"
     os.system(cmd)
+    return None
 
 def prepareprot(inprot, protpdbqt):
-    """
-    Prepare ligand PDBQT file by MGLTools 
-    
-    """
+    ''' Prepare ligand PDBQT file by MGLTools '''
     print("Generate protein pdbqt")
-
     cmd = MGLPY + " "  + MGLUTIL + "prepare_receptor4.py -r " + inprot  + " -o " + protpdbqt +  " -U 'nphs'" 
     os.system(cmd)
+    return None
 
-
-def get_ref(fn, inlig, datadir, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False, decoy = False, decoy_list = None):
-    '''
-    Get reference file
-
-    '''
+def get_ref(fn, inlig, datadir, min=False, min_RW=False, RW=False, min_BW=False, min_PW=False, decoy=False, decoy_list=None):
+    ''' Get reference file'''
     ref_list = []
     if not os.path.isfile(os.path.join(datadir,fn + "_ligand_Vina58.pdbqt")):
         inlig_out = os.path.join(datadir,fn +"_ligand_Vina58.pdbqt")
@@ -235,10 +204,7 @@ def get_ref(fn, inlig, datadir, min = False, min_RW = False, RW = False, min_BW 
     return ref_list
 
 def get_prot(fn,datadir, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False,decoy = False, decoy_list = None, decoy_pro = None):
-    '''
-    Get protein pdbqt
-
-    '''
+    ''' Get protein pdbqt '''
     prot_list = []
     if decoy_pro == None:
         if not os.path.isfile(os.path.join(datadir, fn +"_protein_Vina58.pdbqt")):
@@ -284,7 +250,6 @@ def get_prot(fn,datadir, min = False, min_RW = False, RW = False, min_BW = False
         for i in range(num):
             prot_list.append(os.path.join(datadir,decoy_pro.split(".")[0] + "_Vina58.pdbqt"))
 
-
     return prot_list
 
 
@@ -293,14 +258,12 @@ def get_frag(fn,frag_dir):
     base = [ filename for filename in os.listdir(frag_dir) if ("frag" in filename) and (filename.endswith(".pdb"))][0].split("frag")[0]
     frag_list = [os.path.join(frag_dir,'%sfrag%02d.pdb'%(base, i) )for i in range(1,frag_num + 1)]
 
-
     return frag_list
 
 
 
 def runVina(fn, frag_id, protpdbqt, ligpdbqt, datadir ):
-    """Run modified AutoDock Vina program with Vina score and 58 features """
-
+    ''' Run modified AutoDock Vina program with Vina score and 58 features '''
     frag_id +=1
     cmd = vina + " --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log " + os.path.join(datadir,fn + "_" + str(frag_id) + "_score.txt") + " > " + datadir + "/out_vina.log"
     os.system(cmd)
@@ -320,9 +283,6 @@ def runVina(fn, frag_id, protpdbqt, ligpdbqt, datadir ):
         vinalist = [fn,str(frag_id)] + ['NA' for i in range(59)]
 
     return vinalist
-
-
-    
 
 def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = False, min_RW = False, RW = False, min_BW = False, min_PW = False, decoy = False, decoy_list = None, decoy_pro = None):
     
@@ -384,11 +344,8 @@ def run_Vina_Fragment(fn, inlig, datadir, datadir_frag, min = False, min_RW = Fa
         outfile.close()
     return None
 
-
 def generate_data(fn, data_type,datadir):
-    '''
-    Generate core/side Vina Score 
-    '''
+    ''' Generate core/side Vina Score '''
     ### data_type = 0 --> cry; data_type = 1 ---> Co; data_type = 2 --> Crwo ###
     columns = ["pdb","idx","vina"] + ["vina" + str(i) for i in range(1,59)]
     infile = os.path.join(datadir, "Vina_score_" + data_type + ".csv")
@@ -429,11 +386,7 @@ def generate_data(fn, data_type,datadir):
 
 
 def combine_data(fn,datadir,data_type, outfile_core, outfile_side):
-    '''
-    combine data for pdblist
-    '''
-
-
+    ''' Combine data for pdblist '''
     num_frag = generate_data(fn,data_type,datadir)
     ### write out for many structures ###
     for line in open(os.path.join(datadir,"Vina_core_" + data_type + ".csv")):

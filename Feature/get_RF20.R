@@ -4,16 +4,13 @@ library(randomForest)
 load('/Users/jianinglu1/Documents/GitHub/deltaVinaXGB_develop/Feature/RF20.rda')
 
 # input and output file name
-
 args <- commandArgs(trailingOnly = TRUE)
 infn = args[1]
 outfn = args[2]
 
-
 #print(paste("Read input: ", infn))
 # read in input as dataframe df
 df = read.table(infn, header=T, stringsAsFactors = F, sep=',')
-
 
 # get features from df
 feats = df[3:22]

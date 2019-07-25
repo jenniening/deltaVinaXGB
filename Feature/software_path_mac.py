@@ -1,6 +1,5 @@
-import os
+# Change the softwares we need use (Mac)
 
-# Change the softwaters we need use here
 def path_chimera():
     chimera ="/Applications/Chimera.app/Contents/MacOS/chimera"
     return chimera
