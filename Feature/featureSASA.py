@@ -8,9 +8,9 @@ import pandas as pd
 from .pharma import pharma
 
 if sys.platform == "linux":
-    from software_path_linux import path_msms
+    from Feature.software_path_linux import path_msms
 elif sys.platform == "darwin":
-    from software_path_mac import path_msms
+    from Feature.software_path_mac import path_msms
 
 msmsdir = path_msms()
 
