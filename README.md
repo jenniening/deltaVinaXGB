@@ -24,15 +24,15 @@ python setup.py install
 ```
 Before running model, remember change the python, R, obabel, mgl tools paths into your own directorys in Feature/software_path_mac.py or Feature/software_path_linux.py file. <br>
 
-### Data
+### Prepare Data
 Before calculating scores, three inputfiles are needed:<br>
 pdbid_ligand.mol2/sdf         --> ligand structure file<br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 
-### Usage 
+### Run model
 
-Run model
+All scripts are in Feature directory.<br>
 
 Check all options 
 ```
