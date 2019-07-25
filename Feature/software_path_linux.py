@@ -14,12 +14,10 @@ def path_obabel():
 
 def path_mgl_python():
     MGLPY = "/share/apps/mgltools/1.5.6/bin/pythonsh"
-#    "/Users/jianinglu1/Documents/mgltools_i86Darwin9_1.5.6/bin/pythonsh"
     return MGLPY
 
 def path_mgl_script():
     MGLUTIL = "/share/apps/mgltools/1.5.6/MGLTools-1.5.6/MGLToolsPckgs/AutoDockTools/Utilities24/"
-#    "/Users/jianinglu1/Documents/mgltools_i86Darwin9_1.5.6/MGLToolsPckgs/AutoDockTools/Utilities24/"
     return MGLUTIL
 
 def path_vina():
@@ -27,7 +25,7 @@ def path_vina():
     return vina
 
 def path_msms():
-    msmsdir = os.path.realpath("../msms_MacOSX_2.6.1/")
+    msmsdir = os.path.realpath("../msms_Linux_2.6.1/")
     return msmsdir
 
 def path_RF20da():
