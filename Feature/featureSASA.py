@@ -12,7 +12,7 @@ if sys.platform == "linux":
 elif sys.platform == "darwin":
     from Feature.software_path_mac import path_msms
 
-
+msmsdir = path_msms()
 def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """Assign pharmaphore type to each atom and calculate SASA by MSMS
 
@@ -32,7 +32,6 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """
     # create tmp folder for all intermediate files
     olddir = os.getcwd()
-    msmsdir = path_msms()
     os.chdir(MSMSDIR)
     os.system('mkdir tmp')
 
