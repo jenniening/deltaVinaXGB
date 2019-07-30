@@ -12,7 +12,6 @@ if sys.platform == "linux":
 elif sys.platform == "darwin":
     from Feature.software_path_mac import path_msms
 
-msmsdir = path_msms()
 
 def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """Assign pharmaphore type to each atom and calculate SASA by MSMS
@@ -33,6 +32,7 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """
     # create tmp folder for all intermediate files
     olddir = os.getcwd()
+    msmsdir = path_msms()
     os.chdir(MSMSDIR)
     os.system('mkdir tmp')
 
@@ -109,14 +109,14 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
         if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
             print("SASA failed")
     elif sys.platform == "darwin":
-        msms = os.path.join(msmsdir + "msms.MacOSX.2.6.1")
-        os.system(msmsdir + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
-        os.system(msmsdir + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
-        os.system(msmsdir + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
+        msms = os.path.join(msmsdir, "msms.MacOSX.2.6.1")
+        os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
+        os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
+        os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
         if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-            os.system(msmsdir + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
-            os.system(msmsdir + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
-            os.system(msmsdir + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
+            os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
+            os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
+            os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
             print('1.1')
         if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
             print("SASA failed")
@@ -239,7 +239,7 @@ class sasa:
         self.lig = lig
         self.datadir = datadir
 
-        self.rawdata, self.rawdata_pro, self.rawdata_lig, self.sasa, self.sasa_pro, self.sasa_lig = featureSASA(self.datadir, self.prot, self.lig)
+        self.rawdata, self.rawdata_pro, self.rawdata_lig, self.sasa, self.sasa_pro, self.sasa_lig = featureSASA( self.datadir, self.prot, self.lig)
         
 
         self.sasaTotal = self.sasa[-1]

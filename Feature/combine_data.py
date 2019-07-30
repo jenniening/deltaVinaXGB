@@ -33,19 +33,22 @@ def read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy):
     else:
         f_ion = pd.read_csv(Ion,dtype={"pdb":str})
         f = pd.merge(f,f_ion, on = combine)
-    f_core = pd.read_csv(Core,dtype={"pdb":str})
-    f_side = pd.read_csv(Side,dtype={"pdb":str})
-    f_numfrag = pd.read_csv(NumFrags,dtype={"pdb":str})
+    
+    if NumFrags:
+        f_core = pd.read_csv(Core,dtype={"pdb":str})
+        f_side = pd.read_csv(Side,dtype={"pdb":str})
+        f_numfrag = pd.read_csv(NumFrags,dtype={"pdb":str})
 
-    f_total = pd.merge(f_core,f_side,on = combine)
-    f = pd.merge(f, f_total, on = combine)
-    f = pd.merge(f,f_numfrag, on = combine)
+        f_total = pd.merge(f_core,f_side,on = combine)
+        f = pd.merge(f, f_total, on = combine)
+        f = pd.merge(f,f_numfrag, on = combine)
+
     f["pdb"] = f["pdb"].astype(str) 
     if decoy:
         f["idx"] = f["idx"].astype(str)
-        assert f.shape[1] == 218, "Feature Calculation Failed"
+        assert f.shape[1] == 99, "Feature Calculation Failed"
     else:
-        assert f.shape[1] == 217, "Feature Calculation Failed"
+        assert f.shape[1] == 98, "Feature Calculation Failed"
     
     return f
 
@@ -61,9 +64,20 @@ def combine(datadir,data_type = "", decoy = False):
         dE = os.path.join(datadir,"dE_RMSD.csv")
         Water = d_wat[data_type]
         Ion = os.path.join(datadir, "Num_Ions" + data_type + ".csv")
-        NumFrags = os.path.join(datadir,"NumFrags.csv")
-        Core = os.path.join(datadir,"Vina_core" + data_type + ".csv")
-        Side = os.path.join(datadir,"Vina_side" + data_type + ".csv")
+        ### remove fragments features ###
+        if "NumFrags.csv" in os.listdir(datadir):
+            NumFrags = os.path.join(datadir,"NumFrags.csv")
+        else:
+            NumFrags = None
+        if "Vina_core" + data_type + ".csv" in os.listdir(datadir):
+            Core = os.path.join(datadir,"Vina_core" + data_type + ".csv")
+        else:
+            Core = None
+        if "Vina_side" + data_type + ".csv" in os.listdir(datadir):
+            Side = os.path.join(datadir,"Vina_side" + data_type + ".csv")
+        else:
+            Side = None
+
         outfile = "Input" + data_type + ".csv"
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy)
         f.to_csv(os.path.join(datadir,outfile),index = False)
@@ -81,9 +95,18 @@ def combine(datadir,data_type = "", decoy = False):
         dE = os.path.join(datadir,"dE_RMSD_decoys.csv")
         Water = d_wat[data_type]
         Ion = os.path.join(datadir, "Num_Ions_decoys" + data_type + ".csv")
-        NumFrags = os.path.join(datadir,"NumFrags_decoys" + data_type + ".csv")
-        Core = os.path.join(datadir,"Vina_core_decoys" + data_type + ".csv")
-        Side = os.path.join(datadir,"Vina_side_decoys" + data_type + ".csv")
+        if "NumFrags_decoys" + data_type + ".csv" in os.listdir(datadir):
+            NumFrags = os.path.join(datadir,"NumFrags_decoys" + data_type + ".csv")
+        else:
+            NumFrags = None
+        if "Vina_core_decoys" + data_type + ".csv" in os.listdir(datadir):
+            Core = os.path.join(datadir,"Vina_core_decoys" + data_type + ".csv")
+        else:
+            Core = None
+        if "Vina_side_decoys" + data_type + ".csv" in os.listdir(datadir):
+            Side = os.path.join(datadir,"Vina_side_decoys" + data_type + ".csv")
+        else:
+            Side = None
         outfile = "Input_decoys" + data_type + ".csv"
         f = read_file(Vina58,SASA,dE,Water,Ion,Core,Side,NumFrags,decoy)
         f.to_csv(os.path.join(datadir,outfile),index = False)

@@ -448,8 +448,6 @@ def rewrite_decoy(ref_lig, decoy_list, ref_fmt, method = "order"):
                 newdecoy.write("".join(previous_lines[pre_bond_idx + 1:]))
                 newdecoy.close()
 
-
-
     return None
 
     
@@ -1028,7 +1026,8 @@ def feature_calculation_decoy(datadir, datadir_pro, datadir_decoy, fn, pro, ref_
             print("Use previous calculated Ion")
 
         ### run fragments ###
-        if feature_type == "all" or feature_type == "Frag":
+        ### fragments still have problems for specific tasks, so default is not to calculate ###
+        if feature_type == "Frag":
             run_Frag_features(datadir_decoy, fn, ref_ligand_rdkit, ref_ligand_pdb, opt_type = None, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
 
         else:
@@ -1162,7 +1161,8 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
         print("Use previous calculated dE")
         
     ### run fragments ###
-    if feature_type == "all" or feature_type == "Frag":
+    ### fragments calculation still have problems for some specific cases, so default is not to calculate ###
+    if feature_type == "Frag":
         run_Frag_features(datadir, fn, inlig_rdkit, inlig_pdb, opt_type)
     else:
         print("Use previous calculated Frags")
