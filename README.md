@@ -50,7 +50,7 @@ python run_DXGB.py --runfeatures --average
 --average flag is for ensemble predictions from 10 models.<br>
 The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.<br>
 If you want to get deltaVinaRF scores as well, add --runrf. <br>
-Here, the default test file are in Test_2al5, and it includes structures provided by CASF-2016
+Here, the default test files are in Test_2al5, and it includes structures provided by CASF-2016
 
 Note:
 1) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
