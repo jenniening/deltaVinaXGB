@@ -30,7 +30,7 @@ pdbid_ligand.mol2/sdf         --> ligand structure file<br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 
-Note: these three files are needed to run predictions. All files should include hydrogens, which is needed for Vina calculation, and SASA calculation. If protein file with water molecules are not available, just copy the original protein.pdb to protein_all.pdb. 
+Note: these three files are needed to run predictions. All files should include hydrogens. If protein files with water molecules are not available, just copy the original protein.pdb to protein_all.pdb. 
 
 ### Run model
 
