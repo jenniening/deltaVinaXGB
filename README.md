@@ -30,10 +30,14 @@ pdbid_ligand.mol2/sdf         --> ligand structure file<br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 
+Note: these three files are needed to run predictions. All files should include hydrogens, which is needed for Vina calculation, and SASA calculation. If protein file with water molecules are not available, just copy the original protein.pdb to protein_all.pdb. 
+
 ### Run model
 
 All scripts are in Feature directory.<br>
-
+```
+cd Feature
+```
 Check all options 
 ```
 python run_DXGB.py --help
@@ -46,6 +50,7 @@ python run_DXGB.py --runfeatures --average
 --average flag is for ensemble predictions from 10 models.<br>
 The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.<br>
 If you want to get deltaVinaRF scores as well, add --runrf. <br>
+Here, the default test file are in Test_2al5, and it includes structures provided by CASF-2016
 
 Note:
 1) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
