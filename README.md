@@ -30,14 +30,21 @@ pdbid_ligand.mol2/sdf         --> ligand structure file<br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 
+Note: these three files are needed to run predictions. All files should include hydrogens. If protein files with water molecules are not available, just copy the original protein.pdb to protein_all.pdb. 
+
 If features have been already calculated, only features files are needed: <br>
 Input.csv                     --> Input feature file <br>
+
 
 ### Run model
 
 All scripts are in Feature directory.<br>
 
+```
+cd Feature
+```
 Check all options and defaults
+
 ```
 python run_DXGB.py --help
 ```
@@ -64,6 +71,7 @@ python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --water rbw
 --opt is for optimization, rbwo is to optimize ligand in no water, bridging water, and receptor-bound water environments.<br>
 
 The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.<br>
+If you want to get deltaVinaRF scores as well, add --runrf. <br>
 
 Note:
 1) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
