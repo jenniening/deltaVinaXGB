@@ -1,7 +1,7 @@
 # Change the softwares we need use (Mac)
 import os
 def path_python():
-    python = "/Users/jianinglu1/anaconda/bin/python"
+    python = "/Users/jianinglu1/anaconda3/envs/DXG/bin/python"
     return python
 
 def path_Rscript():
@@ -9,7 +9,7 @@ def path_Rscript():
     return R
 
 def path_obabel():
-    obable = "/Users/jianinglu1/anaconda/bin/obabel"
+    obable = "/Users/jianinglu1/anaconda3/envs/DXG/bin/obabel"
     return obable
 
 def path_mgl_python():
@@ -29,5 +29,5 @@ def path_msms():
     return msmsdir
 
 def path_RF20da():
-    RF20da = os.path.realpath("RF20.rda")
+    RF20da = os.path.realpath("RF20_rm2016.rda")
     return RF20da

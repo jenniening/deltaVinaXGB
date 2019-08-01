@@ -29,5 +29,5 @@ def path_msms():
     return msmsdir
 
 def path_RF20da():
-    RF20da = os.path.realpath("RF20.rda")
+    RF20da = os.path.realpath("RF20_rm2016.rda")
     return RF20da
