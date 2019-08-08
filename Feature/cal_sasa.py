@@ -6,13 +6,6 @@ import sys
 import fileinput
 from Feature.featureSASA import sasa
 
-if sys.platform == "linux":
-    from Feature.software_path_linux import path_obabel
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import path_obabel
-
-obable = path_obabel()
-
 def cal_SASA(out,fn,lig,pro,datadir):
     # fn: pdbid
     # lig: ligand part

@@ -6,20 +6,11 @@ import os
 import fileinput
 import sys
 
-if sys.platform == "linux":
-    import Feature.software_path_linux as path
-elif sys.platform == "darwin":
-    import Feature.software_path_mac as path
-
-MGLPY = path.path_mgl_python()
-MGLUTIL = path.path_mgl_script()
-VINADIR = path.path_vina()
-obable = path.path_obabel()
 
 def runVina(fn,protpdbqt, ligpdbqt):
     """Run modified AutoDock Vina program with Vina score and 58 features """
 
-    cmd = VINADIR + " --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log score_v1.txt > out_vina.log"
+    cmd = "$VINADIR/vina --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log score_v1.txt > out_vina.log"
     os.system(cmd)
     vinalist = [fn]
     for lines in fileinput.input("score_v1.txt"):
@@ -36,13 +27,13 @@ def runVina(fn,protpdbqt, ligpdbqt):
 
 def prepareProt(inprot, protpdbqt):
     """Prepare protein PDBQT file by MGLTools """
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_receptor4.py -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
+    cmd = "$MGLPY $MGLUTIL/prepare_receptor4.py -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
     os.system(cmd)
     return None
 
 def prepareLig(inlig, ligpdbqt):
     """Prepare ligand PDBQT file by MGLTools """
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
+    cmd = "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
     os.system(cmd)
     return None
 

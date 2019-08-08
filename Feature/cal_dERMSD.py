@@ -11,16 +11,9 @@ from rdkit.Chem import PandasTools
 from rdkit.Chem import AllChem
 from rdkit.ML.Cluster import Butina
 
-### check system platform 
-if sys.platform == "linux":
-    from Feature.software_path_linux import path_obabel
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import path_obabel
-
 ### set random seed for whole script
 random.seed(10)
 
-obable = path_obabel()
 
 #-----------------------------------------------------------------------------
 # parameters used in conformation generation:
@@ -282,7 +275,7 @@ def main():
             os.chdir(datadir)
             inlig =  datadir + fn + "_ligand.pdbqt"
             inlig_out =  datadir + fn + "_ligand.sdf"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -osdf -O " + datadir + inlig_out)
+            os.system("obabel -ipdbqt " + datadir + inlig + " -osdf -O " + datadir + inlig_out)
             os.chdir(olddir)
             try:
                 feature_cal(outfile,fn,inlig_out,datadir)

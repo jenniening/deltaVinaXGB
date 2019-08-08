@@ -6,15 +6,6 @@ import fileinput
 import sys
 import Feature.get_pdbinfo as get_pdbinfo
 
-if sys.platform == "linux":
-    import Feature.software_path_linux as path
-elif sys.platform == "darwin":
-    import Feature.software_path_mac as path
-
-MGLPY =path.path_mgl_python()
-MGLUTIL = path.path_mgl_script()
-vina = path.path_vina()
-obable = path.path_obabel()
 
 #### Do minimization, structure file should have hydrogen atom!!!####
 ## generate the refined data list
@@ -66,19 +57,19 @@ def get_box(fn, inlig):
 def genpdbqt(fn, ligpdb, propdb):
     propdbqt = fn + "_rec.pdbqt"
     ligpdbqt = fn + "_lig.pdbqt"
-    cmd1 = MGLPY + " " + MGLUTIL + "prepare_receptor4.py -r ../"  + propdb + " -o " + propdbqt + " -U '_' > out1.tmp"
-    cmd2 = MGLPY + " " + MGLUTIL + "prepare_ligand4.py -l ../" + ligpdb  + " -o " + ligpdbqt +  " -U '_' -Z > out2.tmp"
+    cmd1 =  "$MGLPY $MGLUTIL/prepare_receptor4.py -r ../"  + propdb + " -o " + propdbqt + " -U '_' > out1.tmp"
+    cmd2 =  "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + ligpdb  + " -o " + ligpdbqt +  " -U '_' -Z > out2.tmp"
     os.system(cmd1)
     os.system(cmd2)
     return None
 
 def runmin(fn):
-    cmd = vina + " --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
+    cmd = "$VINADIR/vina --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
     os.system(cmd)
     return None
 
 def chanPdb(fn):
-    cmd = obable  + " -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
+    cmd = "obabel -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
     os.system(cmd)
     return None
 
@@ -129,19 +120,19 @@ def main():
         elif fn + "_ligand.sdf" in os.listdir(datadir):
             inlig =  fn + "_ligand.sdf"
             inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -isdf " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
+            os.system("obabel -isdf " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
             inlig = inlig_out
 
         elif fn + "_ligand_rigid.pdbqt" in os.listdir(datadir):
             inlig =  fn + "_ligand_rigid.pdbqt"
             inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
+            os.system("obabel -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
             inlig = inlig_out
 
         elif fn + "_ligand_flexible.pdbqt" in os.listdir(datadir):
             inlig =  fn + "_ligand_flexible.pdbqt"
             inlig_out =  fn + "_ligand.mol2"
-            os.system(obable + " -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
+            os.system("obabel -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
             inlig = inlig_out
 
 

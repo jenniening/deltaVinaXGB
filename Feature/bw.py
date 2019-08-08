@@ -6,16 +6,6 @@ import sys
 import numpy as np
 from Feature.get_pdbinfo import *
 
-#check system platform
-if sys.platform == "linux":
-    from Feature.software_path_linux import *
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import *
-
-MGLPY = path_mgl_python()
-MGLUTIL = path_mgl_script()
-vina = path_vina()
-obable = path_obabel()
 
 #get the structural information of water molecules and get the bridging water molecules based on structure information
 #output: bridging_water_info.txt BridgingWater_n.pdb
@@ -128,7 +118,7 @@ def addH(fn):
                 continue
             else:
                 newfilename = filename.split(".")[0] + "_addh.pdb"
-                os.system(obable + " " + filename + " -O " + newfilename + " -h")
+                os.system("obabel " + filename + " -O " + newfilename + " -h")
 
                 lines = [line for line in open(newfilename) if line[0:6] in ["ATOM  ", "HETATM"]]
                 if "ATOM  " in lines[0]:
@@ -154,8 +144,8 @@ def genPDBQT(fn,pro,lig):
     os.chdir("vina_BW")
     propdbqt = fn + "_prot_rc.pdbqt"
     ligpdbqt = fn + "_lig_rc.pdbqt"
-    cmd1 =MGLPY + " " + MGLUTIL +  "prepare_receptor4.py -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_lig.log"
-    cmd2 =MGLPY + " " + MGLUTIL + "prepare_receptor4.py -r " + lig  + " -o " + ligpdbqt +  " -U 'nphs' > out_pro.log"
+    cmd1 ="$MGLPY $MGLUTIL/prepare_receptor4.py -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_lig.log"
+    cmd2 ="$MGLPY $MGLUTIL/prepare_receptor4.py -r " + lig  + " -o " + ligpdbqt +  " -U 'nphs' > out_pro.log"
     os.system(cmd1)
     os.system(cmd2)
     for n, line in enumerate(open("../water_index.txt")):
@@ -165,9 +155,9 @@ def genPDBQT(fn,pro,lig):
         else:
             wpdb = "../BW_" + line.split(".")[0] + "_chain.pdb"
         wpdbqt = "BW_" + str(n) + ".pdbqt"
-        cmd3 =MGLPY + " " + MGLUTIL + "prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_bw_" + str(n) + ".log"
-        cmd_pw =vina + " --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_PW_" + str(n) + ".txt > out_pw_" + str(n) + ".log"
-        cmd_lw =vina + " --receptor " + ligpdbqt + " --ligand " + wpdbqt + "  --score_only --log score_LW_" + str(n) + ".txt > out_lw_" + str(n) + ".log"
+        cmd3 ="$MGLPY $MGLUTIL/prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_bw_" + str(n) + ".log"
+        cmd_pw = "$VINADIR/vina --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_PW_" + str(n) + ".txt > out_pw_" + str(n) + ".log"
+        cmd_lw = "$VINADIR/vina --receptor " + ligpdbqt + " --ligand " + wpdbqt + "  --score_only --log score_LW_" + str(n) + ".txt > out_lw_" + str(n) + ".log"
         try:
             os.system(cmd3)
             os.system(cmd_pw)

@@ -29,12 +29,7 @@ from Feature.cal_ion import cal_Ni
 import Feature.combine_data
 from Feature.combine_data import combine
 
-if sys.platform == "linux":
-    from Feature.software_path_linux import path_obabel
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import path_obabel
 
-obabel = path_obabel()
 
 def run_fragments(fn, datadir, inlig, inlig_pdb, opt = None, decoy = False, decoy_list = None, decoy_type = None, decoy_pro = None):
     '''
@@ -250,12 +245,12 @@ def get_input(datadir, fn):
             outlig_num = inlig.split(".")[0] + "_rename.mol2"
             renumber(infmt,inlig,outlig_num)
             outlig = inlig3.split(".")[0] + "_rename.pdb"
-            cmd = obabel + " -i" + infmt + " " +  outlig_num + " -opdb -O " + outlig
+            cmd = "obabel -i" + infmt + " " +  outlig_num + " -opdb -O " + outlig
             os.system(cmd)
             #os.system("rm " + outlig_num)
         elif infmt == "sdf":
             outlig = inlig3
-            cmd = obabel + " -i" + infmt + " " +  inlig + " -opdb -O " + outlig
+            cmd = "obabel -i" + infmt + " " +  inlig + " -opdb -O " + outlig
             os.system(cmd)
             outlig_num  = outlig.split(".")[0] + "_rename.pdb"
             renumber('pdb', outlig, outlig_num)
@@ -540,7 +535,7 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
 
     '''
     if water_type == "rbw":
-        print("Protein Water: recalculate by both RW and BW")
+        print("Protein Water: calculate both RW and BW")
         if rewrite:
             get_Crw(fn,inpro_pro,inpro_water,datadir)
             print("Finish generate RW")
@@ -562,7 +557,7 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
                 print("Use previous RW and BW")
 
     elif water_type == "rw":
-        print("Protein Water: recalculate by RW")
+        print("Protein Water: calculate by RW")
         if rewrite:
             get_Crw(fn,inpro_pro,inpro_water,datadir)
             print("Finish generate RW")
@@ -592,7 +587,7 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
                 print("Use previous PW")
 
     elif water_type == "bw":
-        print("Protein Water: recalculate by BW")
+        print("Protein Water: calculate BW")
         if rewrite:
             out_total = open("Feature_BW_initial.csv","w")
             cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)

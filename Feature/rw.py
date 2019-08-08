@@ -6,15 +6,7 @@ import os
 import sys
 import Feature.get_pdbinfo as get_pdbinfo
 
-if sys.platform == "linux":
-    import Feature.software_path_linux as path 
-elif sys.platform == "darwin":
-    import Feature.software_path_mac as path
 
-MGLPY = path.path_mgl_python()
-MGLUTIL = path.path_mgl_script()
-vina = path.path_vina()
-obable = path.path_obabel()
 
 def get_RW(fn, inpro):
     ''' Select the HOH in [2.0, 3.5] of protein '''
@@ -100,7 +92,7 @@ def addH(fn):
                 continue
             else:
                 newfilename = filename.split(".")[0] + "_addh.pdb"
-                os.system(obable + " " + filename + " -O " + newfilename + " -h")
+                os.system("obabel " + filename + " -O " + newfilename + " -h")
 
                 lines = [line for line in open(newfilename) if line[0:6] in ["ATOM  ", "HETATM"]]
                 if "ATOM  " in lines[0]:
@@ -128,7 +120,7 @@ def runVina(fn,pro):
     
     ### get pdbqt file for protein ###
     propdbqt = fn + "_prot_rc.pdbqt"
-    cmd1 =MGLPY + " " + MGLUTIL +  "prepare_receptor4.py -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_pro.log"
+    cmd1 = "$MGLPY $MGLUTIL/prepare_receptor4.py -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_pro.log"
     os.system(cmd1)
     
     ### get pdbqt files for water molecules and run Vina ###
@@ -139,8 +131,8 @@ def runVina(fn,pro):
         else:
             wpdb = "../RW_" + line.split(".")[0] + "_chain.pdb"
         wpdbqt = "RW_" + str(n) + ".pdbqt"
-        cmd2 =MGLPY + " " + MGLUTIL + "prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_rw_" + str(n) + ".log"
-        cmd_pw =vina + " --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_RW_" + str(n) + ".txt > out_pw" + str(n) + ".log"
+        cmd2 = "$MGLPY $MGLUTIL/prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_rw_" + str(n) + ".log"
+        cmd_pw ="$VINADIR/vina --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_RW_" + str(n) + ".txt > out_pw" + str(n) + ".log"
         try:
             os.system(cmd2)
             os.system(cmd_pw)

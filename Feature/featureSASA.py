@@ -2,17 +2,10 @@
 # Pharamcophore based SASA for complex (Author: Cheng Wang)
 #-----------------------------------------------------------------------------
 import os, sys, pybel
-import openbabel as ob
 import numpy as np
 import pandas as pd
 from .pharma import pharma
 
-if sys.platform == "linux":
-    from Feature.software_path_linux import path_msms
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import path_msms
-
-msmsdir = path_msms()
 def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """Assign pharmaphore type to each atom and calculate SASA by MSMS
 
@@ -62,7 +55,7 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
 
     os.chdir('tmp')
     #copy atom typefiel into directory
-    os.system("cp " + os.path.join(msmsdir,"atmtypenumbers") + " .")
+    os.system("cp $DXGB/atmtypenumbers .")
     # Process p.pdb/l.pdb to be p_sa.pdb/l_sa.pdb after pharma assignment
     # get full atom idx list and pharma
     ppdb2 = 'p_sa.pdb'
@@ -89,36 +82,21 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     df1['pharma'] = np.array(comp)[:,1]
     df1 = pd.DataFrame(df1)
     # pdb to xyzr convert
-    msms_pdbtoxyzr = os.path.join(msmsdir, "pdb_to_xyzr") 
-    os.system(msms_pdbtoxyzr + " " + ppdb2 + " > p_sa.xyzr")
-    os.system(msms_pdbtoxyzr + " " + lpdb2 + " > l_sa.xyzr")
+    os.system("pdb_to_xyzr " + ppdb2 + " > p_sa.xyzr")
+    os.system("pdb_to_xyzr " + lpdb2 + " > l_sa.xyzr")
     os.system("cat p_sa.xyzr l_sa.xyzr > pl_sa.xyzr")
 
     # run msms in with radius 1.0 (if fail, will increase to be 1.1)
-    if sys.platform == "linux":
-        msms = os.path.join(msmsdir, "msms.x86_64Linux2.2.6.1")
-        os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
-        os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
-        os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
-        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-            os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
-            os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
-            os.system(msms + "-if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
-            print('1.1')
-        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-            print("SASA failed")
-    elif sys.platform == "darwin":
-        msms = os.path.join(msmsdir, "msms.MacOSX.2.6.1")
-        os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
-        os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
-        os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
-        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-            os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
-            os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
-            os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
-            print('1.1')
-        if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-            print("SASA failed")
+    os.system("msms -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
+    os.system("msms -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
+    os.system("msms -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
+    if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+        os.system("msms -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
+        os.system("msms -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
+        os.system("msms -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
+        print('1.1')
+    if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
+        print("SASA failed")
 
     # read surface area to df2
     df2 = {}

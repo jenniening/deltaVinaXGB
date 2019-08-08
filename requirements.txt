@@ -1,6 +1,6 @@
-certifi==2018.11.29
+#certifi==2018.11.29
 Click==7.0
-mkl-fft==1.0.6
+#mkl-fft==1.0.6
 numpy==1.15.4
 olefile==0.46
 pandas==0.23.4

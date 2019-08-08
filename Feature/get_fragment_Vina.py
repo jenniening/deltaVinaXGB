@@ -15,9 +15,6 @@ if sys.platform == "linux":
 elif sys.platform == "darwin":
     import Feature.software_path_mac as path
 
-MGLPY = path.path_mgl_python()
-MGLUTIL = path.path_mgl_script()
-vina = path.path_vina()
 
 def get_coordinates_from_mol2(infile):
     ''' Get coordinates from mol2 file '''
@@ -161,7 +158,7 @@ def write_frag_pdbqt(prev_frag_file, new_frag, new_frag_file_list):
 def get_pdbqt(frag,prev_frag_pdbqt, datadir):
     ''' Generate pdbqt file for fragments '''
 
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l " + frag + " -o " + prev_frag_pdbqt +  " -U 'nphs'"
+    cmd = "$MGLPY $MGLUTIL/prepare_ligand4.py -l " + frag + " -o " + prev_frag_pdbqt +  " -U 'nphs'"
     os.system(cmd)
 
     return None
@@ -169,14 +166,14 @@ def get_pdbqt(frag,prev_frag_pdbqt, datadir):
 def preparelig(inlig, ligpdbqt):
     ''' Prepare ligand PDBQT file by MGLTools '''
     print("Generate ligand pdbqt")
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_ligand4.py -l " + inlig  + " -o " + ligpdbqt +  " -U 'nphs'"
+    cmd = "$MGLPY $MGLUTIL/prepare_ligand4.py -l " + inlig  + " -o " + ligpdbqt +  " -U 'nphs'"
     os.system(cmd)
     return None
 
 def prepareprot(inprot, protpdbqt):
     ''' Prepare ligand PDBQT file by MGLTools '''
     print("Generate protein pdbqt")
-    cmd = MGLPY + " "  + MGLUTIL + "prepare_receptor4.py -r " + inprot  + " -o " + protpdbqt +  " -U 'nphs'" 
+    cmd = "$MGLPY $MGLUTIL/prepare_receptor4.py -r " + inprot  + " -o " + protpdbqt +  " -U 'nphs'" 
     os.system(cmd)
     return None
 
@@ -265,7 +262,7 @@ def get_frag(fn,frag_dir):
 def runVina(fn, frag_id, protpdbqt, ligpdbqt, datadir ):
     ''' Run modified AutoDock Vina program with Vina score and 58 features '''
     frag_id +=1
-    cmd = vina + " --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log " + os.path.join(datadir,fn + "_" + str(frag_id) + "_score.txt") + " > " + datadir + "/out_vina.log"
+    cmd = "$VINADIR/vina --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log " + os.path.join(datadir,fn + "_" + str(frag_id) + "_score.txt") + " > " + datadir + "/out_vina.log"
     os.system(cmd)
 
     vinalist = [fn,str(frag_id)]

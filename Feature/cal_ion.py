@@ -7,12 +7,6 @@ from Feature.get_pdbinfo import *
 import numpy as np
 import sys
 
-if sys.platform == "linux":
-    from Feature.software_path_linux import path_obabel
-elif sys.platform == "darwin":
-    from Feature.software_path_mac import path_obabel
-
-obable = path_obabel()
 
 def get_Ions(fn,lig,pro,infile):
     outfile = open(infile,"w")
