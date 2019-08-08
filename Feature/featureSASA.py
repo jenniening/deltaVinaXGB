@@ -55,7 +55,7 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
 
     os.chdir('tmp')
     #copy atom typefiel into directory
-    os.system("cp $DXGB/atmtypenumbers .")
+    #os.system("cp $DXGB/atmtypenumbers .")
     # Process p.pdb/l.pdb to be p_sa.pdb/l_sa.pdb after pharma assignment
     # get full atom idx list and pharma
     ppdb2 = 'p_sa.pdb'
