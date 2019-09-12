@@ -7,23 +7,63 @@ make Makefile create_environment
 source activate DXG
 make Makefile requirements
 ```
-You still need to install rdkit(version >= 2018.03.2) and obabel, these two packages can be easily installed using anaconda
+You still need to install rdkit and obabel, these two packages can be easily installed using anaconda
 
 ```
 conda install -c rdkit rdkit
 conda install -c openbabel openbabel
 ```
-Note: if pandas/numpy can't be imported after installing rdkit, just run the make Makefile requirements command again. <br>
-
-To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores,you should also install R and its randomForest library. Detailed information can be found in our deltaVinaRF Tutorial http://www.nyu.edu/projects/yzhang/DeltaVina/tutorial.html <br>
-Remember to change the atmtypenumbers file in msms into our provided atmtypenumbers file (in current directory). <br>
-
 Install source code
 ```
 python setup.py install
 ```
 Before running model, remember change the python, R, obabel, mgl tools paths into your own directorys in Feature/software_path_mac.py or Feature/software_path_linux.py file. <br>
 
+To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores, you should also install R and its randomForest library. <br>
+
+### All Dependencies
+To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores, you should also install R and its randomForest library. <br>
+
+Download MGLTools and MSMS from http://mgltools.scripps.edu/downloads, choose right version for your platform (Linux or Mac).<br>
+Install MGLTools
+```
+tar -xvzf mgltools_x86_64Linux2_1.5.6.tar.gz 
+cd mgltools_x86_64Linux2_1.5.6/ 
+./install.sh
+```
+Install msms
+```
+mkdir msms 
+tar -xvzf msms_i86_64Linux2_2.6.1.tar.gz -C msms 
+cd msms 
+cp msms.x86_64Linux2.2.6.1 msms 
+```
+In msms folder, there is a script pdb_to_xyzr. Change the line numfile = "./atmtypenumbers" to be numfile = "YourPATHofDXGB/atmtypenumbers" atmtypenumbers file we used can be found in deltavinaXGB/DXGB directory <br>
+Test pdb_to_xyzr
+```
+pdb_to_xyzr 1crn.pdb > 1crn.xyzr
+```
+For Error (nawk: command not found), change nawk to awk in pdb_to_xyzr (line 31) <br>
+Download modified Vina from  https://github.com/chengwang88/vina4dv <br>
+Download R from https://cran.r-project.org/ and install randomForest in R by
+```
+install.packages('randomForest')
+```
+Set the environment variable
+If you have the dependencies installed already. Several environment variables need to be set in .bashrc (Linux) or .bash_profile (macOS) file in your home directory. An example is given below. You can modify the path based on your case. In this example, all softwares are installed under /home/jl7003 directory.<br>
+```
+# path for MSMS 
+export PATH=$PATH:/home/jl7003/msms/
+
+# set mgltool variable 
+export PATH=$PATH:/home/jl7003/mgltools_x86_64Linux2_1.5.6/bin/
+export MGL=/home/jl7003/mgltools_x86_64Linux2_1.5.6/ 
+export MGLPY=$MGL/bin/python 
+export MGLUTIL=$MGL/MGLToolsPckgs/AutoDockTools/Utilities24/ 
+
+# set vina dir 
+export VINADIR=/home/jl7003/vina4dv/build/linux/release/ 
+```
 ### Prepare Data
 Before calculating features, three structure inputfiles are needed:<br>
 pdbid_ligand.mol2/sdf         --> ligand structure file<br>
@@ -38,32 +78,29 @@ Input.csv                     --> Input feature file <br>
 
 ### Run model
 
-All scripts are in Feature directory.<br>
+All scripts are in DXGB directory.<br>
 
 ```
-cd Feature
+cd DXGB
 ```
 Check all options and defaults
 
 ```
 python run_DXGB.py --help
 ```
-Predict scores for Input.csv
-```
-python run_DXGB.py --runrf --average
-```
---runrf is for deltaVinaRF scores <br>
---average is for ensemble predictions from 10 models.<br>
-
-Calculate features and predict scores
+The script can be run for one complex by
 ```
 python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --average
 ```
---runfeatures is for feature calculation, default is to calculate all features.<br>
---datadir is for structure files datadir.<br>
---pdbid is for structure pdbid, can be other types of index.<br>
-Default is only calculating scores using original ligand stucture. <br>
-If you want to get structures with water molecules, and optimized ligands
+--runfeatures is feature calculation, default is to calculate all features<br>
+--datadir is for structure files datadir<br>
+--pdbid is for structure pdbid, can be other type of index<br>
+--average is to calculate average scores from 10 models<br>
+Or it can also be run by providing a list of protein-ligand complex with input features as in Input.csv
+```
+python run_DXGB.py --average 
+```
+Default is to predict scores for provided structures. If you want to get scores with explicit water molecules, and optimized ligands:
 ```
 python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --water rbw --opt rbwo --average 
 ``` 
