@@ -4,7 +4,7 @@ This is a machine-learning based protein-ligand scoring function.
 Create environment
 ```
 make Makefile create_environment
-source activate DXG
+source activate DXGB
 make Makefile requirements
 ```
 You still need to install rdkit and obabel, these two packages can be easily installed using anaconda
