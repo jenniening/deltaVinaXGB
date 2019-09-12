@@ -22,13 +22,13 @@ python setup.py install
 To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores, you should also install R and its randomForest library. <br>
 
 Download MGLTools and MSMS from http://mgltools.scripps.edu/downloads, choose right version for your platform (Linux or Mac).<br>
-Install MGLTools
+#### Install MGLTools
 ```
 tar -xvzf mgltools_x86_64Linux2_1.5.6.tar.gz 
 cd mgltools_x86_64Linux2_1.5.6/ 
 ./install.sh
 ```
-Install msms
+#### Install msms
 ```
 mkdir msms 
 tar -xvzf msms_i86_64Linux2_2.6.1.tar.gz -C msms 
@@ -41,12 +41,14 @@ Test pdb_to_xyzr
 pdb_to_xyzr 1crn.pdb > 1crn.xyzr
 ```
 For Error (nawk: command not found), change nawk to awk in pdb_to_xyzr (line 31) <br>
+#### Install modified AutoDock Vina
 Download modified Vina from  https://github.com/chengwang88/vina4dv <br>
+#### Install R
 Download R from https://cran.r-project.org/ and install randomForest in R by
 ```
 install.packages('randomForest')
 ```
-Set the environment variable
+#### Set the environment variable
 If you have the dependencies installed already. Several environment variables need to be set in .bashrc (Linux) or .bash_profile (macOS) file in your home directory. An example is given below. You can modify the path based on your case. In this example, all softwares are installed under /home/jl7003 directory.<br>
 ```
 # path for MSMS 
