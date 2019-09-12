@@ -17,7 +17,6 @@ Install source code
 ```
 python setup.py install
 ```
-Before running model, remember change the python, R, obabel, mgl tools paths into your own directorys in Feature/software_path_mac.py or Feature/software_path_linux.py file. <br>
 
 ### All Dependencies
 To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores, you should also install R and its randomForest library. <br>
