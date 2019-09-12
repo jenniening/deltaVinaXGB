@@ -35,7 +35,7 @@ tar -xvzf msms_i86_64Linux2_2.6.1.tar.gz -C msms
 cd msms 
 cp msms.x86_64Linux2.2.6.1 msms 
 ```
-In msms folder, there is a script pdb_to_xyzr. Change the line numfile = "./atmtypenumbers" to be numfile = "YourPATHofDXGB/atmtypenumbers".<br> atmtypenumbers file we used can be found in deltavinaXGB/DXGB directory <br>
+In msms folder, there is a script pdb_to_xyzr. Change the line numfile = "./atmtypenumbers" to be numfile = "YourPATHofDXGB/atmtypenumbers". atmtypenumbers file we used can be found in deltavinaXGB/DXGB directory <br><br>
 Test pdb_to_xyzr
 ```
 pdb_to_xyzr 1crn.pdb > 1crn.xyzr
