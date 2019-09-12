@@ -97,7 +97,7 @@ python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --average
 --average is to calculate average scores from 10 models<br>
 Or it can also be run by providing a list of protein-ligand complex with input features as in Input.csv
 ```
-python run_DXGB.py --average 
+python run_DXGB.py --datadir ../Test --average 
 ```
 Default is to predict scores for provided structures. If you want to get scores with explicit water molecules, and optimized ligands:
 ```
