@@ -4,21 +4,21 @@ This is a machine-learning based protein-ligand scoring function.
 Create environment
 ```
 make Makefile create_environment
-source activate DXGB
+conda activate DXGB
 make Makefile requirements
 ```
-You still need to install rdkit and obabel, these two packages can be easily installed using anaconda
-
+Install xgboost, rdkit and obabel, these packages can be easily installed using anaconda
 ```
-conda install -c rdkit rdkit
+conda install -c conda-forge xgboost=0.80.0
+conda install -c rdkit rdkit=2019.03.1
 conda install -c openbabel openbabel
 ```
 Install source code
 ```
 python setup.py install
 ```
+### All Dependencies 
 
-### All Dependencies
 To calculate Vina and SASA features, you should install mgltools, msms and a modified version of AutoDock Vina. To obatin deltaVinaRF predicted scores, you should also install R and its randomForest library. <br>
 
 Download MGLTools and MSMS from http://mgltools.scripps.edu/downloads, choose right version for your platform (Linux or Mac).<br>
@@ -35,15 +35,23 @@ tar -xvzf msms_i86_64Linux2_2.6.1.tar.gz -C msms
 cd msms 
 cp msms.x86_64Linux2.2.6.1 msms 
 ```
-In msms folder, there is a script pdb_to_xyzr. Change the line numfile = "./atmtypenumbers" to be numfile = "YourPATHofDXGB/atmtypenumbers". atmtypenumbers file we used can be found in deltavinaXGB/DXGB directory <br><br>
+In msms folder, there is a script pdb_to_xyzr. Change the line numfile = "./atmtypenumbers" to be numfile = "YourPATHofddeltaVinaXGB/DXGB/atmtypenumbers". atmtypenumbers file we used can be found in deltaVinaXGB/DXGB directory <br><br>
 Test pdb_to_xyzr
 ```
 pdb_to_xyzr 1crn.pdb > 1crn.xyzr
 ```
-For Error (nawk: command not found), change nawk to awk in pdb_to_xyzr (line 31) <br>
+If it doesn't work, try 
+```
+./pdb_to_xyzr 1crn.pdb > 1crn.xyzr
+```
+If error (nawk: command not found) appears, change nawk to awk in pdb_to_xyzr (line 31) <br>
+
 #### Install modified AutoDock Vina
 Download modified Vina from  https://github.com/chengwang88/vina4dv <br>
-#### Install R
+Extract files from zip file. <br>
+If directory name is vina4dv_master, change it into vina4dv. <br>
+
+#### Install R (Only needed for deltaVinaRF)
 Download R from https://cran.r-project.org/ and install randomForest in R by
 ```
 install.packages('randomForest')
@@ -54,36 +62,39 @@ If you have the dependencies installed already. Several environment variables ne
 # path for MSMS 
 export PATH=$PATH:/home/jl7003/msms/
 
-# set mgltool variable 
+# set mgltool variable (if mac, should change mgltools_x86_64Linux2_1.5.6 into your downloaded mac version)
 export PATH=$PATH:/home/jl7003/mgltools_x86_64Linux2_1.5.6/bin/
 export MGL=/home/jl7003/mgltools_x86_64Linux2_1.5.6/ 
 export MGLPY=$MGL/bin/python 
 export MGLUTIL=$MGL/MGLToolsPckgs/AutoDockTools/Utilities24/ 
 
-# set vina dir 
+# set vina dir  (if mac, should use /mac/release/)
 export VINADIR=/home/jl7003/vina4dv/build/linux/release/ 
 ```
+After set all environment variables, open a new window to enable all setups. <br>
+
 ### Prepare Data
 Before calculating features, three structure inputfiles are needed:<br>
 pdbid_ligand.mol2/sdf         --> ligand structure file<br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
-
+Examples for structure files can be found in Test_2al5 directory.<br>
 Note: these three files are needed to run predictions. All files should include hydrogens. If protein files with water molecules are not available, just copy the original protein.pdb to protein_all.pdb. 
 
 If features have been already calculated, only features files are needed: <br>
 Input.csv                     --> Input feature file <br>
-
+Example for Input.csv can be found in Test directory.<br>
 
 ### Run model
-
+Activate DXGB environment<br>
+```
+conda activate DXGB
+```
 All scripts are in DXGB directory.<br>
-
 ```
 cd DXGB
 ```
-Check all options and defaults
-
+Check all options and defaults<br>
 ```
 python run_DXGB.py --help
 ```
@@ -110,7 +121,7 @@ The predicted scores for different structures of Vina, and deltaVinaXGB will be 
 If you want to get deltaVinaRF scores as well, add --runrf. <br>
 
 Note:
-1) Linux is the recommended system for our package. Our package also supports Mac OSX. To solve error in installing xgboost==0.80 using our requirements file, directly install it using pip install xgboost.
+1) Linux is the recommended system for our package. Our package also supports Mac OSX. 
 2) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
 3) Using different version of RDKit, the ligand stability features can be slightly different.
 4) Abbrevations: RW --> receptor water; BW --> bridging water
