@@ -15,10 +15,10 @@ def runVina(fn,protpdbqt, ligpdbqt):
     vinalist = [fn]
     for lines in fileinput.input("score_v1.txt"):
         if lines[0:4] in ["Affi", "Term"]:
-            if sys.platform == "linux":
+            try:
                 line = lines.strip("\n").split()
                 vinalist.append(line[1])
-            elif sys.platform == "darwin":
+            except:
                 line = lines.strip("\n").split()
                 vinalist.append(line[2])
     if len(vinalist) != 60:
