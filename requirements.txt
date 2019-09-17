@@ -1,7 +1,5 @@
 ### pip install Click==7.0
 Click==7.0
-###pip install xgboost==0.80###
-xgboost==0.80
 
 numpy
 pandas
