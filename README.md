@@ -28,6 +28,7 @@ tar -xvzf mgltools_x86_64Linux2_1.5.6.tar.gz
 cd mgltools_x86_64Linux2_1.5.6/ 
 ./install.sh
 ```
+Remember use correct mgltoos name (Linux or Mac) when install mgltools.
 #### Install msms
 ```
 mkdir msms 
