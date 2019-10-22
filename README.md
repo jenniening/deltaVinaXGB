@@ -118,6 +118,7 @@ python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --water rbw
 --water is for consideration of water, rbw is to consider both receptor-bound water and bridging water. <br>
 --opt is for optimization, rbwo is to optimize ligand in no water, bridging water, and receptor-bound water environments.<br>
 
+The calculated features will be saved in <code>Input.csv</code> file<br>
 The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is score.csv) in datadir.<br>
 If you want to get deltaVinaRF scores as well, add --runrf. <br>
 
