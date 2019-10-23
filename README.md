@@ -129,8 +129,9 @@ Note:
 4) Abbrevations: RW --> receptor water; BW --> bridging water
 
 ### Reference
-1. Wang, C.; Zhang, Y. K., Improving Scoring-Docking-Screening Powers of Protein-Ligand Scoring Functions using Random Forest. J. Comput. Chem. 2017, 38, 169-177. https://doi.org/10.1002/jcc.24667
-2. deltaVinaRF http://www.nyu.edu/projects/yzhang/DeltaVina/
+1. Lu, J. N.; Hou, X. B.; Wang, C.; Zhang, Y. K., Incorporating Explicit Water Molecules and Ligand Conformation Stability in Machine-Learning Scoring Functions. J. Chem. Inf. Model. 2019, Just Accepted 
+2. Wang, C.; Zhang, Y. K., Improving Scoring-Docking-Screening Powers of Protein-Ligand Scoring Functions using Random Forest. J. Comput. Chem. 2017, 38, 169-177. https://doi.org/10.1002/jcc.24667
+3. deltaVina http://www.nyu.edu/projects/yzhang/DeltaVina/
 
 
 
