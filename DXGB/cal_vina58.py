@@ -17,10 +17,10 @@ def runVina(fn,protpdbqt, ligpdbqt):
         if lines[0:4] in ["Affi", "Term"]:
             try:
                 line = lines.strip("\n").split()
-                vinalist.append(line[1])
+                vinalist.append(line[2])
             except:
                 line = lines.strip("\n").split()
-                vinalist.append(line[2])
+                vinalist.append(line[1])
     if len(vinalist) != 60:
         vinalist = [fn] + ['NA' for i in range(59)]
     return vinalist

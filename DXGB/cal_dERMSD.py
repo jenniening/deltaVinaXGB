@@ -229,7 +229,7 @@ def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = F
             if not (os.path.exists(confs) and os.path.exists(lowest)):
                 runGenerator(fn, native, confs, lowest, numConfs)
             else:
-                print("Use pervious generated confs")
+                print("Use previous generated confs")
 
     lowest_energy = get_lowest_energy(lowest)
     local_min,native_energy = get_native_energy(native)

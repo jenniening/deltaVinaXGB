@@ -1023,10 +1023,9 @@ def feature_calculation_decoy(datadir, datadir_pro, datadir_decoy, fn, pro, ref_
         ### run fragments ###
         ### fragments still have problems for specific tasks, so default is not to calculate ###
         if feature_type == "Frag":
+            print("Run frag")
             run_Frag_features(datadir_decoy, fn, ref_ligand_rdkit, ref_ligand_pdb, opt_type = None, decoy = True, decoy_list = decoy_list, decoy_type = i, decoy_pro = inpro)
 
-        else:
-            print("Use previous calculated Frags")
 
 
     ### get dERMSD ###
@@ -1158,9 +1157,8 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
     ### run fragments ###
     ### fragments calculation still have problems for some specific cases, so default is not to calculate ###
     if feature_type == "Frag":
+        print("Run Frag")
         run_Frag_features(datadir, fn, inlig_rdkit, inlig_pdb, opt_type)
-    else:
-        print("Use previous calculated Frags")
 
     ### combine data ###
     for i in d_type.keys():
