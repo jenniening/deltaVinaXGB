@@ -3,15 +3,25 @@ import os
 import pandas as pd
 import pickle
 
-def run_model(infile, datadir,rt, model_dir, model_name="DXGB", average=True, model_index="1", decoy=False):
+def run_model(infile, datadir, rt, model_dir, model_name="DXGB", average=True, model_index="1"):
+    """
+    run predictions by our model
+    
+    :param infile: input file
+    :param datadir: directory for input file
+    :param rt: input structure type, can be "", "_min", "_min_RW", "_RW", "_min_BW", "_min_PW"
+    :param model_dir: directory for models
+    :param model_name: model name, defaults to "DXGB"
+    :param average: whether to use ensemble model prediction, defaults to True
+    :param model_index: if not average, which model should be used, defaults to "1"
+    :return: test_new, the dataframe includes pdb, vina, and XGB scores.
+
+    """
+
     model_dir = os.path.realpath(model_dir)
     infile = os.path.join(datadir, infile)
     num = len([line for line in open(infile)]) - 1
-
-    if decoy:
-        test_in = pd.read_csv(infile,dtype = {"pdb":str,"idx":str})
-    else:
-        test_in = pd.read_csv(infile,dtype = {"pdb":str})
+    test_in = pd.read_csv(infile,dtype = {"pdb":str})
 
     # Feature names
     model_dir = os.path.join(model_dir, model_name)
@@ -34,45 +44,23 @@ def run_model(infile, datadir,rt, model_dir, model_name="DXGB", average=True, mo
         test_preds = mod.predict(test_features)
         y_test["1_t"]= test_preds
         test_pred = y_test.sum(axis = 1)/1 + test.vina
-    if decoy:
-        test_new = pd.concat([test[["pdb","idx","vina"]],test_pred],axis = 1)
-    else:
-        test_new = pd.concat([test[["pdb","vina"]],test_pred],axis = 1) 
-    
-    if decoy:
-        if rt == "":
-            test_new.columns = ['pdb','idx','vina','XGB']
-        elif rt == "_min":
-            test_new.columns = ['pdb','idx','vina_min','XGB_min']
-        elif rt == "_min_RW":
-            test_new.columns = ['pdb','idx','vina_min_RW','XGB_min_RW']
-        elif rt == "_RW":
-            test_new.columns = ['pdb','idx','vina_RW','XGB_RW']
-    else:
 
-        if rt == "":
-            test_new.columns = ['pdb','vina','XGB']
-        elif rt == "_min":
-            test_new.columns = ['pdb','vina_min','XGB_min']
-        elif rt == "_min_RW":
-            test_new.columns = ['pdb','vina_min_RW','XGB_min_RW']
-        elif rt == "_RW":
-            test_new.columns = ['pdb','vina_RW','XGB_RW']
-        elif rt == "_min_BW":
-            test_new.columns = ['pdb','vina_min_BW','XGB_min_BW']
-        elif rt == "_min_PW":
-            test_new.columns = ['pdb','vina_min_PW','XGB_min_PW']
+    test_new = pd.concat([test[["pdb","vina"]],test_pred],axis = 1) 
+    test_new.columns = ["pdb", "vina" + rt, "XGB" + rt]
 
     return test_new
 
-def get_output(out,outfile,decoy):
+def get_output(out,outfile):
+    """
+    Merge output of XGB and RF20
+    
+    :param out: outputs are needed to merge
+    :param outfile: filename for the merged results
+
+    """
     n_out = len(out)
     df = out[0]
     for i in range(1,n_out):
-        if decoy:
-            df = pd.merge(df,out[i],on = ["pdb","idx"])
-        else:
-            df = pd.merge(df,out[i],on = "pdb")
+        df = pd.merge(df,out[i],on = "pdb")
     df.to_csv(outfile, index = False)
 
-    return None

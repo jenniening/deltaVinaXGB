@@ -71,12 +71,16 @@ export MGLUTIL=$MGL/MGLToolsPckgs/AutoDockTools/Utilities24/
 
 # set vina dir  (if mac, should use /mac/release/)
 export VINADIR=/home/jl7003/vina4dv/build/linux/release/ 
+
+# set DXGB dir (needed if run deltaVinaRF20 score)
+export DXGB=/home/jl7003/deltaVinaXGB/DXGB
 ```
 After set all environment variables, open a new window to enable all setups. <br>
 
 ### Prepare Data
 Before calculating features, three structure inputfiles are needed:<br>
 pdbid_ligand.mol2/sdf         --> ligand structure file<br>
+pdbid_ligand.pdb              --> (optional, needed to provid if you are not sure about your mol2/sdf file quality; this pdb file can be used to calculate all features excluding ligand stability features, and you still can get score) ligand structure file <br>
 pdbid_protein.pdb             --> protein structure file<br>
 pdbid_protein_all.pdb         --> protein with water molecules structure file<br>
 Examples for structure files can be found in Test_2al5 directory.<br>

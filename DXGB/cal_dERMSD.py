@@ -14,7 +14,6 @@ from rdkit.ML.Cluster import Butina
 ### set random seed for whole script
 random.seed(10)
 
-
 #-----------------------------------------------------------------------------
 # parameters used in conformation generation:
 # random_seed = 1
@@ -30,8 +29,6 @@ def gen_conformers(mol, numConfs):
     ps.pruneRmsThresh = 0.1
     ps.numThreads = 0
     ids = AllChem.EmbedMultipleConfs(mol,numConfs, ps)
-    #print(list(ids))
-    
     # minimization
     for conformerId in ids:
         mp = AllChem.MMFFGetMoleculeProperties(mol)
@@ -131,7 +128,6 @@ def runGenerator(fn, input_file, outfile, outfile_min, numConfs, addH=False):
     w_min.flush()
     w_min.close()
 
-    return None
 
 def minimize_native(native):
     ''' Get the local minimum structure '''
@@ -217,6 +213,18 @@ def get_RMSD(local_min, lowest, fn):
     return RMSD
 
 def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = False):
+    """
+    Calculate ligand stability features
+    
+    :param outfile: outfile object (can be wrote)
+    :param fn: input index
+    :param native: crystal structure or docked poses 
+    :param datadir: directory for input 
+    :param calc_type: whether to generate conformations or calculate ligand stability features , defaults to "GenConfs". If not GenConfs, previously generated conformations file are needed
+    :param rewrite: whether to rewrite conformations file generated previously, defaults to False
+
+    return: the calculated ligand features will be saved in outfile
+    """
     olddir = os.getcwd()
     os.chdir(datadir)
     confs = os.path.join(datadir, fn + "_ligand_confs.sdf")
@@ -230,65 +238,12 @@ def feature_cal(outfile,fn, native, datadir, calc_type = "GenConfs", rewrite = F
                 runGenerator(fn, native, confs, lowest, numConfs)
             else:
                 print("Use previous generated confs")
-
     lowest_energy = get_lowest_energy(lowest)
     local_min,native_energy = get_native_energy(native)
     dE = energy_difference(lowest_energy, native_energy)
     RMSD = get_RMSD(local_min,lowest,fn)
-    num_1, num_2 = num_structure_change(confs,native_energy)
-    outfile.write(fn + "," + str(dE) + "," + str(RMSD) + "," + str(num_1) + "," + str(num_2) + "\n")
+    #num_1, num_2 = num_structure_change(confs,native_energy)
+    outfile.write(fn + "," + str(dE) + "," + str(RMSD)  + "\n")
     outfile.close()
     os.chdir(olddir)
 
-    return None
-
-def main():
-    args = sys.argv[1:]
-    if args[-1] == "file":
-        pdbfile = open('%s'%(sys.argv[1] + sys.argv[2]),'r')
-        pdblist = []
-        for i in pdbfile.readlines():
-            pdblist.append(i[0:4])
-    else:
-        pdblist = []
-        pdblist.append(sys.argv[2])
-    datadir = sys.argv[1]
-    print(datadir)
-    outfile = open(datadir + "dE_RMSD.csv","w")
-    outfile.write("pdb,dE_global,RMSD_global,number0,number1\n")
-    for fn in pdblist:
-        if fn + "_ligand.sdf" in os.listdir(datadir):
-            inlig = os.path.join(datadir,fn + "_ligand.sdf")
-            try:
-                feature_cal(outfile,fn,inlig,datadir)
-            except:
-                print("Ligand structure should be checked")
-        elif fn + "_ligand.mol2" in os.listdir(datadir):
-            inlig =  datadir + fn + "_ligand.mol2"
-            try:
-                feature_cal(outfile,fn,inlig,datadir)
-            except:
-                print("Ligand structure should be checked")
-        elif fn + "_ligand_rigid.pdbqt" in os.listdir(datadir):
-            # Example: convert pdbqt type into sdf, bonding infor should be checked
-            olddir = os.getcwd()
-            os.chdir(datadir)
-            inlig =  datadir + fn + "_ligand.pdbqt"
-            inlig_out =  datadir + fn + "_ligand.sdf"
-            os.system("obabel -ipdbqt " + datadir + inlig + " -osdf -O " + datadir + inlig_out)
-            os.chdir(olddir)
-            try:
-                feature_cal(outfile,fn,inlig_out,datadir)
-            except:
-                print("Ligand structure should be checked")
-        else:
-            print("wrong ligand input file format, it should be mol2, sdf, pdbqt")
-    outfile.close()
-
-    return None
-
-
-
-if __name__ == "__main__":
-
-    main()

@@ -6,8 +6,6 @@ import os
 import sys
 import DXGB.get_pdbinfo as get_pdbinfo
 
-
-
 def get_RW(fn, inpro):
     ''' Select the HOH in [2.0, 3.5] of protein '''
 
@@ -52,7 +50,6 @@ def get_RW(fn, inpro):
                     outline = fn + "," + pro_name + "," + pro_idx + "," + pro_aname + "," + rw_name + "," + str(round(d,2)) + "\n"
                     outfile.write(outline)
         outfile.close()
-    return None
 
 def get_water(fn,water):
     ''' Get water residue index and water molecule file '''
@@ -78,8 +75,6 @@ def get_water(fn,water):
         outfile.write("END \n")
         outfile.close()
     index.close()
-
-    return None
 
 
 def addH(fn):
@@ -109,7 +104,6 @@ def addH(fn):
                 os.system("mv " + filename.split(".")[0] + "_addh_correct.pdb" + " " + filename)
                 os.system("rm " + newfilename)
 
-    return None
 
 def runVina(fn,pro):
     ''' Get pdbqt file of protein, water and run Vina '''
@@ -141,7 +135,6 @@ def runVina(fn,pro):
 
     os.chdir(olddir)
 
-    return None
 
 def get_result_PW(fn,out_PW): 
     ''' Get PW result '''
@@ -160,7 +153,6 @@ def get_result_PW(fn,out_PW):
     out_PW.close()
     os.chdir(olddir)
 
-    return None
 
 def get_RW_final(fn,out,out_total):
     ''' Get RW which satisfiles Vina score requirement '''
@@ -216,11 +208,18 @@ def get_waterfile(fn, pro, index):
     out_rec.write("".join(lines))
     out_rec.write("END")
     out_rec.close()
-     
-    return None
+
 
 def get_Crw(fn,inprot,inwater,datadir):
-    ''' run all functions '''
+    """
+    Get Crw
+    
+    :param fn: input index
+    :param inprot: inpro with only protein
+    :param inwater: inpro with both protein and water
+    :param datadir: directory for input 
+
+    """
 
     os.chdir(datadir)
     pro = os.path.join(datadir,inprot)
@@ -241,12 +240,4 @@ def get_Crw(fn,inprot,inwater,datadir):
     os.chdir(datadir)
     os.system("rm -r RW*")
 
-    return None
-
-if __name__ == '__main__':
-    fn = "3c2f"
-    inprot = fn + "_protein.pdb"
-    inwater = fn + "_protein_all.pdb"
-    datadir = "/Users/jianinglu1/Documents/script/deltaXGB_linux/DXGB/test"
-    get_Crw(fn,inprot,inwater,datadir)
 

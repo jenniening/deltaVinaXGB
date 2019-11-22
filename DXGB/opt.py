@@ -54,6 +54,7 @@ def get_box(fn, inlig):
     new_file.write("size_y = " + str(size_y)+ "\n")
     new_file.write("size_z = " + str(size_z) + "\n")
     new_file.close()
+
 def genpdbqt(fn, ligpdb, propdb):
     propdbqt = fn + "_rec.pdbqt"
     ligpdbqt = fn + "_lig.pdbqt"
@@ -61,36 +62,38 @@ def genpdbqt(fn, ligpdb, propdb):
     cmd2 =  "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + ligpdb  + " -o " + ligpdbqt +  " -U '_' -Z > out2.tmp"
     os.system(cmd1)
     os.system(cmd2)
-    return None
+
 
 def runmin(fn):
     cmd = "$VINADIR/vina --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
     os.system(cmd)
-    return None
+
 
 def chanPdb(fn):
     cmd = "obabel -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
     os.system(cmd)
-    return None
 
-def get_Co(datadir,fn, inlig, st, decoy = False, pro = None):
+
+def get_Co(datadir,fn, inlig, st):
+    """
+    Get Vina optimized structure 
+
+    :param datadir:datadir for input 
+    :param fn: input index
+    :param inlig: inlig 
+    :param st: water type
+
+    """
     os.chdir(datadir)
     olddir = os.getcwd()
     os.system("mkdir vinamin_rigid")
     os.chdir("vinamin_rigid")
     if st != "" and "_" not in st:
         st = "_" + st
-    if pro != None:
-        inpro = pro + "_protein" + st + ".pdb"
-    else:
-        inpro = fn + "_protein" + st + ".pdb"
     
-    if decoy:
-        index = inlig.split("_")[1]
-        outlig = fn + "_" + index + "_decoy_min" + st + ".pdb"
-    else:
-        outlig = fn + "_lig_min" + st + ".pdb"
-        
+    inpro = fn + "_protein" + st + ".pdb"
+    outlig = fn + "_lig_min" + st + ".pdb"
+    
     genpdbqt(fn,inlig,inpro)
     get_box(fn,inlig)
     runmin(fn)
@@ -99,53 +102,6 @@ def get_Co(datadir,fn, inlig, st, decoy = False, pro = None):
     os.chdir(olddir)
     os.system("rm -r vinamin_rigid")
 
-    return None
-
-def main():
-    args = sys.argv[1:]
-    if args[-1] == "file":
-        pdbfile = open('%s'%(args[0] + args[1]),'r')
-        pdblist = []
-        for i in pdbfile.readlines():
-            pdblist.append(i[0:4])
-    else:
-        pdblist = []
-        pdblist.append(args[1])
-    datadir = args[0]
-    for fn in pdblist:
-        if fn + "_ligand.mol2" in os.listdir(datadir):
-            inlig = fn + "_ligand.mol2"
-        elif fn + "_ligand.pdb" in os.listdir(datadir):
-            inlig = fn + "_ligand.pdb"
-        elif fn + "_ligand.sdf" in os.listdir(datadir):
-            inlig =  fn + "_ligand.sdf"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system("obabel -isdf " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
-            inlig = inlig_out
-
-        elif fn + "_ligand_rigid.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_rigid.pdbqt"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system("obabel -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
-            inlig = inlig_out
-
-        elif fn + "_ligand_flexible.pdbqt" in os.listdir(datadir):
-            inlig =  fn + "_ligand_flexible.pdbqt"
-            inlig_out =  fn + "_ligand.mol2"
-            os.system("obabel -ipdbqt " + datadir + inlig + " -omol2 -O " + datadir + inlig_out)
-            inlig = inlig_out
-
-
-        else:
-            print("wrong ligand input file format, it should be mol2, sdf, or pdbqt")
-        get_Co(datadir,fn,inlig,"RW")
-        get_Co(datadir,fn,inlig,"")
-
-    return None
-
-if __name__ == "__main__":
-
-    main()
 
 
 

@@ -6,8 +6,7 @@ import os
 import fileinput
 import sys
 
-
-def runVina(fn,protpdbqt, ligpdbqt):
+def runVina(fn, protpdbqt, ligpdbqt):
     """Run modified AutoDock Vina program with Vina score and 58 features """
 
     cmd = "$VINADIR/vina --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log score_v1.txt > out_vina.log"
@@ -29,16 +28,25 @@ def prepareProt(inprot, protpdbqt):
     """Prepare protein PDBQT file by MGLTools """
     cmd = "$MGLPY $MGLUTIL/prepare_receptor4.py -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
     os.system(cmd)
-    return None
 
 def prepareLig(inlig, ligpdbqt):
     """Prepare ligand PDBQT file by MGLTools """
     cmd = "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
     os.system(cmd)
-    return None
 
 def featureVina(outfile, fn, inpro, inlig, datadir):
-    """Get Vina score and Vina features """
+    """
+    Get Vina 58 features 
+    
+    :param outfile: outfile object (file can be wrote)
+    :param fn: input index
+    :param inpro: protein structure
+    :param inlig: ligand structure
+    :param datadir: input directory
+ 
+    return: Vina 58 features for current input index will be wrote into outfile
+    """
+
     os.chdir(datadir)
     olddir = os.getcwd()
     os.system("mkdir Feature_Vina")
@@ -51,27 +59,6 @@ def featureVina(outfile, fn, inpro, inlig, datadir):
     outfile.write( ",".join(vinalist) + "\n")
     os.chdir(olddir)
     os.system("rm -r Feature_Vina")
-
-    return None
-
-# for Vina flexible docking result, just do the score_only to get the Vina 58 features
-def featureVina_flexible(outfile,fn, inpro, inlig, datadir):
-    """Get Vina score and Vina features """
-    os.chdir(datadir)
-    olddir = os.getcwd()
-    os.system("mkdir Feature_Vina")
-    os.chdir("Feature_Vina")
-    os.system("cp ../" + inlig + " .")
-    protpdbqt = inpro.split(".")[0] + ".pdbqt"
-    ligpdbqt = inlig
-    prepareProt(inpro,protpdbqt)
-    vinalist = runVina(fn,protpdbqt,ligpdbqt)
-    outfile.write(",".join(vinalist) + "\n")
-    os.chdir(olddir)
-    os.system("rm -r Feature_Vina")
-
-    return None
-
 
 
 

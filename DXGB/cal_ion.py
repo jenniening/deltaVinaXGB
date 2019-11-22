@@ -55,8 +55,6 @@ def get_Ions(fn,lig,pro,infile):
                     outfile.write(outline)
         outfile.close()
 
-    return None
-
 def get_num(fn, infile):
     ion = []
     for line in open(infile):
@@ -65,20 +63,22 @@ def get_num(fn, infile):
     return len(ionset)
 
 def cal_Ni(outfile,fn, inprot, inlig, datadir):
+    """
+    Calculate Ion feature
+    
+    :param outfile: outfile object (can be wrote)
+    :param fn: input index
+    :param inprot: inpro
+    :param inlig: inlig
+    :param datadir: directory for input 
+
+    return: the number of ions for input index will be wrote into the outfile
+
+    """
     pro = os.path.join(datadir, inprot)
     lig = os.path.join(datadir,inlig)
     infile = os.path.join(datadir,"Ion_infor.dat")
     get_Ions(fn,lig,pro,infile)
     num = get_num(fn,infile)
-    #os.system("rm " + infile)
     outfile.write(fn + "," + str(num) + "\n")
-
-if __name__ == "__main__":
-    ### test ###
-    outfile = open("/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test/Num_Ions.csv","w")
-    fn = "4q90"
-    inprot = fn + "_protein.pdb"
-    inlig = fn + "_ligand.pdb"
-    datadir = "/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test"
-    cal_Ni(outfile,fn, inprot, inlig, datadir)
 

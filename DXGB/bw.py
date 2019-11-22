@@ -6,7 +6,6 @@ import sys
 import numpy as np
 from DXGB.get_pdbinfo import *
 
-
 #get the structural information of water molecules and get the bridging water molecules based on structure information
 #output: bridging_water_info.txt BridgingWater_n.pdb
 
@@ -15,7 +14,6 @@ def get_angle(a,b,c):
     bc = c - b
     cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
     angle = np.degrees(np.arccos(cosine_angle))
-
     return angle
 
 def get_BW(fn,water,lig):
@@ -82,7 +80,6 @@ def get_BW(fn,water,lig):
                                 outfile.write(outline)
         outfile.close()
 
-    return None
 
 def get_water(fn,water):
     #Get water residue index and water molecule file
@@ -107,7 +104,6 @@ def get_water(fn,water):
         outfile.close()
     index.close()
 
-    return None
 
 def addH(fn):
     ''' Add H to water molecule file (Vina need) '''
@@ -135,7 +131,6 @@ def addH(fn):
                 os.system("mv " + filename.split(".")[0] + "_addh_correct.pdb" + " " + filename)
                 os.system("rm " + newfilename)
 
-    return None
 
 #calculate vinascore
 def genPDBQT(fn,pro,lig):
@@ -166,7 +161,6 @@ def genPDBQT(fn,pro,lig):
             os.system("touch FAIL.log")
     os.chdir(olddir)
 
-    return None
 
 #get vina score information
 #outfile: PWE_seperate.dat, LWE_seperate.dat, bridgingwater_vinascore_seperate.dat, bridgingwater_vinascore_total.dat
@@ -187,7 +181,7 @@ def get_result_PW(fn,out_PW):
                 out_PW.write(fn + "," + str(i) + "," + str(value)  + "\n")
     os.chdir(olddir)
     out_PW.close()
-    return None
+
 
 def get_result_LW(fn,out_LW):
     num = 0
@@ -206,7 +200,7 @@ def get_result_LW(fn,out_LW):
                 out_LW.write(fn + "," + str(i) + "," + str(value)  + "\n")
     os.chdir(olddir)
     out_LW.close()
-    return None
+
 
 def get_BW_final(fn,out,out_total):
     value_PW = 0.00
@@ -260,9 +254,22 @@ def get_waterfile(fn,pro, index):
     out_rec.write("".join(lines))
     out_rec.write("END")
     out_rec.close()
-    return None
+
 
 def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
+    """
+    Calculate BW features
+    
+    :param out_total: outfile object (can be wrote)
+    :param fn: input index
+    :param inprot: inpro with only protein
+    :param inlig: inlig
+    :param inwater: inpro with both protein and water
+    :param datadir: directory for input 
+    :param Feature: whether to only calcualte BW features, defaults to True
+
+    return: calculated BW feature for current index will be wrote into out_total file
+    """
     os.chdir(datadir)
     inidir = os.getcwd()
     pro = os.path.join(datadir,inprot)
@@ -286,12 +293,3 @@ def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
     os.chdir(inidir)
     os.system("rm -r BW*")
 
-if __name__ == "__main__":
-    ### test ###
-    fn = "3c2f"
-    out_total = open("/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test/Feature_BW.csv","w")
-    datadir = "/Users/jianinglu1/Documents/script/deltaXGB_linux/Feature/test"
-    inprot =  fn + "_protein.pdb"
-    inlig =  fn + "_ligand.pdb"
-    inwater = fn + "_protein_all.pdb"
-    cal_BW(out_total,fn,inprot,inlig,inwater,datadir)
