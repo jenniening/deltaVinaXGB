@@ -130,6 +130,7 @@ Note:
 1) Linux is the recommended system for our package. Our package also supports Mac OSX. 
 2) Ligand structure should includes both atom and bond information, such as mol2 and sdf. Be careful when using mol2 file as input format, some atom types are not recognized in RDKit (O.co2 for O in C-PO32- group). 
 3) Using different version of RDKit, the ligand stability features can be slightly different.
+4) If the mol2/sdf file can not be processed by RDKit, we will skip the ligand stability feature calculation and used default value (dE:-300, RMSD:300). 
 4) Abbrevations: RW --> receptor water; BW --> bridging water
 
 ### Reference
