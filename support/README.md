@@ -1,4 +1,5 @@
 ### This sub package is for protein structure preparation only 
+This is a independent package of DXGB, you don't need to conduct this under DXGB environment. 
 #### install amber tools 
 ```
 conda install ambertools -c ambermd
@@ -13,7 +14,7 @@ https://github.com/jensengroup/propka-3.1
 #### download and install pdb2pqr
 https://sourceforge.net/projects/pdb2pqr/
 
-#### Run script
+#### run test
 ```
 pychimera prepare_structure.py
 ```
