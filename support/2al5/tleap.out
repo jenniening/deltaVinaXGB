@@ -1,0 +1,42 @@
+-I: Adding /Users/jianinglu1/anaconda3/dat/leap/prep to search path.
+-I: Adding /Users/jianinglu1/anaconda3/dat/leap/lib to search path.
+-I: Adding /Users/jianinglu1/anaconda3/dat/leap/parm to search path.
+-I: Adding /Users/jianinglu1/anaconda3/dat/leap/cmd to search path.
+-s: Ignoring startup file: leaprc
+-f: Source tleap.in.
+
+Welcome to LEaP!
+Sourcing: ./tleap.in
+----- Source: /Users/jianinglu1/anaconda3/dat/leap/cmd/leaprc.protein.ff14SB
+----- Source of /Users/jianinglu1/anaconda3/dat/leap/cmd/leaprc.protein.ff14SB done
+Log file: ./leap.log
+Loading parameters: /Users/jianinglu1/anaconda3/dat/leap/parm/parm10.dat
+Reading title:
+PARM99 + frcmod.ff99SB + frcmod.parmbsc0 + OL3 for RNA
+Loading parameters: /Users/jianinglu1/anaconda3/dat/leap/parm/frcmod.ff14SB
+Reading force field modification type file (frcmod)
+Reading title:
+ff14SB protein backbone and sidechain parameters
+Loading library: /Users/jianinglu1/anaconda3/dat/leap/lib/amino12.lib
+Loading library: /Users/jianinglu1/anaconda3/dat/leap/lib/aminoct12.lib
+Loading library: /Users/jianinglu1/anaconda3/dat/leap/lib/aminont12.lib
+Loading parameters: /Users/jianinglu1/anaconda3/dat/leap/parm/frcmod.ions1lm_1264_tip3p
+Reading force field modification type file (frcmod)
+Reading title:
+Li/Merz ion parameters of monovalent ions for TIP3P water model (12-6-4 set)
+Loading PDB file: ./2al5_protein_prep.pdb
+Created a new atom named: OXT within residue: .R<GLY 260>
+  total atoms in file: 4062
+  Leap added 4122 missing atoms according to residue templates:
+       4122 H / lone pairs
+  The file contained 1 atoms not in residue templates
+Writing pdb file: 2al5_protein_prep_proton.pdb
+
+/Users/jianinglu1/anaconda3/bin/teLeap: Warning!
+ Converting N-terminal residue name to PDB format: NASN -> ASN
+
+/Users/jianinglu1/anaconda3/bin/teLeap: Warning!
+ Converting C-terminal residue name to PDB format: CGLY -> GLY
+	Quit
+
+Exiting LEaP: Errors = 0; Warnings = 2; Notes = 0.

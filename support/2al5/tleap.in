@@ -1,0 +1,6 @@
+source leaprc.protein.ff14SB
+            loadamberparams frcmod.ions1lm_1264_tip3p
+            mol = loadpdb 2al5_protein_prep.pdb
+            savepdb mol 2al5_protein_prep_proton.pdb
+            quit
+            
