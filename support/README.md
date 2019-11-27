@@ -19,6 +19,6 @@ https://sourceforge.net/projects/pdb2pqr/
 pychimera prepare_structure.py
 ```
 ### Structures
-input protein structure: fn + "_protein.pdb"
-input ligand structure: fn + "_ligand.mol2"
-output protein structure: fn + "_protein_prep_final.pdb"
+input protein structure: fn + "_protein.pdb"<br>
+input ligand structure: fn + "_ligand.mol2"<br>
+output protein structure: fn + "_protein_prep_final.pdb"<br>
