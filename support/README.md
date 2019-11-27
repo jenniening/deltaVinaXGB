@@ -1,3 +1,4 @@
+### This sub package is for protein structure preparation only 
 #### install amber tools 
 ```
 conda install ambertools -c ambermd
