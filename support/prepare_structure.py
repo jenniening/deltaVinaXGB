@@ -13,6 +13,8 @@ def Hg2toFlag(filename):
     """
 	change Hg2+ ion atom name to be FLAG
 	"""
+
+
     f = open("tmp","w")
     for lines in fileinput.input(filename):
         if pdbinfo.isAtom(lines) == 1 and \
@@ -22,6 +24,7 @@ def Hg2toFlag(filename):
     fileinput.close()
     f.close()
     os.system("mv tmp " + filename)
+
 
 def FlagtoHg2(filename):
     """
