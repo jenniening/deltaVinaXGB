@@ -5,6 +5,11 @@ import numpy as np
 import os
 import sys
 import DXGB.get_pdbinfo as get_pdbinfo
+from DXGB.utils import get_tool
+
+vina = get_tool("vina")
+prepare_ligand4 = get_tool("prepare_ligand4.py")
+prepare_receptor4 = get_tool("prepare_receptor4.py")
 
 def get_RW(fn, inpro):
     ''' Select the HOH in [2.0, 3.5] of protein '''
@@ -114,7 +119,7 @@ def runVina(fn,pro):
     
     ### get pdbqt file for protein ###
     propdbqt = fn + "_prot_rc.pdbqt"
-    cmd1 = "$MGLPY $MGLUTIL/prepare_receptor4.py -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_pro.log"
+    cmd1 = prepare_receptor4 + " -r "  + pro + " -o " + propdbqt + " -U 'nphs' > out_pro.log"
     os.system(cmd1)
     
     ### get pdbqt files for water molecules and run Vina ###
@@ -125,8 +130,8 @@ def runVina(fn,pro):
         else:
             wpdb = "../RW_" + line.split(".")[0] + "_chain.pdb"
         wpdbqt = "RW_" + str(n) + ".pdbqt"
-        cmd2 = "$MGLPY $MGLUTIL/prepare_ligand4.py -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_rw_" + str(n) + ".log"
-        cmd_pw ="$VINADIR/vina --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_RW_" + str(n) + ".txt > out_pw" + str(n) + ".log"
+        cmd2 = prepare_ligand4 + " -l " + wpdb  + " -o " + wpdbqt +  " -U 'nphs' > out_rw_" + str(n) + ".log"
+        cmd_pw = vina + " --receptor " + propdbqt + " --ligand " + wpdbqt + "  --score_only --log score_RW_" + str(n) + ".txt > out_pw" + str(n) + ".log"
         try:
             os.system(cmd2)
             os.system(cmd_pw)

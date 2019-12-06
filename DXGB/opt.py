@@ -5,7 +5,12 @@ import os
 import fileinput
 import sys
 import DXGB.get_pdbinfo as get_pdbinfo
+from DXGB.utils import get_tool
 
+vina = get_tool("vina")
+prepare_ligand4 = get_tool("prepare_ligand4.py")
+prepare_receptor4 = get_tool("prepare_receptor4.py")
+obabel = get_tool("obabel")
 
 #### Do minimization, structure file should have hydrogen atom!!!####
 ## generate the refined data list
@@ -58,19 +63,19 @@ def get_box(fn, inlig):
 def genpdbqt(fn, ligpdb, propdb):
     propdbqt = fn + "_rec.pdbqt"
     ligpdbqt = fn + "_lig.pdbqt"
-    cmd1 =  "$MGLPY $MGLUTIL/prepare_receptor4.py -r ../"  + propdb + " -o " + propdbqt + " -U '_' > out1.tmp"
-    cmd2 =  "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + ligpdb  + " -o " + ligpdbqt +  " -U '_' -Z > out2.tmp"
+    cmd1 =  prepare_receptor4 + " -r ../"  + propdb + " -o " + propdbqt + " -U '_' > out1.tmp"
+    cmd2 =  prepare_ligand4 + " -l ../" + ligpdb  + " -o " + ligpdbqt +  " -U '_' -Z > out2.tmp"
     os.system(cmd1)
     os.system(cmd2)
 
 
 def runmin(fn):
-    cmd = "$VINADIR/vina --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
+    cmd = vina + " --receptor " + fn + "_rec.pdbqt --ligand " + fn + "_lig.pdbqt --config box.txt --local_only --out " + fn + "_lig_min.pdbqt >out_min.txt"
     os.system(cmd)
 
 
 def chanPdb(fn):
-    cmd = "obabel -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
+    cmd = obabel + " -ipdbqt " + fn + "_lig_min.pdbqt  -opdb -O " + fn + "_lig_min.pdb"
     os.system(cmd)
 
 

@@ -5,11 +5,17 @@
 import os
 import fileinput
 import sys
+from DXGB.utils import get_tool
+
+vina = get_tool("vina")
+prepare_ligand4 = get_tool("prepare_ligand4.py")
+prepare_receptor4 = get_tool("prepare_receptor4.py")
+
 
 def runVina(fn, protpdbqt, ligpdbqt):
     """Run modified AutoDock Vina program with Vina score and 58 features """
 
-    cmd = "$VINADIR/vina --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log score_v1.txt > out_vina.log"
+    cmd = vina + " --receptor " + protpdbqt + " --ligand " + ligpdbqt + "  --score_only --log score_v1.txt > out_vina.log"
     os.system(cmd)
     vinalist = [fn]
     for lines in fileinput.input("score_v1.txt"):
@@ -26,12 +32,12 @@ def runVina(fn, protpdbqt, ligpdbqt):
 
 def prepareProt(inprot, protpdbqt):
     """Prepare protein PDBQT file by MGLTools """
-    cmd = "$MGLPY $MGLUTIL/prepare_receptor4.py -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
+    cmd = prepare_receptor4 +  " -r ../" + inprot + " -o " + protpdbqt + " -U 'nphs' > out1.tmp"
     os.system(cmd)
 
 def prepareLig(inlig, ligpdbqt):
     """Prepare ligand PDBQT file by MGLTools """
-    cmd = "$MGLPY $MGLUTIL/prepare_ligand4.py -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
+    cmd = prepare_ligand4 + " -l ../" + inlig  + " -o " + ligpdbqt +  " -U 'nphs' > out2.tmp"
     os.system(cmd)
 
 def featureVina(outfile, fn, inpro, inlig, datadir):

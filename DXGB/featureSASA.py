@@ -5,6 +5,11 @@ import os, sys, pybel
 import numpy as np
 import pandas as pd
 from .pharma import pharma
+from DXGB.utils import get_tool
+
+msms = get_tool("msms")
+pdb_to_xyzr = get_tool("pdb_to_xyzr")
+
 
 def runMSMS(inprot, inlig, MSMSDIR = '.'):
     """Assign pharmaphore type to each atom and calculate SASA by MSMS
@@ -82,18 +87,18 @@ def runMSMS(inprot, inlig, MSMSDIR = '.'):
     df1['pharma'] = np.array(comp)[:,1]
     df1 = pd.DataFrame(df1)
     # pdb to xyzr convert
-    os.system("pdb_to_xyzr " + ppdb2 + " > p_sa.xyzr")
-    os.system("pdb_to_xyzr " + lpdb2 + " > l_sa.xyzr")
+    os.system(pdb_to_xyzr + " " + ppdb2 + " > p_sa.xyzr")
+    os.system(pdb_to_xyzr + " " + lpdb2 + " > l_sa.xyzr")
     os.system("cat p_sa.xyzr l_sa.xyzr > pl_sa.xyzr")
 
     # run msms in with radius 1.0 (if fail, will increase to be 1.1)
-    os.system("msms -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
-    os.system("msms -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
-    os.system("msms -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
+    os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.0 -surface ases > log1.tmp 2>&1")
+    os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.0 -surface ases > log2.tmp 2>&1")
+    os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.0 -surface ases > log3.tmp 2>&1")
     if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
-        os.system("msms -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
-        os.system("msms -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
-        os.system("msms -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
+        os.system(msms + " -if p_sa.xyzr  -af p_sa.area -probe_radius 1.1 -surface ases > log1.tmp 2>&1")
+        os.system(msms + " -if l_sa.xyzr  -af l_sa.area -probe_radius 1.1 -surface ases > log2.tmp 2>&1")
+        os.system(msms + " -if pl_sa.xyzr  -af pl_sa.area -probe_radius 1.1 -surface ases > log3.tmp 2>&1")
         print('1.1')
     if (os.path.isfile('p_sa.area') and os.path.isfile('l_sa.area') and os.path.isfile('pl_sa.area')) == False:
         print("SASA failed")

@@ -4,6 +4,10 @@
 import sys
 import os
 import pandas as pd
+from DXGB.utils import get_tool
+
+project = get_tool("project")
+Rscript = get_tool("Rscript")
 
 def convert_RF20(infile,outfile):
     """
@@ -41,7 +45,7 @@ def get_RF20(RF20da, infile, outfile):
                  "output = data.frame(pdb = df$pdb, RF20 = pred)\n" + 
                  "write.table(output, outfn, sep=',', row.names = F, quote = F)")
     RFfile.close()
-    os.system("Rscript get_RF20.R " + infile + " " + outfile)
+    os.system(Rscript + " get_RF20.R " + infile + " " + outfile)
 
 	
 def RF20_main(datadir,infile, outfile, RFmodel="RF20_rm2016.rda"):
@@ -58,7 +62,7 @@ def RF20_main(datadir,infile, outfile, RFmodel="RF20_rm2016.rda"):
     olddir = os.getcwd()
     os.chdir(datadir)
     if RFmodel not in os.listdir(datadir):
-        os.system("cp $DXGB/" + RFmodel + " .")
+        os.system("cp " + os.path.join(project, RFmodel) + " .")
     RF20da = RFmodel
     convert_RF20(infile,"RF_input.csv")
     get_RF20(RF20da, "RF_input.csv",outfile)
