@@ -16,7 +16,7 @@ def get_DXGB(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, 
     Parameters
     ----------
     model : str
-        model type, DXGB is the one for our previous trained deltaVinaXGB.
+        model type, "DXGB" is the one for our previous trained deltaVinaXGB.
     modeldir : str
         directory for models, the previous trained models should be in the modeldir/model.
     datadir : str
@@ -31,13 +31,15 @@ def get_DXGB(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, 
         water type, can be:
         "rbw" --> all types of water, 
         "rw" --> only receptor water, 
-        "bw" --> only bridging water.
+        "bw" --> only bridging water,
+        False --> no water.
     opt : str
         optimization type, can be:
         "rbwo" --> all types of optimization, 
         "rwo" --> only optimizaion with receptor water,
         "bwo" --> only optimization with bridging water, 
-        "o" --> optimization with no water.
+        "o" --> optimization with no water,
+        False --> no optimization.
     rewrite : bool
         whether to rewrite protein with water stucture, optimized ligand structure, ligand conformation generation results.
     average : bool
@@ -71,7 +73,6 @@ def get_DXGB(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, 
     if runfeatures:
         print("feature will be calculated:" + featuretype)
     
-    print("output filename : " + outfile)
     olddir = os.getcwd()
     if runfeatures:
         if not water:
@@ -81,8 +82,8 @@ def get_DXGB(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, 
         run_features(datadir, pdbid, water_type = water, opt_type = opt, rewrite = rewrite, feature_type = featuretype)
         os.chdir(olddir)
 
-
     if runscore:
+        print("output score file: " + outfile)
         modeldir = os.path.realpath(modeldir)
 
         if opt == "rbwo":

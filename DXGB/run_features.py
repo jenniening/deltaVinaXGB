@@ -213,7 +213,7 @@ def prepare_rw_receptor(datadir, fn, inpro_pro, inpro_water, inlig, water_type, 
             out_total = open("Feature_BW_initial.csv","w")
             cal_BW(out_total,fn,inpro_pro,inlig,inpro_water,datadir, Feature = False)
             out_total.close()
-            print("Finish generate BW")
+            print("Finish generate BW ")
         else:
             if inpro_pro.split(".")[0] + "_RW.pdb" not in os.listdir(datadir):
                 get_Crw(fn,inpro_pro,inpro_water,datadir)
@@ -514,37 +514,40 @@ def feature_calculation_ligand(datadir,fn, inlig_pdb, inlig_rdkit, inpro_pro, wa
             inpro_pro = inpro_C
             if feature_type == "all" or feature_type == "BW":
                 run_BW_features(datadir, i, fn, inpro_pro, inlig, inpro)
-                print("Finish Bridging Water Feature Calculation")
+                print("Finish Bridging Water feature calculation, save in Feature_BW" + i + ".csv")
             else:
-                print("Use previous calculated Bridging Water Feature")
+                print("Use previous calculated Bridging Water feature in Feature_BW" + i + ".csv")
         ### get Vina58 ###
         if feature_type == "all" or feature_type == "Vina":
             run_Vina_features(datadir, i, fn, inpro, inlig)
-            print("Finish Vina")
+            print("Finish Vina, save in Vina58" + i + ".csv")
         else:
-            print("Use previous calculated Vina")
+            print("Use previous calculated Vina in Vina58" + i + ".csv")
         ### get sasa ###
         if feature_type == "all" or feature_type == "SASA":
             run_SASA_features(datadir, i, fn, inpro, inlig)
-            print("Finish SASA")
+            print("Finish SASA, save in SASA" + i + ".csv")
         else:
-            print("Use previous calculated SASA")
+            print("Use previous calculated SASA in SASA" + i + ".csv")
         ### get ion ###
         if feature_type == "all" or feature_type == "Ion":
             run_Ion_features(datadir, i, fn, inpro, inlig)
-            print("Finish Ion")
+            print("Finish Ion, save in Num_Ions" + i + ".csv")
         else:
-            print("Use previous calculated Ion")
+            print("Use previous calculated Ion in Num_Ions" + i + ".csv")
 
     ### get dERMSD ###
     if feature_type == "all" or feature_type == "dE":
         run_dE_features(datadir, fn, inlig_rdkit, rewrite)
+        print("Finish ligand stability calculation, save in dE_RMSD.csv")
     else:
-        print("Use previous calculated dE")
+        print("Use previous calculated ligand stability in dE_RMSD.csv")
 
     ### combine data ###
-    for i in d_type.keys():
-        combine(datadir,i)
+    if feature_type == "all":
+        for i in d_type.keys():
+            combine(datadir,i)
+            print("Features has been saved in Input" + i + ".csv")
 
 
 def run_features(datadir, pdbid, water_type = "rbw", opt_type = "rbwo", rewrite = False, feature_type = "all"):

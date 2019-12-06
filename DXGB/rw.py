@@ -60,7 +60,7 @@ def get_water(fn,water):
     ''' Get water residue index and water molecule file '''
  
     Residue_all = set([line.split(",")[4] for line in open("RW_info.txt")])
-    print("RW satisfiles distance requirement:" + str(len(Residue_all)))
+    print("RW satisfies distance requirement:" + str(len(Residue_all)))
     index = open("water_index.txt","w")
     for i in set(Residue_all):
         index.write(i + "\n")
