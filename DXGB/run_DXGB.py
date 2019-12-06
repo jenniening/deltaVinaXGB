@@ -24,14 +24,6 @@ from DXGB.run_models import *
 
 
 def main(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, rewrite, average, modelidx, featuretype, runrf):
-    """
-    :param datadir: directory for input structures, files and output scores
-    :param pdbid: used to find the corrsponding structure files 
-    :param outfile: outfile name, defaults to score.csv
-    :param runfeatures: defaults to all, can be "all", "Vina", "SASA", "BW", "Ion", "dE"
-    :param water: defaults to None, can be "rbw", "rw", "bw". To get all types of water, use "rbw"
-    :param opt: defaults to None, can be "rbwo", "rwo", "bwo", "o". To get all types of optimizations, use "rbwo"
-    """
     
     datadir = os.path.realpath(datadir)
     if pdbid:
@@ -77,6 +69,7 @@ def main(model, modeldir, datadir, pdbid, outfile, runfeatures, water, opt, rewr
     data_type_new = data_type
     out = []
     for idx, i in enumerate(data_type):
+        modeldir = os.path.realpath(modeldir)
         inf = "Input" + data_type_new[idx] + ".csv"
         test_new = run_model(inf,datadir,i,model_dir = modeldir, model_name = model, average = average, model_index = modelidx)  
         out.append(test_new)
