@@ -155,7 +155,7 @@ def get_result_PW(fn,out_PW):
 
 
 def get_RW_final(fn,out,out_total):
-    ''' Get RW which satisfiles Vina score requirement '''
+    ''' Get RW which satisfies Vina score requirement '''
 
     value_PW = 0.00
     m = 0

@@ -84,7 +84,7 @@ def get_BW(fn,water,lig):
 def get_water(fn,water):
     #Get water residue index and water molecule file
     Residue_all = set([line.split(",")[4] for line in open("BW_info.txt")])
-    print("BW satisfiles structural requirement:" + str(len(Residue_all)))
+    print("BW satisfies structural requirement:" + str(len(Residue_all)))
     index = open("water_index.txt","w")
     for i in set(Residue_all):
         index.write(i + "\n")
@@ -287,8 +287,8 @@ def cal_BW(out_total,fn,inprot,inlig,inwater,datadir, Feature = True):
     get_result_LW(fn,out_LW)
     out = open("BW.csv","w")
     index = get_BW_final(fn,out,out_total)
-    get_waterfile(fn,pro,index)
     if not Feature:
+        get_waterfile(fn,pro,index)
         os.system("cp " + fn + "_protein_BW.pdb ../")
     os.chdir(inidir)
     os.system("rm -r BW*")
