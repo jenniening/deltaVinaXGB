@@ -16,7 +16,7 @@ INCFLAGS = -I$(BOOST_INCLUDE)
 #CC = ${GPP} ${C_PLATFORM} -ansi -pedantic -Wno-long-long ${C_OPTIONS} $(INCFLAGS)
 CC = ${GPP} ${C_PLATFORM} -ansi -Wno-long-long ${C_OPTIONS} $(INCFLAGS)
 
-LDFLAGS = -L$(BASE)/lib -L.
+LDFLAGS = -L$(BASE)/lib -L. -static
 
 LIBS = -lboost_system${BOOST_LIB_VERSION} -lboost_thread${BOOST_LIB_VERSION} -lboost_serialization${BOOST_LIB_VERSION} -lboost_filesystem${BOOST_LIB_VERSION} -lboost_program_options${BOOST_LIB_VERSION} #-l pthread
 
