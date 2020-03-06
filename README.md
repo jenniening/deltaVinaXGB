@@ -119,9 +119,9 @@ Default is to predict scores for provided structures. If you want to get scores 
 ```
 python run_DXGB.py --runfeatures --datadir ../Test_2al5 --pdbid 2al5 --water rbw --opt rbwo --average 
 ``` 
---water is for consideration of water, **rbw** is to consider both receptor-bound water and bridging water. Other options: rw: only consider receptor-bound water; bw: only consider bridging water, using bw<br>
---opt is for optimization, **rbwo** is to optimize ligand in no water, bridging water, and receptor-bound water environments.
-Other options: o: optimize ligand without water; rwo: optimize ligand with no water and with receptor-bound water; bwo: optimize ligand with no water and bridging water. Reminder optimization is based on protein structure, thus, you should optimization option that matches your water option.<br>
+--water is for consideration of water, **rbw** is to consider both receptor-bound water and bridging water. <br> (Other options: rw: only consider receptor-bound water; bw: only consider bridging water, using bw.)<br>
+--opt is for optimization, **rbwo** is to optimize ligand in no water, bridging water, and receptor-bound water environments.<br>
+(Other options: o: optimize ligand without water; rwo: optimize ligand with no water and with receptor-bound water; bwo: optimize ligand with no water and bridging water.) <br>Reminder optimization is based on protein structure, thus, you should optimization option that matches your water option.<br>
 
 The calculated features will be saved in <code>Input.csv</code> file<br>
 The predicted scores for different structures of Vina, and deltaVinaXGB will be saved in outfile (default is <code>score.csv</code>) in datadir.<br>
