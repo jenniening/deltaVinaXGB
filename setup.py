@@ -5,5 +5,5 @@ setup(
     packages=find_packages(),
     version='0.1.0',
     author='Jianing Lu',
-    license='MIT',
+    license='gpl-3.0',
 )
