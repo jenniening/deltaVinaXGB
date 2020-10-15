@@ -77,6 +77,25 @@ export DXGB=/home/jl7003/deltaVinaXGB/DXGB
 ```
 After set all environment variables, open a new window to enable all setups. <br>
 
+### Docker Installation
+
+Dockerfile is built based on all the instructions above.
+It offers a ready-to-go environment including all the dependencies.
+
+Build the docker image:
+```
+cd deltaVinaXGB
+docker build -t delta-vina-xgb .
+```
+
+Run the docker image:
+
+```
+docker run -it delta-vina-xgb bash
+```
+
+Now you are in an isolated environment where you can use all the functionalities of this repo.
+
 ### Prepare Data
 Before calculating features, three structure inputfiles are needed:<br>
 pdbid_ligand.mol2/sdf         --> ligand structure file<br>
